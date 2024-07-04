@@ -7,6 +7,10 @@ navbar:
       href: index.html
     - text: "About"
       href: about.html
+    - text: "Preprocessing"
+      href: preprocessing.html
+    - text: "Modeling"
+      href: modeling.html
   right:
     - icon: fa-github
       href: https://github.com/leninrafaelrierasegura/
