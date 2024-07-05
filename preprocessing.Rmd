@@ -24,3 +24,15 @@ For the $\texttt{R}$ code performing this step follow this [link](preprocessing/
 The street network data was downloaded using a free trial of [TomTom MOVE](https://www.tomtom.com/products/tomtom-move/) geolocation services. The data was filtered and formatted to include only the relevant information.
 
 For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp3.html).
+
+# Creating the graph object
+
+The street network data obtained from the previous step was used to create a graph object and add weights to it.
+
+For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp4.html).
+
+# Adding the speed observations to the graph object
+
+The speed observations (obtained from the second step) were added to the graph object (obtained in the previous step).
+
+For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp5.html).

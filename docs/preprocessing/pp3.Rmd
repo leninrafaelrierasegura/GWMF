@@ -113,8 +113,12 @@ raw_json <- fromJSON(here("data_files/San_Francisco_data_from_TomTom.json"))
 
 ```{r}
 # Displaying the structure of the nested list
-jsonedit(toJSON(tomtom_shp, pretty = TRUE))
 jsonedit(raw_json)
+```
+
+```{r}
+tomtom_shp |> head(5) |> paged_table()
+tomtom_shp |> dim()
 ```
 
 # Extract the relevant data
@@ -167,5 +171,47 @@ save(tomtom, file = here("data_files/tomtom.RData"))
 ```{r}
 tomtom |> head(5) |> paged_table()
 tomtom |> dim()
+```
+
+# Description of the Functional Road Classes (FRC) values
+
+The Functional Road Classes (FRC) values are used to classify roads based on their importance and usage. The table below (taken from this [page](https://developer.tomtom.com/traffic-stats/documentation/product-information/faq#what-are-functional-road-classes-frc)) provides a description of the different FRC values. We remark this classification because later this will determine the size of the graph.
+
+```{r}
+# Load necessary library
+library(knitr)
+
+# Create the table data
+table_data <- data.frame(
+  `FRC VALUE` = c(0, 1, 2, 3, 4, 5, 6, 7, 8),
+  `Short Description` = c(
+    "Motorways; Freeways; Major Roads",
+    "Major Roads less important than Motorways",
+    "Other Major Roads",
+    "Secondary Roads",
+    "Local Connecting Roads",
+    "Local Roads of High Importance",
+    "Local Roads",
+    "Local Roads of Minor Importance",
+    "Other Roads"
+  ),
+  `Long Description` = c(
+    "All roads that are officially assigned as motorways.",
+    "All roads of high importance, but not officially assigned as motorways, that are part of a connection used for international and national traffic and transport.",
+    "All roads used to travel between different neighboring regions of a country.",
+    "All roads used to travel between different parts of the same region.",
+    "All roads making all settlements accessible or making parts (north, south, east, west, and central) of a settlement accessible.",
+    "All local roads that are the main connections in a settlement. These are the roads where important through traffic is possible e.g.,: • arterial roads within suburban areas, industrial areas or residential areas, • a rural road, which has the sole function of connecting to a national park or important tourist attraction.",
+    "All roads used to travel within a part of a settlement or roads of minor connecting importance in a rural area.",
+    "All roads that only have a destination function, e.g., dead-end roads, roads inside a living area, alleys: narrow roads between buildings, in a park or garden.",
+    "All other roads that are less important for a navigation system: • a path: a road that is too small to be driven by a passenger car, • bicycle paths or footpaths that are especially designed as such, • stairs, • pedestrian tunnel, • pedestrian bridge, • alleys that are too small to be driven by a passenger car."
+  )
+)
+
+# Print the table
+kable(table_data, align = "cll", 
+      caption = "Description of the Functional Road Classes (FRC) values.", 
+      col.names = c("FRC VALUE", "Short Description", "Long Description"))
+
 ```
 

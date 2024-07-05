@@ -27,3 +27,12 @@ This folder contains the unzipped contents of `San_Francisco_data_from_TomTom.zi
 # `tomtom.RData`
 
 This file was created in [`pp3.html`](../preprocessing/pp3.html) using the data stored in `San_Francisco_data_from_TomTom.json` and `San_Francisco_data_from_TomTom/network.shp`
+
+
+# `graph_construction_on_27JUN2024_FRC013456.RData`
+
+This file was created in [`pp4.html`](../preprocessing/pp4.html) using the data stored in `tomtom.RData`.
+
+# `data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData`
+
+This file was created in [`pp5.html`](../preprocessing/pp5.html) using the data stored in `day7142128hour13noconsecutivezeroes.RData` and `graph_construction_on_27JUN2024_FRC013456.RData`.
