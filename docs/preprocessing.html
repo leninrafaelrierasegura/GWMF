@@ -285,8 +285,21 @@ class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Filtering and
 formatting the initial data</h1>
 <p>For the <span class="math inline">\(\texttt{R}\)</span> code
-describing this step follow this <a
-href="preprocessing/pp1.html">link</a></p>
+performing this step follow this <a
+href="preprocessing/pp1.html">link</a>.</p>
+</div>
+<div id="removing-consecutive-zeros-from-the-speed-variable"
+class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Removing consecutive
+zeros from the speed variable</h1>
+<p>As the buses record the speed even when they are not moving (say in a
+garage or station), the speed variable contains many consecutive zeros.
+We remove these zeros to avoid biasing the analysis. We do not remove
+all of them to account for the case when the bus is actually stopped
+(say because of a traffic light).</p>
+<p>For the <span class="math inline">\(\texttt{R}\)</span> code
+performing this step follow this <a
+href="preprocessing/pp2.html">link</a>.</p>
 </div>
 
 

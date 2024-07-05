@@ -3,9 +3,8 @@
 .RData
 .Ruserdata
 .DS_store
-*.RData
 source_folder/
-data_files/january.RData
-
+*.RData
 # Ignore .Rmd files recursively
 **/*.Rmd
+docs/data_files/january.RData
