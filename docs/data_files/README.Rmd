@@ -15,3 +15,15 @@ This file was created in [`pp1.html`](../preprocessing/pp1.html) using the initi
 # `day7142128hour13noconsecutivezeroes.RData`
 
 This file was created in [`pp2.html`](../preprocessing/pp2.html) using the data stored in `january.RData`.
+
+# `San_Francisco_data_from_TomTom.zip` and `San_Francisco_data_from_TomTom.json`
+
+These two files were downloaded using a free trial of [TomTom MOVE](https://www.tomtom.com/products/tomtom-move/) geolocation services and contain the street network data for San Francisco.
+
+# `San_Francisco_data_from_TomTom/`
+
+This folder contains the unzipped contents of `San_Francisco_data_from_TomTom.zip`.
+
+# `tomtom.RData`
+
+This file was created in [`pp3.html`](../preprocessing/pp3.html) using the data stored in `San_Francisco_data_from_TomTom.json` and `San_Francisco_data_from_TomTom/network.shp`

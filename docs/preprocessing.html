@@ -284,6 +284,10 @@ $(document).ready(function () {
 class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Filtering and
 formatting the initial data</h1>
+<p>The initial data was downloaded from <a
+href="https://data.sfgov.org/Transportation/SFMTA-Transit-Vehicle-Location-History-Current-Yea/x344-v6h6/explore/query/SELECT%0A%20%20%60vehicle_position_date_time%60%2C%0A%20%20%60vehicle_id%60%2C%0A%20%20%60loc_x%60%2C%0A%20%20%60loc_y%60%2C%0A%20%20%60heading%60%2C%0A%20%20%60average_speed%60%0AWHERE%0A%20%20%60vehicle_position_date_time%60%0A%20%20%20%20BETWEEN%20%222021-01-01T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0A%20%20%20%20AND%20%222021-01-31T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0AORDER%20BY%20%60vehicle_position_date_time%60%20DESC%20NULL%20FIRST/page/filter">this
+link</a>. The data was filtered and formatted to include only the
+relevant information.</p>
 <p>For the <span class="math inline">\(\texttt{R}\)</span> code
 performing this step follow this <a
 href="preprocessing/pp1.html">link</a>.</p>
@@ -300,6 +304,18 @@ all of them to account for the case when the bus is actually stopped
 <p>For the <span class="math inline">\(\texttt{R}\)</span> code
 performing this step follow this <a
 href="preprocessing/pp2.html">link</a>.</p>
+</div>
+<div id="filtering-and-formatting-the-street-network-data"
+class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Filtering and
+formatting the street network data</h1>
+<p>The street network data was downloaded using a free trial of <a
+href="https://www.tomtom.com/products/tomtom-move/">TomTom MOVE</a>
+geolocation services. The data was filtered and formatted to include
+only the relevant information.</p>
+<p>For the <span class="math inline">\(\texttt{R}\)</span> code
+performing this step follow this <a
+href="preprocessing/pp3.html">link</a>.</p>
 </div>
 
 

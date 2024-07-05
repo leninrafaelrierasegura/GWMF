@@ -9,6 +9,8 @@ This page contains links to scripts used for data preprocessing.
 
 # Filtering and formatting the initial data
 
+The initial data was downloaded from [this link](https://data.sfgov.org/Transportation/SFMTA-Transit-Vehicle-Location-History-Current-Yea/x344-v6h6/explore/query/SELECT%0A%20%20%60vehicle_position_date_time%60%2C%0A%20%20%60vehicle_id%60%2C%0A%20%20%60loc_x%60%2C%0A%20%20%60loc_y%60%2C%0A%20%20%60heading%60%2C%0A%20%20%60average_speed%60%0AWHERE%0A%20%20%60vehicle_position_date_time%60%0A%20%20%20%20BETWEEN%20%222021-01-01T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0A%20%20%20%20AND%20%222021-01-31T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0AORDER%20BY%20%60vehicle_position_date_time%60%20DESC%20NULL%20FIRST/page/filter). The data was filtered and formatted to include only the relevant information.
+
 For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp1.html).
 
 # Removing consecutive zeros from the speed variable
@@ -16,3 +18,9 @@ For the $\texttt{R}$ code performing this step follow this [link](preprocessing/
 As the buses record the speed even when they are not moving (say in a garage or station), the speed variable contains many consecutive zeros. We remove these zeros to avoid biasing the analysis. We do not remove all of them to account for the case when the bus is actually stopped (say because of a traffic light).
 
 For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp2.html).
+
+# Filtering and formatting the street network data
+
+The street network data was downloaded using a free trial of [TomTom MOVE](https://www.tomtom.com/products/tomtom-move/) geolocation services. The data was filtered and formatted to include only the relevant information.
+
+For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp3.html).
