@@ -1,0 +1,173 @@
+---
+title: "Filtering and formatting the initial data"
+date: "Created: 05-07-2024. Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    # df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+always_allow_html: true
+---
+
+```{r, eval = FALSE, echo = FALSE}
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+```
+
+```{r xaringanExtra-clipboard, echo = FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+
+```{css, echo = FALSE}
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+```
+
+Go back to the [Preprocessing page](../preprocessing.html). This [link](../data_files/README.html) might be useful to keep track of the files created during the preprocessing.
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+knitr::opts_chunk$set(
+  message = FALSE,    # Disable messages printed by R code chunks
+  warning = FALSE,    # Disable warnings printed by R code chunks
+  echo = TRUE,        # Show R code within code chunks in output
+  include = TRUE,     # Include both R code and its results in output
+  eval = TRUE,       # Evaluate R code chunks
+  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  fig.align = "center",
+  out.width = "100%",
+  retina = 2,
+  error = TRUE,
+  collapse = FALSE
+)
+rm(list = ls())
+set.seed(1982)
+```
+
+# Import libraries
+
+```{r}
+# Install R-INLA package
+# install.packages("INLA",repos = c(getOption("repos"),INLA ="https://inla.r-inla-download.org/R/testing"), dep = TRUE)
+# Update R-INLA package
+# inla.upgrade(testing = TRUE)
+# Install inlabru package
+# remotes::install_github("inlabru-org/inlabru", ref = "devel")
+# Install rSPDE package
+# remotes::install_github("davidbolin/rspde", ref = "devel")
+# Install MetricGraph package
+# remotes::install_github("davidbolin/metricgraph", ref = "devel")
+
+library(INLA)
+library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+
+library(plotly)
+library(dplyr)
+library(tidyr)
+library(sf)
+
+library(here) # here() starts from the home directory
+library(rmarkdown)
+
+rm(list = ls()) # Clear the workspace
+set.seed(1982) # Set seed for reproducibility
+```
+
+The initial data was downloaded from [this link](https://data.sfgov.org/Transportation/SFMTA-Transit-Vehicle-Location-History-Current-Yea/x344-v6h6/explore/query/SELECT%0A%20%20%60vehicle_position_date_time%60%2C%0A%20%20%60vehicle_id%60%2C%0A%20%20%60loc_x%60%2C%0A%20%20%60loc_y%60%2C%0A%20%20%60heading%60%2C%0A%20%20%60average_speed%60%0AWHERE%0A%20%20%60vehicle_position_date_time%60%0A%20%20%20%20BETWEEN%20%222021-01-01T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0A%20%20%20%20AND%20%222021-01-31T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0AORDER%20BY%20%60vehicle_position_date_time%60%20DESC%20NULL%20FIRST/page/filter) and stored in `path_to_initial_data`.
+
+# Load the data
+
+```{r}
+# Run source1.R, which contains instructions to create a string (path_to_initial_data) with the path to the initial data
+source(here("source_folder/source1.R")) 
+
+# Read the raw data (stored at path_to_initial_data)
+raw <- read.csv(path_to_initial_data)
+
+# Show the dimensions of the raw data
+raw |> dim()
+```
+
+# Filter and prepare data
+
+```{r}
+# Bus numbers according to Wikipedia
+busesnumber <-  c(8501:8530, 
+                 8531:8560, 
+                 8601:8662, 
+                 8701:8750, 
+                 8751:8780, 
+                 8800:8969, 
+                 6500:6554, 
+                 6560:6697, 
+                 6700:6730, 
+                 5701:5885, 
+                 7201:7293)
+
+
+# Filter and prepare data. The resulting dataset contains PDT, ID, speed, datetime, day, hour variables
+january <-  raw %>% 
+  filter(Vehicle.ID %in% busesnumber) %>% # Filter by bus numbers
+  filter(Latitude > 37.7, Latitude < 37.815, Longitude > -122.52, Longitude < -122.36) %>% # Filter by the area of interest
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%  # Transform to an sf object
+  mutate(datetime = strptime(Position.Date.Time, format="%m/%d/%Y %I:%M:%S %p")) %>%  # Create datetime variable with format so we can manipulate later
+  mutate(day = as.integer(format(datetime, format = "%d")), hour = as.integer(format(datetime, format = "%H"))) %>% # Create day and hour variables
+  filter(Average.Speed < 73) %>% # Remove some atypical speed observations. 73 because we are allowing 10kph above the limit
+  mutate(Average.Speed = Average.Speed*1.60934) %>% # Transform from mph to kph
+  select(-Heading) %>% # Remove Heading variable
+  rename(speed = Average.Speed, ID = Vehicle.ID, PDT = Position.Date.Time) # Rename Average.Speed to speed, Vehicle.ID to ID, Position.Date.Time to PDT, so it is easier to write
+
+
+# Save the january dataset
+save(january, file = here("data_files/january.RData"))
+```
+
+# Explore the data
+
+```{r}
+january |> head(5) |> paged_table()
+january |> dim()
+```
+

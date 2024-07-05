@@ -1,0 +1,17 @@
+---
+title: "`data_files` folder description"
+output:
+  html_document:
+    number_sections: true
+    highlight: textmate
+    theme: flatly
+    css: ../style.css
+---
+
+# `january.RData`
+
+This file was created in [`pp1.html`](../preprocessing/pp1.html) using the initial data stored in `path_to_initial_data`. It does not appear in the repository because it is too large (around 352.9 MB).
+
+# `day7142128hour13noconsecutivezeroes.RData`
+
+This file was created in [`pp2.html`](../preprocessing/pp2.html) using the data stored in `january.RData`.

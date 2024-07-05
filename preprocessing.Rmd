@@ -1,0 +1,18 @@
+---
+title: "Preprocessing"
+output:
+  html_document:
+    number_sections: true
+---
+
+This page contains links to scripts used for data preprocessing.
+
+# Filtering and formatting the initial data
+
+For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp1.html).
+
+# Removing consecutive zeros from the speed variable
+
+As the buses record the speed even when they are not moving (say in a garage or station), the speed variable contains many consecutive zeros. We remove these zeros to avoid biasing the analysis. We do not remove all of them to account for the case when the bus is actually stopped (say because of a traffic light).
+
+For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp2.html).
