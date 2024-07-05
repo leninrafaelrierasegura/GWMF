@@ -9,3 +9,4 @@ source_folder/
 # **/*.Rmd
 **/january.RData
 **/README.html
+data_files/README.html
