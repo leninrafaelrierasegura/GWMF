@@ -8,3 +8,4 @@ source_folder/
 # Ignore .Rmd files recursively
 # **/*.Rmd
 **/january.RData
+**/README.html
