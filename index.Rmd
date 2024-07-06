@@ -6,4 +6,4 @@ This website is a companion to the paper "Generalized Whittle-Matérn fields wit
 
 This [GitHub](https://github.com/leninrafaelrierasegura/GWMF) repository contains all the necessary files to reproduce the results presented in this website and paper.
 
-Go to the [About](about.html) tab for the description of the content of this website.
+Go to the [About](about.html) page for the description of the content of this website.

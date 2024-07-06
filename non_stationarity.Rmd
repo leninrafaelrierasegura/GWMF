@@ -108,127 +108,216 @@ library(plotly)
 
 library(here)
 library(rmarkdown)
-library(grateful) # to cite
+library(grateful) # Cite all loaded packages
 
 rm(list = ls()) # Clear the workspace
 set.seed(1982) # Set seed for reproducibility
 ```
 
+# Build the graph
 
-<div style="color: blue;">
-********
-**Press the Show button below to reveal the code.**
-
-********
-</div>
-
-```{r}
-edges <- logo_lines()
-logo_graph <- metric_graph$new(edges = edges)
-
-#logo_graph$plot(vertex_size = 0) + theme_minimal() + theme(text = element_text(family = "Palatino"))
+```{r, fig.height = 6}
+edges <- logo_lines() # This is a function from MetricGraph package that returns a list of edges
+logo_graph <- metric_graph$new(edges = edges) # Create a new graph object
 
 #logo_graph$prune_vertices()
-logo_graph$build_mesh(h = 0.05)
+logo_graph$build_mesh(h = 0.05) # Build the mesh
 
-# plot mest
-logo_graph$plot(mesh = TRUE) + ggtitle("Mesh")
+# Plot graph with mesh
+logo_graph$plot(mesh = TRUE) + 
+  ggtitle("Mesh") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
 
-sigma <- 0.1
-range <- 10
-op <- matern.operators(nu = 1.5, 
-                       range = range, 
-                       sigma = sigma, 
+# Simulate a Whittle–Matérn field
+
+Below we simulate a Whittle–Matérn field $\dot{u}$ (`cov`) from the model
+
+\begin{equation}
+\label{SPDE}\tag{1}
+(\kappa^2-\Delta)^{\alpha/2}\tau \dot{u} = \mathcal{W}.
+\end{equation}
+
+We use the `matern` parameterization, where the parameters are $\nu$ (`nu`), $\sigma$ (`sigma`), and $\rho$ (`range`), and are related to the `spde` parameterization \eqref{SPDE} as follows.
+
+- $\alpha = \nu + 1/2$,
+- $\rho = \dfrac{\sqrt{8\nu}}{\kappa}$,
+- $\tau^2 = \dfrac{\Gamma(\nu)}{\sigma^2 \kappa^{2\nu}(4\pi)^{d/2}\Gamma(\nu + d/2)}$.
+
+```{r}
+sigma <- 0.1 
+range <- 10 
+nu <- 1.5 # Smoothness parameter
+
+# Construct the approximation
+op <- matern.operators(nu = nu, 
+                       sigma = sigma,
+                       range = range,  
                        parameterization = "matern",
                        graph = logo_graph)    
 
-u <- as.vector(simulate(op))
-logo_graph$plot_function(X = u, vertex_size = 0, plotly = F) + ggtitle("Simulated field")
+# Simulate the field
+cov <- as.vector(simulate(op))
 
-cov_pos <- 2 * ifelse(logo_graph$mesh$VtE[,2] > 0.5, 
-                      1-logo_graph$mesh$VtE[,2], 
-                      logo_graph$mesh$VtE[,2])
+# Plot the field
+logo_graph$plot_function(X = cov, vertex_size = 0, plotly = F) + 
+  ggtitle("Simulated field") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
 
-cov_pos <- u
-B.sigma = cbind(0, 1, 0, cov_pos, 0)
-B.range = cbind(0, 0, 1,  0, cov_pos)
+# Build a non-stationary covariance function for a generalized Whittle–Matérn field
 
+We use the simulated field to build a non-stationary covariance function for a generalized Whittle–Matérn field $u$. That is, we consider the model 
+
+\begin{equation}
+\label{NS-SPDE}\tag{2}
+(\kappa^2(s)-\Delta)^{\alpha/2}\tau(s) u = \mathcal{W},
+\end{equation}
+
+with non-stationary parameters (in the `matern` parameterization) given by
+
+\begin{equation}
+\label{logregressions}
+    \begin{aligned}
+    \log(\sigma(s)) &= \theta_1 + \theta_3 \text{cov}(s),\\
+    \log(\rho(s)) &= \theta_2 + \theta_4 \text{cov}(s).
+\end{aligned}
+\end{equation}
+
+Below `theta` $= (\theta_1, \theta_2, \theta_3, \theta_4)$.
+
+```{r, fig.height = 4}
+# Non-stationary parameters
+B.sigma = cbind(0, 1, 0, cov, 0)
+B.range = cbind(0, 0, 1, 0, cov)
+
+# Log-regression coefficients
 theta = c(1,1,-0.5,0.5)
-#theta = c(0,0,0,0)
 
-# plot range
-est_range <- exp(B.range[,-1]%*%theta)
-logo_graph$plot_function(X = est_range, vertex_size = 0) + ggtitle("Model for range")
-
-# plot sigma
-est_sigma <- exp(B.sigma[,-1]%*%theta)
-logo_graph$plot_function(X = est_sigma, vertex_size = 0) + ggtitle("Model for sigma")
+# Build the models for sigma and range
+model_for_sigma <- exp(B.sigma[,-1]%*%theta)
+model_for_range <- exp(B.range[,-1]%*%theta)
+```
 
 
-rspde_object_ns <- rSPDE::spde.matern.operators(graph = logo_graph,
+## Plot the models for $\sigma$ and $\rho$
+
+```{r, fig.height = 4}
+# Extract the mesh locations in Euclidean coordinates
+xypoints <- logo_graph$mesh$V
+
+# Define data frames for plotting
+sigma_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = model_for_sigma, .group = 1)
+range_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = model_for_range, .group = 2)
+datarep <- rbind(sigma_df, range_df)
+
+# Plot details
+group_labels <- c("Model for sigma", "Model for range")
+
+# Plot details
+min_x <- min(datarep$x) |> round(2)
+max_x <- max(datarep$x) |> round(2)
+min_y <- min(datarep$y) |> round(2)
+max_y <- max(datarep$y) |> round(2)
+
+# Create a base plot 
+base_plot <- ggplot() +
+  geom_point(data = sigma_df, aes(x = x, y = y), color = "black", size = 0.5, shape = 1) +
+  scale_x_continuous(labels = function(x) paste0(x), name = "x", breaks = seq(min_x, max_x, by = 2)) +  
+  scale_y_continuous(labels = function(y) paste0(y), name = "y", breaks = seq(min_y, max_y, by = 2)) +
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+
+# Create individual plots for each group and overlay data points
+group_plots <- lapply(unique(datarep$.group), function(gr) {
+  geom_point(data = subset(datarep, .group == gr), aes(x = x, y = y, color = z), size = 1)  
+})
+
+# Combine the base plot and the group plots
+combined_plot <- base_plot + 
+  facet_wrap(~ .group, ncol = 2, labeller = labeller(.group = function(variable, value) {
+    return(group_labels[value])
+  })) + 
+  group_plots +
+  scale_color_gradient(name = "") +
+  labs(color = "") +
+  scale_color_viridis_c(option = "D")
+
+# Print the combined plot
+print(combined_plot)
+```
+
+# Non-stationary covariance
+
+```{r}
+nu <- 0.5
+# Construct the approximation 
+ns_op <- rSPDE::spde.matern.operators(graph = logo_graph,
                                                 parameterization = "matern",
                                                 B.sigma = B.sigma,
                                                 B.range = B.range,
                                                 theta = theta,
-                                                nu = 0.5)
+                                                nu = nu)
 
-est_cov_matrix <- rspde_object_ns$covariance_mesh()
-est_std_dev <- sqrt(Matrix::diag(est_cov_matrix))
+# Covariance matrix
+est_cov_matrix <- ns_op$covariance_mesh()
 
-# plot standard deviation from covariance matrix
-# logo_graph$plot_function(X = est_std_dev, vertex_size = 0)
+# Precision matrix
+Q <- precision(ns_op)
+```
 
-# plot standard deviation from precision matrix
-library(INLA)
-Q <- precision(rspde_object_ns)
-est_std_dev_w_inla <- sqrt(diag(INLA::inla.qinv(Q)))
-logo_graph$plot_function(X = est_std_dev_w_inla, vertex_size = 0) + ggtitle("Standard deviation")
+## Plot the covariance between a point and all other points
 
-# plot one row of covariance matrix
-rownumber = 300
-rowfromcov = est_cov_matrix[rownumber, ]
-rowfromQ = solve(Q, replace(numeric(dim(Q)[1]), rownumber, 1))
+```{r}
+rownumber = 300 # Choose a row number
+rowfromcov = est_cov_matrix[rownumber, ] # Get a row from the covariance matrix
+rowfromQ = solve(Q, replace(numeric(dim(Q)[1]), rownumber, 1)) # Another way to get a row from the covariance matrix
+sum(rowfromcov - rowfromQ) # Check they are the same
+```
 
-sum(rowfromcov - rowfromQ)
+```{r}
+# Plot the covariance between a point and all other points
+logo_graph$plot_function(X = rowfromQ, vertex_size = 0) + 
+  ggtitle("Covariance between a point and all other points") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
 
-#logo_graph$plot_function(X = rowfromcov, vertex_size = 0)
-#logo_graph$plot_function(X = rowfromQ, vertex_size = 0) + ggtitle("One row of covariance matrix")
+## Compute the practical correlation range and the standard deviation
 
-
-# computes distance matrix on the mesh
-
+```{r}
+# Compute distance matrix on the mesh
 logo_graph$compute_geodist_mesh()
 
+# Get the distance matrix
 dist_matrix <- logo_graph$mesh$geo_dist
 
-practical_correlation_range <- 1
+# Define correlation threshold
+cor_threshold <- 1
 
-rho = rep(NA, dim(est_cov_matrix)[1])
+# Initialize vector to store the practical correlation range
+est_range = rep(NA, dim(est_cov_matrix)[1])
   
+# Compute the practical correlation range
 for (i in 1:dim(est_cov_matrix)[1]) {
   rowi <- est_cov_matrix[i,]
   sorted <- sort(rowi, decreasing = TRUE, index.return = TRUE)
-  index_cor_smaller_pcr <- which(sorted$x < practical_correlation_range)[1]
+  index_cor_smaller_pcr <- which(sorted$x < cor_threshold)[1]
   pos_dist_matrix <- sorted$ix[index_cor_smaller_pcr]
-  rho[i] <- dist_matrix[i, pos_dist_matrix]
+  est_range[i] <- dist_matrix[i, pos_dist_matrix]
 }
 
+# Compute the standard deviation
+est_sigma <- sqrt(diag(INLA::inla.qinv(Q))) # It can also be computed as sqrt(Matrix::diag(est_cov_matrix))
+```
 
-logo_graph$plot_function(X = rho, vertex_size = 0, plotly = F) + ggtitle("practical correlation range")
+## Plot the practical correlation range and the standard deviation
 
-
-xypoints <- logo_graph$mesh$V
-
-sd_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_std_dev_w_inla, .group = 1)
-rho_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = rho, .group = 2)
-
-# (ggplot() +
-#   geom_point(data = sd_df, aes(x = x, y = y, color = z), size = 0.5) + 
-#   scale_color_viridis_c(option = "D")) |> ggplotly()
-# 
-# (ggplot() +
-#     geom_point(data = rho_df, aes(x = x, y = y, color = z), size = 0.5) + 
-#     scale_color_viridis_c(option = "D")) |> ggplotly()
+```{r, fig.height = 4}
+sd_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_sigma, .group = 1)
+rho_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_range, .group = 2)
 
 
 datarep <- rbind(sd_df, rho_df)
@@ -239,16 +328,17 @@ max_x <- max(datarep$x) |> round(2)
 min_y <- min(datarep$y) |> round(2)
 max_y <- max(datarep$y) |> round(2)
 
-# Create a base plot with road network
+# Create a base plot
 base_plot <- ggplot() +
   geom_point(data = sd_df, aes(x = x, y = y), color = "black", size = 0.5, shape = 1) +
-  scale_x_continuous(labels = function(x) paste0(x), name = "x", breaks = seq(min_x, max_x, by = 2)) +  # Adjust x-axis label and breaks
+  scale_x_continuous(labels = function(x) paste0(x), name = "x", breaks = seq(min_x, max_x, by = 2)) +  
   scale_y_continuous(labels = function(y) paste0(y), name = "y", breaks = seq(min_y, max_y, by = 2)) +
-  theme_minimal()
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
 
 # Create individual plots for each group and overlay data points
 group_plots <- lapply(unique(datarep$.group), function(gr) {
-  geom_point(data = subset(datarep, .group == gr), aes(x = x, y = y, color = z), size = 1)  # Adjust x_column and y_column
+  geom_point(data = subset(datarep, .group == gr), aes(x = x, y = y, color = z), size = 1)
 })
 
 # Combine the base plot and the group plots
@@ -263,8 +353,6 @@ combined_plot <- base_plot +
 
 # Print the combined plot
 print(combined_plot)
-
-
 ```
 
 
