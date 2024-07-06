@@ -1,7 +1,7 @@
 name: "my-website"
 output_dir: "docs"
 navbar:
-  title: "My Website"
+  title: "GWMF"
   left:
     - text: "Home"
       href: index.html
@@ -11,6 +11,10 @@ navbar:
       href: preprocessing.html
     - text: "Modeling"
       href: modeling.html
+    - text: "Non-stationarity"
+      href: non_stationarity.html
+    - text: "Basis Functions"
+      href: basis_functions.html
   right:
     - icon: fa-github
       href: https://github.com/leninrafaelrierasegura/

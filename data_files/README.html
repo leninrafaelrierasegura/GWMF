@@ -11,7 +11,7 @@
 
 
 
-<title>data_files folder description</title>
+<title>Description of files and folders in data_files directory</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -398,59 +398,71 @@ display: none;
 
 
 
-<h1 class="title toc-ignore"><code>data_files</code> folder
-description</h1>
+<h1 class="title toc-ignore">Description of files and folders in
+<code>data_files</code> directory</h1>
 
 </div>
 
 
-<div id="january.rdata" class="section level1" number="1">
-<h1><span class="header-section-number">1</span>
-<code>january.RData</code></h1>
+<p>Here is a short description of the files and folders in the <a href="https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files"><code>data_files</code></a>
+directory.</p>
+<ol style="list-style-type: decimal">
+<li><strong><code>path_to_initial_data</code></strong></li>
+</ol>
+<p>This is not a file itself but it is included in this list because of
+the role it plays. Here is how it was created and used.</p>
+<ul>
+<li>Go to this <a href="https://data.sfgov.org/Transportation/SFMTA-Transit-Vehicle-Location-History-Current-Yea/x344-v6h6/explore/query/SELECT%0A%20%20%60vehicle_position_date_time%60%2C%0A%20%20%60vehicle_id%60%2C%0A%20%20%60loc_x%60%2C%0A%20%20%60loc_y%60%2C%0A%20%20%60heading%60%2C%0A%20%20%60average_speed%60%0AWHERE%0A%20%20%60vehicle_position_date_time%60%0A%20%20%20%20BETWEEN%20%222021-01-01T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0A%20%20%20%20AND%20%222021-01-31T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0AORDER%20BY%20%60vehicle_position_date_time%60%20DESC%20NULL%20FIRST/page/filter">webpage</a>.</li>
+<li>Press the Export button at the top-right corner and then press the
+Download button in the pop-up window.</li>
+<li>Save the downloaded file (around 2 GB) in some directory and set the
+path to this directory in the <code>path_to_initial_data</code> variable
+as in the <a href="../preprocessing/pp1.html"><code>pp1.html</code></a>
+vignette.</li>
+<li>Run the code in <a href="../preprocessing/pp1.html"><code>pp1.html</code></a> to create the
+<code>january.RData</code> file.</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li><strong><code>january.RData</code></strong></li>
+</ol>
 <p>This file was created in <a href="../preprocessing/pp1.html"><code>pp1.html</code></a> using the
 initial data stored in <code>path_to_initial_data</code>. It does not
-appear in the repository because it is too large (around 352.9 MB).</p>
-</div>
-<div id="day7142128hour13noconsecutivezeroes.rdata" class="section level1" number="2">
-<h1><span class="header-section-number">2</span>
-<code>day7142128hour13noconsecutivezeroes.RData</code></h1>
+appear in the repository because it is too large (around 352.9 MB). The
+previous item explains how to create it.</p>
+<ol start="3" style="list-style-type: decimal">
+<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/day7142128hour13noconsecutivezeroes.RData"><strong><code>day7142128hour13noconsecutivezeroes.RData</code></strong></a></li>
+</ol>
 <p>This file was created in <a href="../preprocessing/pp2.html"><code>pp2.html</code></a> using the
 data stored in <code>january.RData</code>.</p>
-</div>
-<div id="san_francisco_data_from_tomtom.zip-and-san_francisco_data_from_tomtom.json" class="section level1" number="3">
-<h1><span class="header-section-number">3</span>
-<code>San_Francisco_data_from_TomTom.zip</code> and
-<code>San_Francisco_data_from_TomTom.json</code></h1>
+<ol start="4" style="list-style-type: decimal">
+<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/San_Francisco_data_from_TomTom.zip"><strong><code>San_Francisco_data_from_TomTom.zip</code></strong></a>
+and <a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/San_Francisco_data_from_TomTom.json"><strong><code>San_Francisco_data_from_TomTom.json</code></strong></a></li>
+</ol>
 <p>These two files were downloaded using a free trial of <a href="https://www.tomtom.com/products/tomtom-move/">TomTom MOVE</a>
 geolocation services and contain the street network data for San
 Francisco.</p>
-</div>
-<div id="san_francisco_data_from_tomtom" class="section level1" number="4">
-<h1><span class="header-section-number">4</span>
-<code>San_Francisco_data_from_TomTom/</code></h1>
+<ol start="5" style="list-style-type: decimal">
+<li><a href="https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files/San_Francisco_data_from_TomTom"><strong><code>San_Francisco_data_from_TomTom/</code></strong></a></li>
+</ol>
 <p>This folder contains the unzipped contents of
 <code>San_Francisco_data_from_TomTom.zip</code>.</p>
-</div>
-<div id="tomtom.rdata" class="section level1" number="5">
-<h1><span class="header-section-number">5</span>
-<code>tomtom.RData</code></h1>
+<ol start="6" style="list-style-type: decimal">
+<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/tomtom.RData"><strong><code>tomtom.RData</code></strong></a></li>
+</ol>
 <p>This file was created in <a href="../preprocessing/pp3.html"><code>pp3.html</code></a> using the
 data stored in <code>San_Francisco_data_from_TomTom.json</code> and
 <code>San_Francisco_data_from_TomTom/network.shp</code></p>
-</div>
-<div id="graph_construction_on_27jun2024_frc013456.rdata" class="section level1" number="6">
-<h1><span class="header-section-number">6</span>
-<code>graph_construction_on_27JUN2024_FRC013456.RData</code></h1>
+<ol start="7" style="list-style-type: decimal">
+<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/graph_construction_on_27JUN2024_FRC013456.RData"><strong><code>graph_construction_on_27JUN2024_FRC013456.RData</code></strong></a></li>
+</ol>
 <p>This file was created in <a href="../preprocessing/pp4.html"><code>pp4.html</code></a> using the
 data stored in <code>tomtom.RData</code>.</p>
-</div>
-<div id="data_day7142128_hour13_with_no_consecutive_zeros_27jun2024_frc013456_graph_processed.rdata" class="section level1" number="7">
-<h1><span class="header-section-number">7</span>
-<code>data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData</code></h1>
+<ol start="8" style="list-style-type: decimal">
+<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData"><strong><code>data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData</code></strong></a></li>
+</ol>
 <p>This file was created in <a href="../preprocessing/pp5.html"><code>pp5.html</code></a> using the
 data stored in <code>day7142128hour13noconsecutivezeroes.RData</code>
 and <code>graph_construction_on_27JUN2024_FRC013456.RData</code>.</p>
-</div>
 
 
 
