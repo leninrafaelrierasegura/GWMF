@@ -72,7 +72,7 @@ pre {
 ```
 
 
-Go back to the [About page](about.html). This [link](../data_files/README.html) might be useful to keep track of the files created during the preprocessing.
+Go back to the [About page](about.html). This [link](data_files/README.html) might be useful to keep track of the files created during the preprocessing.
 
 Let us set some global options for all code chunks in this document.
 
