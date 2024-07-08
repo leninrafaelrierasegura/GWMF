@@ -1,0 +1,377 @@
+---
+title: "Preparing the data before modeling"
+date: "Created: 05-07-2024. Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    # df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+always_allow_html: true
+bibliography: 
+  - ../references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+---
+
+```{r, eval = FALSE, echo = FALSE}
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+```
+
+```{r xaringanExtra-clipboard, echo = FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+
+```{css, echo = FALSE}
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+```
+
+
+Go back to the [Preprocessing page](../preprocessing.html). This [link](../data_files/README.html) might be useful to keep track of the files created during the preprocessing.
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+knitr::opts_chunk$set(
+  message = FALSE,    # Disable messages printed by R code chunks
+  warning = FALSE,    # Disable warnings printed by R code chunks
+  echo = TRUE,        # Show R code within code chunks in output
+  include = TRUE,     # Include both R code and its results in output
+  eval = TRUE,       # Evaluate R code chunks
+  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  fig.align = "center",
+  out.width = "100%",
+  retina = 2,
+  error = TRUE,
+  collapse = FALSE
+)
+rm(list = ls())
+set.seed(1982)
+```
+
+# Import libraries
+
+```{r}
+# Install R-INLA package
+# install.packages("INLA",repos = c(getOption("repos"),INLA ="https://inla.r-inla-download.org/R/testing"), dep = TRUE)
+# Update R-INLA package
+# inla.upgrade(testing = TRUE)
+# Install inlabru package
+# remotes::install_github("inlabru-org/inlabru", ref = "devel")
+# Install rSPDE package
+# remotes::install_github("davidbolin/rspde", ref = "devel")
+# Install MetricGraph package
+# remotes::install_github("davidbolin/metricgraph", ref = "devel")
+
+library(INLA)
+library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+
+library(dplyr)
+library(plotly)
+library(scales)
+library(patchwork)
+library(tidyr)
+library(ggplot2)
+library(sf)
+
+library(here)
+library(rmarkdown)
+library(grateful) # Cite all loaded packages
+
+rm(list = ls()) # Clear the workspace
+set.seed(1982) # Set seed for reproducibility
+```
+
+# Load the data
+
+```{r}
+# Load the graph-processed data
+load(here("data_files/data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData"))
+# Load the graph
+load(here("data_files/graph_construction_on_27JUN2024_FRC013456.RData"))
+```
+
+
+# Prepare the data for modeling
+
+```{r}
+# Define standardize function to standardize the data
+standardize <- function(x) {return((x - mean(x)) / sd(x))}
+
+# Remove datetime variable
+data_on_graph <- data_on_graph %>% 
+  dplyr::select(-datetime)
+
+# Perform a more exhaustive filtering
+# Create a dataset with speed observations equal to zero and distance to the graph greater than 0.001
+to_remove <- data_on_graph %>% 
+  filter(speed == 0, .distance_to_graph > 0.001) 
+
+# Filter the data
+data_on_graph <- setdiff(data_on_graph, to_remove) %>% # Remove observations with speed equal to zero and distance to the graph greater than 0.001
+  filter(.distance_to_graph <= 0.003) # Remove observations with distance to the graph greater than 0.003
+
+# Add the observations to the graph
+sf_graph$add_observations(data = data_on_graph, 
+                          group = "day", 
+                          normalized = TRUE, 
+                          clear_obs = TRUE)
+
+# Get the value of the weights (covariates) on the locations of the speed observations
+sf_graph$edgeweight_to_data(data_loc = TRUE)
+
+# Create a dataset data with the speed and (standardized) SpeedLimit variables
+data <- sf_graph$get_data() %>% # get the data from the graph
+  drop_na(-StreetName) %>% # Drop all rows with at least one NA value but without taking into account StreetName (which has NAs). This is because sf_graph$edgeweight_to_data(data_loc = TRUE) creates NAs but we don't want to remove the rows with NAs in StreetName (because those are original NAs in the dataset).
+  mutate(across(c("SpeedLimit"), ~standardize(.))) %>% # Standardize the SpeedLimit variable
+  dplyr::select(speed, SpeedLimit) # Select only the speed and SpeedLimit variables
+
+# Add the observations to the graph (now with the values of the covariate)
+sf_graph$add_observations(data = data, 
+                          group = "day", 
+                          normalized = TRUE, 
+                          clear_obs = TRUE)
+
+# Define a data frame to create the indexingroup variable, which is used to compute the groups
+points = data %>%
+  as.data.frame() %>%
+  mutate(., index = 1:nrow(.)) %>% 
+  dplyr:::select(speed, .group, index) %>%
+  mutate(.group = as.numeric(.group)) %>%
+  group_by(.group) %>%
+  mutate(indexingroup = seq_len(n())) %>%
+  ungroup()
+```
+
+# Compute the distance matrices and the groups for cross-validation
+
+```{r, eval = FALSE}
+# Create an auxiliary dataset aux with the edge_number, distance_on_edge, and group variables to compute the distance matrix
+aux <- data |>
+  rename(distance_on_edge = .distance_on_edge, edge_number = .edge_number) |> # Rename the variables (because sf_graph$compute_geodist_PtE() requires so)
+  as.data.frame() |> # Transform to a data frame (i.e., remove the metric_graph class)
+  dplyr::select(edge_number, distance_on_edge, .group) # Select only the edge_number, distance_on_edge, and group variables
+
+# Initialize the list distmatrixlist to store the distance matrices
+distmatrixlist <- list()
+
+# Compute the distance matrices for each group
+for (i in 1:4) {
+  distmatrixlist[[i]] <- sf_graph$compute_geodist_PtE(PtE = aux %>% 
+                                                       filter(.group == as.character(i)) %>% 
+                                                       dplyr::select(-.group),
+                                                     normalized = TRUE,
+                                                     include_vertices = FALSE)
+}
+
+# Define the distance vector (200m)
+distance = seq(from = 0, to = 200, by = 20)/1000
+
+# Compute the groups for cross-validation
+GROUPS <- list()
+for (j in 1:length(distance)) {
+  print(j)
+  GROUPS[[j]] = list()
+  for (i in 1:nrow(points)) {
+    rowi <- points[i, ]
+    which.in.group <- which(as.vector(distmatrixlist[[rowi$.group]][rowi$indexingroup,]) <= distance[j])
+    GROUPS[[j]][[i]] <- filter(points, .group == rowi$.group)[which.in.group, ]$index
+  }
+}
+
+# Save the groups
+save(GROUPS, file = here("data_files/GROUPS.RData"))
+```
+
+## Check the groups
+
+```{r, include = FALSE}
+# Load the groups
+load(here("data_files/GROUPS.RData"))
+```
+
+
+```{r}
+point_of_interest <- 56011 # Any number between 1 and nrow(data) = 56011
+distance_around <- 11 # Any number between 1 and length(distance) = 11
+
+# Get the group of the point of interest
+# This determines the next plots
+data[point_of_interest, ]$.group 
+
+# Get the neighborhood of the point of interest
+neighborhood <- GROUPS[[distance_around]][[point_of_interest]]
+
+# Data frame with the neighborhood
+windowofinterest <- data[neighborhood, ] |> as.data.frame() |> st_as_sf(coords = c(".coord_x", ".coord_y"), crs = 4326)
+
+# Get the bounding box of the neighborhood
+bbox <- st_bbox(windowofinterest)
+
+# Construct the polygon of the bounding box, which will be used to filter the data
+polygon <- st_polygon(list(rbind(
+  c(bbox["xmin"], bbox["ymin"]),
+  c(bbox["xmax"], bbox["ymin"]),
+  c(bbox["xmax"], bbox["ymax"]),
+  c(bbox["xmin"], bbox["ymax"]),
+  c(bbox["xmin"], bbox["ymin"])
+))) |>
+  st_sfc(crs = st_crs(windowofinterest))
+
+# Filter the data, keeping only the points in the bounding box
+data_final_filtered <- data %>% 
+  as.data.frame() %>%
+  st_as_sf(coords = c(".coord_x", ".coord_y"), crs = 4326) %>%
+  st_filter(x = ., y = polygon, .predicate = st_within)
+```
+
+
+### Plot the data 
+
+In black, all the points that belong to the group (or replicate) of the point of interest. In blue, the points in the neighborhood of the point of interest. In red, the point of interest.
+
+
+```{r}
+# Plot the data 
+# in black, all the points that belong to the group (or replicate) of the point of interest
+# in blue, the points in the neighborhood of the point of interest
+# in red, the point of interest
+(ggplot() +
+  geom_sf(data = polygon, fill = "green", color = "green", alpha = 0.5) +
+  geom_point(data = filter(data, .group == data[point_of_interest, ]$.group), aes(x = .coord_x, y = .coord_y), color = "black") +
+  geom_point(data = data[neighborhood, ], aes(x = .coord_x, y = .coord_y), color = "blue") +
+  geom_point(data = data[point_of_interest, ], aes(x = .coord_x, y = .coord_y), color = "red") +
+  ggtitle("Point of interest and its neighborhood") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))) %>% ggplotly()
+```
+
+
+### Plot all the data in all groups that fall within the bounding box of the neighborhood
+
+Color indicates the group (or replicate).
+
+
+```{r}
+# Plot all the data in all groups that fall within the bounding box of the neighborhood
+# Color indicates the group (or replicate)
+ggplot() +
+  geom_sf(data = data_final_filtered, aes(color = .group)) +
+  ggtitle("All points within the bounding box of the neighborhood") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
+
+
+### Plot all the data in all groups that fall within the bounding box of the neighborhood plus the point of interest and its neighborhood
+
+Color indicates the group (or replicate). In red, the point of interest. In blue, the points in the neighborhood of the point of interest.
+
+
+```{r}
+# Plot all the data in all groups that fall within the bounding box of the neighborhood + the point of interest and its neighborhood
+# Color indicates the group (or replicate) of the point
+# in red, the point of interest
+# in blue, the points in the neighborhood of the point of interest
+ggplot() +
+  geom_sf(data = data_final_filtered, aes(color = .group)) +
+  geom_point(data = data[neighborhood, ], aes(x = .coord_x, y = .coord_y), color = "blue") +
+  geom_point(data = data[point_of_interest, ], aes(x = .coord_x, y = .coord_y), color = "red") +
+  ggtitle("Point of interest and its neighborhood") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
+
+
+### Plot of the point of interest and its neighborhood
+
+In red, the point of interest. In blue, the points in the neighborhood of the point of interest.
+
+
+```{r}
+# Plot of the point of interest and its neighborhood
+# in red, the point of interest
+# in blue, the points in the neighborhood of the point of interest
+ggplot() +
+  geom_point(data = data[neighborhood, ], aes(x = .coord_x, y = .coord_y), color = "blue") +
+  geom_point(data = data[point_of_interest, ], aes(x = .coord_x, y = .coord_y), color = "red") +
+  ggtitle("Point of interest and its neighborhood") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
+
+# Get the covariate on the mesh
+
+```{r}
+# Define the mesh size
+h <- 0.05
+
+# Build the mesh
+sf_graph$build_mesh(h = h)
+
+# Get the value of the covariate on the mesh
+mesh <- sf_graph$edgeweight_to_data(mesh = TRUE, 
+                                   add = FALSE, 
+                                   return = TRUE) %>% 
+  filter(.group == 1) %>% # Filter by group 1 (or any other group). This is because 4 copies are created, but we only need one
+  mutate(across(c("SpeedLimit"), ~standardize(.))) %>% # Standardize the SpeedLimit variable
+  dplyr:::select.data.frame(SpeedLimit) # Select only the SpeedLimit variable
+
+# Save all the variables and objects
+save(sf_graph, data, points, mesh, file = here("data_files/before_modeling.RData"))
+```
+
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```

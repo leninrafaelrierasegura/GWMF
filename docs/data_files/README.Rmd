@@ -48,3 +48,12 @@ This file was created in [`pp4.html`](../preprocessing/pp4.html) using the data 
 8. [**`data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData)
 
 This file was created in [`pp5.html`](../preprocessing/pp5.html) using the data stored in `day7142128hour13noconsecutivezeroes.RData` and `graph_construction_on_27JUN2024_FRC013456.RData`.
+
+9. [**`GROUPS.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/GROUPS.RData)
+
+This file was created in [`pp6.html`](../preprocessing/pp6.html) using the data stored in `data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData` and `graph_construction_on_27JUN2024_FRC013456.RData`.
+
+10. [**`before_modeling.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/before_modeling.RData)
+
+This file was created in [`pp6.html`](../preprocessing/pp6.html) using the data stored in `data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData` and `graph_construction_on_27JUN2024_FRC013456.RData`.
+

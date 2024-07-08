@@ -1,0 +1,769 @@
+---
+title: "Models"
+date: "Created: 05-07-2024. Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    # df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+always_allow_html: true
+bibliography: 
+  - ../references.bib
+  - ../grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+---
+
+```{r, eval = FALSE, echo = FALSE}
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+```
+
+```{r xaringanExtra-clipboard, echo = FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+
+```{css, echo = FALSE}
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+```
+
+
+Go back to the [Preprocessing page](../preprocessing.html). This [link](../data_files/README.html) might be useful to keep track of the files created during the preprocessing.
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+knitr::opts_chunk$set(
+  message = FALSE,    # Disable messages printed by R code chunks
+  warning = FALSE,    # Disable warnings printed by R code chunks
+  echo = TRUE,        # Show R code within code chunks in output
+  include = TRUE,     # Include both R code and its results in output
+  eval = FALSE,       # Evaluate R code chunks
+  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  fig.align = "center",
+  out.width = "100%",
+  retina = 2,
+  error = TRUE,
+  collapse = FALSE
+)
+rm(list = ls())
+set.seed(1982)
+```
+
+# Import libraries
+
+```{r}
+# Install R-INLA package
+# install.packages("INLA",repos = c(getOption("repos"),INLA ="https://inla.r-inla-download.org/R/testing"), dep = TRUE)
+# Update R-INLA package
+# inla.upgrade(testing = TRUE)
+# Install inlabru package
+# remotes::install_github("inlabru-org/inlabru", ref = "devel")
+# Install rSPDE package
+# remotes::install_github("davidbolin/rspde", ref = "devel")
+# Install MetricGraph package
+# remotes::install_github("davidbolin/metricgraph", ref = "devel")
+
+library(INLA)
+library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+
+library(dplyr)
+library(plotly)
+library(scales)
+library(patchwork)
+library(tidyr)
+
+library(here)
+library(rmarkdown)
+library(grateful) # Cite all loaded packages
+
+rm(list = ls()) # Clear the workspace
+set.seed(1982) # Set seed for reproducibility
+```
+
+# Load the data
+
+```{r}
+load("alldataibexbeforemodels.RData")
+
+################################################################################
+################################################################################
+##############################                       ###########################
+##############################       Modeling        ###########################
+##############################                       ###########################
+################################################################################
+################################################################################
+
+################################################################################
+#############################                   ################################
+#############################     nu = 0.5      ################################
+#############################                   ################################
+################################################################################
+
+################################################################################
+############################# STATIONARY MODEL  ################################
+################################################################################
+
+rspde_model_stat <- rspde.metric_graph(sf_graph,
+                                       parameterization = "matern",
+                                       nu = 0.5)
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        loc_name = "loc")
+cmp_stat <- speed ~ -1 +
+  Intercept(1) +
+  SpeedLimit +
+  field(loc, model = rspde_model_stat,
+        replicate = data_rspde_bru_stat[["repl"]])
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+
+rspde_fit_statnu0.5 <- rspde_fit_stat
+save(rspde_fit_statnu0.5, file = "outputs/rspde_fit_statnu0.5.RData")
+print("Stat model with nu0.5 fitted and saved")
+time2 <- Sys.time()
+print(time2 - start_time)
+################################################################################
+############################# NON STATIONARY MODEL #############################
+################################################################################
+
+B.sigma = cbind(0, 1, 0, mesh$SpeedLimit, 0)
+B.range = cbind(0, 0, 1, 0, mesh$SpeedLimit)
+
+rspde_model_nonstat <- rspde.metric_graph(sf_graph,
+                                          B.sigma = B.sigma,
+                                          B.range = B.range,
+                                          parameterization = "matern",
+                                          nu = 0.5)
+
+data_rspde_bru_nonstat <- graph_data_rspde(rspde_model_nonstat,
+                                           repl = ".all",
+                                           loc_name = "loc")
+cmp_nonstat <- speed ~ -1 +
+  Intercept(1) +
+  SpeedLimit +
+  field(loc, model = rspde_model_nonstat,
+        replicate = data_rspde_bru_nonstat[["repl"]])
+
+rspde_fit_nonstat <-
+  bru(cmp_nonstat,
+      data = data_rspde_bru_nonstat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_nonstat)
+summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+
+
+rspde_fit_nonstatnu0.5 <- rspde_fit_nonstat
+save(rspde_fit_nonstatnu0.5, file = "outputs/rspde_fit_nonstatnu0.5.RData")
+
+print("Nonstat model with nu0.5 fitted and saved")
+time3 <- Sys.time()
+print(time3 - start_time)
+################################################################################
+#############################                   ################################
+#############################     nu = 1.5      ################################
+#############################                   ################################
+################################################################################
+
+################################################################################
+############################# STATIONARY MODEL  ################################
+################################################################################
+
+rspde_model_stat <- rspde.metric_graph(sf_graph,
+                                       parameterization = "matern",
+                                       nu = 1.5)
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        loc_name = "loc")
+
+cmp_stat <- speed ~ -1 +
+  Intercept(1) +
+  SpeedLimit +
+  field(loc, model = rspde_model_stat,
+        replicate = data_rspde_bru_stat[["repl"]])
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+
+rspde_fit_statnu1.5 <- rspde_fit_stat
+save(rspde_fit_statnu1.5, file = "outputs/rspde_fit_statnu1.5.RData")
+print("Stat model with nu1.5 fitted and saved")
+time4 <- Sys.time()
+print(time4 - start_time)
+################################################################################
+############################# NON STATIONARY MODEL #############################
+################################################################################
+
+B.sigma = cbind(0, 1, 0, mesh$SpeedLimit, 0)
+B.range = cbind(0, 0, 1, 0, mesh$SpeedLimit)
+
+rspde_model_nonstat <- rspde.metric_graph(sf_graph,
+                                          B.sigma = B.sigma,
+                                          B.range = B.range,
+                                          parameterization = "matern",
+                                          nu = 1.5)
+
+data_rspde_bru_nonstat <- graph_data_rspde(rspde_model_nonstat,
+                                           repl = ".all",
+                                           loc_name = "loc")
+
+cmp_nonstat <- speed ~ -1 +
+  Intercept(1) +
+  SpeedLimit +
+  field(loc, model = rspde_model_nonstat,
+        replicate = data_rspde_bru_nonstat[["repl"]])
+
+rspde_fit_nonstat <-
+  bru(cmp_nonstat,
+      data = data_rspde_bru_nonstat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_nonstat)
+summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+
+
+rspde_fit_nonstatnu1.5 <- rspde_fit_nonstat
+save(rspde_fit_nonstatnu1.5, file = "outputs/rspde_fit_nonstatnu1.5.RData")
+print("Nonstat model with nu1.5 fitted and saved")
+time5 <- Sys.time()
+print(time5 - start_time)
+################################################################################
+#############################                   ################################
+#############################     nu = est      ################################
+#############################                   ################################
+################################################################################
+
+################################################################################
+############################# STATIONARY MODEL  ################################
+################################################################################
+
+rspde_model_stat <- rspde.metric_graph(sf_graph,
+                                       parameterization = "matern",
+                                       nu.upper.bound = 1.5)
+
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        loc_name = "loc")
+
+cmp_stat <- speed ~ -1 +
+  Intercept(1) +
+  SpeedLimit +
+  field(loc, model = rspde_model_stat,
+        replicate = data_rspde_bru_stat[["repl"]])
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+
+rspde_fit_statnuest <- rspde_fit_stat
+save(rspde_fit_statnuest, file = "outputs/rspde_fit_statnuest.RData")
+print("Stat model with nu estimated fitted and saved")
+time6 <- Sys.time()
+print(time6 - start_time)
+################################################################################
+############################# NON STATIONARY MODEL #############################
+################################################################################
+
+B.sigma = cbind(0, 1, 0, mesh$SpeedLimit, 0)
+B.range = cbind(0, 0, 1, 0, mesh$SpeedLimit)
+
+rspde_model_nonstat <- rspde.metric_graph(sf_graph,
+                                          B.sigma = B.sigma,
+                                          B.range = B.range,
+                                          parameterization = "matern",
+                                          nu.upper.bound = 1.5)
+
+data_rspde_bru_nonstat <- graph_data_rspde(rspde_model_nonstat,
+                                           repl = ".all",
+                                           loc_name = "loc")
+
+cmp_nonstat <- speed ~ -1 +
+  Intercept(1) +
+  SpeedLimit +
+  field(loc, model = rspde_model_nonstat,
+        replicate = data_rspde_bru_nonstat[["repl"]])
+
+rspde_fit_nonstat <-
+  bru(cmp_nonstat,
+      data = data_rspde_bru_nonstat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_nonstat)
+summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+
+
+rspde_fit_nonstatnuest <- rspde_fit_nonstat
+save(rspde_fit_nonstatnuest, file = "outputs/rspde_fit_nonstatnuest.RData")
+print("Nonstat model with nu estimated fitted and saved")
+time7 <- Sys.time()
+print(time7 - start_time)
+################################################################################
+################################################################################
+###########################                     ################################
+###########################  CROSS-VALIDATION   ################################
+###########################                     ################################
+################################################################################
+################################################################################
+
+# Load the groups
+load("GROUPS_ibex.RData")
+
+print("Groups loaded")
+time8 <- Sys.time()
+print(time8 - start_time)
+
+mse.statnu0.5 <- mse.nonstatnu0.5 <- ls.statnu0.5 <- ls.nonstatnu0.5 <- rep(0,length(distance))
+mse.statnu1.5 <- mse.nonstatnu1.5 <- ls.statnu1.5 <- ls.nonstatnu1.5 <- rep(0,length(distance))
+mse.statnuest <- mse.nonstatnuest <- ls.statnuest <- ls.nonstatnuest <- rep(0,length(distance))
+# cross-validation for-loop
+for (j in 1:length(distance)) {
+  print(j)
+  # cross-validation of the stationary model
+  cv.statnu0.5 <- inla.group.cv(rspde_fit_statnu0.5, groups = GROUPS[[j]])
+  cv.statnu1.5 <- inla.group.cv(rspde_fit_statnu1.5, groups = GROUPS[[j]])
+  cv.statnuest <- inla.group.cv(rspde_fit_statnuest, groups = GROUPS[[j]])
+  # cross-validation of the nonstationary model
+  cv.nonstatnu0.5 <- inla.group.cv(rspde_fit_nonstatnu0.5, groups = GROUPS[[j]])
+  cv.nonstatnu1.5 <- inla.group.cv(rspde_fit_nonstatnu1.5, groups = GROUPS[[j]])
+  cv.nonstatnuest <- inla.group.cv(rspde_fit_nonstatnuest, groups = GROUPS[[j]])
+  # obtain MSE and LS
+  mse.statnu0.5[j] <- mean((cv.statnu0.5$mean - points$speed)^2)
+  mse.statnu1.5[j] <- mean((cv.statnu1.5$mean - points$speed)^2)
+  mse.statnuest[j] <- mean((cv.statnuest$mean - points$speed)^2)
+  
+  
+  mse.nonstatnu0.5[j] <- mean((cv.nonstatnu0.5$mean - points$speed)^2)
+  mse.nonstatnu1.5[j] <- mean((cv.nonstatnu1.5$mean - points$speed)^2)
+  mse.nonstatnuest[j] <- mean((cv.nonstatnuest$mean - points$speed)^2)
+  
+  
+  ls.statnu0.5[j] <- mean(log(cv.statnu0.5$cv))
+  ls.statnu1.5[j] <- mean(log(cv.statnu1.5$cv))
+  ls.statnuest[j] <- mean(log(cv.statnuest$cv))
+  
+  ls.nonstatnu0.5[j] <- mean(log(cv.nonstatnu0.5$cv))
+  ls.nonstatnu1.5[j] <- mean(log(cv.nonstatnu1.5$cv))
+  ls.nonstatnuest[j] <- mean(log(cv.nonstatnuest$cv))
+}
+
+print("Cross-validation completed")
+time9 <- Sys.time()
+print(time9 - start_time)
+
+library(ggplot2)
+library(plotly)
+library(scales)
+library(patchwork)
+
+# Create data frames
+mse_df <- data.frame(
+  distance,
+  Statnu0.5 = mse.statnu0.5,
+  Nonstatnu0.5 = mse.nonstatnu0.5,
+  Statnu1.5 = mse.statnu1.5,
+  Nonstatnu1.5 = mse.nonstatnu1.5,
+  Statnuest = mse.statnuest,
+  Nonstatnuest = mse.nonstatnuest
+)
+
+ls_df <- data.frame(
+  distance,
+  Statnu0.5 = -ls.statnu0.5,
+  Nonstatnu0.5 = -ls.nonstatnu0.5,
+  Statnu1.5 = -ls.statnu1.5,
+  Nonstatnu1.5 = -ls.nonstatnu1.5,
+  Statnuest = -ls.statnuest,
+  Nonstatnuest = -ls.nonstatnuest
+)
+
+# Convert to long format
+mse_long <- mse_df %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "MSE")
+
+ls_long <- ls_df %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "LogScore")
+
+
+# Update the label mappings with the new legend title
+label_mapping <- c(
+  "Statnu0.5" = "0.5", 
+  "Nonstatnu0.5" = "0.5*", 
+  "Statnu1.5" = "1.5", 
+  "Nonstatnu1.5" = "1.5*", 
+  "Statnuest" = "est", 
+  "Nonstatnuest" = "est*"
+)
+
+# Define color and linetype mapping
+color_mapping <- c(
+  "Statnu0.5" = "blue", 
+  "Nonstatnu0.5" = "red", 
+  "Statnu1.5" = "black", 
+  "Nonstatnu1.5" = "green", 
+  "Statnuest" = "darkorange", 
+  "Nonstatnuest" = "skyblue"
+)
+
+linetype_mapping <- c(
+  "Statnu0.5" = "dashed", 
+  "Nonstatnu0.5" = "solid", 
+  "Statnu1.5" = "dashed", 
+  "Nonstatnu1.5" = "solid", 
+  "Statnuest" = "dashed", 
+  "Nonstatnuest" = "solid"
+)
+
+# Plot MSE
+mse_plot <- ggplot(mse_long, aes(x = distance, y = MSE, color = nu, linetype = nu)) +
+  geom_line(size = 1) +
+  labs(y = "MSE", x = "Distance in km") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(paste("Smoothness parameter ", nu))) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(paste("Smoothness parameter ", nu))) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Plot negative log-score
+ls_plot <- ggplot(ls_long, aes(x = distance, y = LogScore, color = nu, linetype = nu)) +
+  geom_line(size = 1) +
+  labs(y = "Negative Log-Score", x = "Distance in km") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(paste("Smoothness parameter ", nu))) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(paste("Smoothness parameter ", nu))) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Combine plots with a shared legend at the top in a single line
+# combined_plot <- mse_plot + ls_plot + 
+#   plot_layout(guides = 'collect') & 
+#   theme(legend.position = 'top') & 
+#   guides(color = guide_legend(nrow = 1), linetype = guide_legend(nrow = 1))
+
+# Display combined plot
+# print(combined_plot)
+
+
+save(mse_df, ls_df, mse_plot, ls_plot, file = "outputs/crossvalidation.RData")
+# Save the plot
+# ggsave("combined_plot.png", plot = combined_plot, dpi = 300)
+
+print("Plot and data saved")
+
+################################################################################
+################################################################################
+#############################                   ################################
+#############################     SIMULATION    ################################
+#############################                   ################################
+################################################################################
+################################################################################
+
+print("Starting simulation")
+time10 <- Sys.time()
+print(time10 - start_time)
+
+data_final <- sf_graph$get_data()
+obs.loc <- data_final |> as.data.frame() |> dplyr::select(.edge_number, .distance_on_edge)
+
+A.proj <- sf_graph$fem_basis(obs.loc)
+
+
+sigma <- 1.3
+range <- 0.15
+nu <- 0.5
+sigma.e <- 0.1
+rspde.order <- 1
+
+B.sigma = cbind(0, 1, 0, mesh$SpeedLimit, 0)
+B.range = cbind(0, 0, 1, 0, mesh$SpeedLimit)
+
+cov_nonstat <- rSPDE::spde.matern.operators(graph = sf_graph,
+                                            parameterization = "matern",
+                                            B.sigma = B.sigma,
+                                            B.range = B.range,
+                                            theta = c(sigma, range, sigma, range),
+                                            nu = nu)$covariance_mesh()
+L <- chol(cov_nonstat)
+u_nonstat <- t(L)%*%rnorm(dim(cov_nonstat)[1])
+
+speed_sim_nonstat <- 0 + 0.95*data_final$SpeedLimit + as.vector(A.proj %*% u_nonstat + sigma.e * rnorm(nrow(data_final)))
+
+data_sim_nonstat <- data_final %>% 
+  mutate(speed = speed_sim_nonstat)
+
+sf_graph$add_observations(data = data_sim_nonstat, 
+                          group = ".group", 
+                          normalized = TRUE, 
+                          clear_obs = TRUE)
+
+################################################################################
+############################# STATIONARY MODEL  ################################
+################################################################################
+
+rspde_model_stat <- rspde.metric_graph(sf_graph,
+                                       parameterization = "matern",
+                                       nu = nu)
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        loc_name = "loc")
+cmp_stat <- speed ~ -1 +
+  Intercept(1) +
+  SpeedLimit +
+  field(loc, model = rspde_model_stat,
+        replicate = data_rspde_bru_stat[["repl"]])
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+
+rspde_fit_statsim <- rspde_fit_stat
+save(rspde_fit_statsim, file = "outputs/rspde_fit_statsim.RData")
+print("Stat model for simulation fitted and saved")
+time11 <- Sys.time()
+print(time11 - start_time)
+################################################################################
+#########################  NON-STATIONARY MODEL  ###############################
+################################################################################
+
+
+rspde_model_nonstat <- rspde.metric_graph(sf_graph,
+                                          B.sigma = B.sigma,
+                                          B.range = B.range,
+                                          parameterization = "matern",
+                                          nu = nu)
+
+data_rspde_bru_nonstat <- graph_data_rspde(rspde_model_nonstat,
+                                           repl = ".all",
+                                           loc_name = "loc")
+cmp_nonstat <- speed ~ -1 +
+  Intercept(1) +
+  SpeedLimit +
+  field(loc, model = rspde_model_nonstat,
+        replicate = data_rspde_bru_nonstat[["repl"]])
+
+rspde_fit_nonstat <-
+  bru(cmp_nonstat,
+      data = data_rspde_bru_nonstat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_nonstat)
+summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+
+
+rspde_fit_nonstatsim <- rspde_fit_nonstat
+save(rspde_fit_nonstatsim, file = "outputs/rspde_fit_nonstatsim.RData")
+print("Nonstat model for simulation fitted and saved")
+time12 <- Sys.time()
+print(time12 - start_time)
+################################################################################
+#########################  CROSS-VALIDATION   ##################################
+################################################################################
+
+points = data_final %>%
+  as.data.frame() %>%
+  mutate(., index = 1:nrow(.)) %>% 
+  dplyr:::select(speed, .group, index) %>%
+  mutate(.group = as.numeric(.group)) %>%
+  group_by(.group) %>%
+  mutate(indexingroup = seq_len(n())) %>%
+  ungroup()
+
+distance = seq(from = 0, to = 200, by = 20)/1000
+
+print("Cross-validation for simulation started")
+time13 <- Sys.time()
+print(time13 - start_time)
+
+mse.stat <- mse.nonstat <- ls.stat <- ls.nonstat <- rep(0,length(distance))
+# cross-validation for-loop
+for (j in 1:length(distance)) {
+  print(j)
+  # cross-validation of the stationary model
+  cv.stat <- inla.group.cv(rspde_fit_statsim, groups = GROUPS[[j]])
+  # cross-validation of the nonstationary model
+  cv.nonstat <- inla.group.cv(rspde_fit_nonstatsim, groups = GROUPS[[j]])
+  # obtain MSE and LS
+  mse.stat[j] <- mean((cv.stat$mean - data_sim_nonstat$speed)^2)
+  mse.nonstat[j] <- mean((cv.nonstat$mean - data_sim_nonstat$speed)^2)
+  ls.stat[j] <- mean(log(cv.stat$cv))
+  ls.nonstat[j] <- mean(log(cv.nonstat$cv))
+}
+
+print("Cross-validation for simulation completed")
+time14 <- Sys.time()
+print(time14 - start_time)
+
+# Create data frames
+mse_df <- data.frame(
+  distance,
+  Statnu0.5 = mse.stat,
+  Nonstatnu0.5 = mse.nonstat
+)
+
+ls_df <- data.frame(
+  distance,
+  Statnu0.5 = -ls.stat,
+  Nonstatnu0.5 = -ls.nonstat
+)
+
+# Convert to long format
+mse_long <- mse_df %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "MSE")
+
+ls_long <- ls_df %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "LogScore")
+
+
+# Update the label mappings with the new legend title
+label_mapping <- c(
+  "Statnu0.5" = "0.5", 
+  "Nonstatnu0.5" = "0.5*"
+)
+
+# Define color and linetype mapping
+color_mapping <- c(
+  "Statnu0.5" = "blue", 
+  "Nonstatnu0.5" = "red"
+)
+
+linetype_mapping <- c(
+  "Statnu0.5" = "dashed", 
+  "Nonstatnu0.5" = "solid"
+)
+
+# Plot MSE
+mse_plot <- ggplot(mse_long, aes(x = distance, y = MSE, color = nu, linetype = nu)) +
+  geom_line(size = 1) +
+  labs(y = "MSE", x = "Distance in km") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(paste("Smoothness parameter ", nu))) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(paste("Smoothness parameter ", nu))) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Plot negative log-score
+ls_plot <- ggplot(ls_long, aes(x = distance, y = LogScore, color = nu, linetype = nu)) +
+  geom_line(size = 1) +
+  labs(y = "Negative Log-Score", x = "Distance in km") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(paste("Smoothness parameter ", nu))) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(paste("Smoothness parameter ", nu))) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Combine plots with a shared legend at the top in a single line
+# combined_plot <- mse_plot + ls_plot + 
+#   plot_layout(guides = 'collect') & 
+#   theme(legend.position = 'top') & 
+#   guides(color = guide_legend(nrow = 1), linetype = guide_legend(nrow = 1))
+
+# Display combined plot
+# print(combined_plot)
+
+
+# Save the plot
+# ggsave("nonstat.png", plot = combined_plot, dpi = 300)
+
+save(mse_df, ls_df, mse_plot, ls_plot, file = "outputs/crossvalidation_simulation.RData")
+
+print("plot and data for simulation completed and saved")
+
+# Save all the variables and objects
+save.image("outputs/alldataibex.RData")
+time15 <- Sys.time()
+print(time15 - start_time)
+
+print("All data saved")
+```
+
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```

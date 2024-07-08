@@ -38,3 +38,9 @@ For the $\texttt{R}$ code performing this step follow this [link](preprocessing/
 The speed observations (obtained from the second step) were added to the graph object (obtained in the previous step).
 
 For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp5.html).
+
+# Preparing the data before modeling
+
+Among other things, the value of some covariates on the observation and mesh locations were computed. Groups for the leave-group-out pseudo cross-validation were also created.
+
+For the $\texttt{R}$ code performing this step follow this [link](preprocessing/pp6.html).

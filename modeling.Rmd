@@ -1,5 +1,13 @@
 ---
 title: "Modeling"
+output:
+  html_document:
+    number_sections: true
 ---
-
 This page contains links to scripts used for data modeling.
+
+Go back to the [About page](about.html).
+
+# Stationary and non-stationary models with $\nu$ fixed and estimated
+
+For the $\texttt{R}$ code performing this step follow this [link](modeling/m1.html).
