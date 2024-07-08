@@ -11,3 +11,5 @@ title: "Contents of This Website"
 4. [Basis Functions](basis_functions.html) page
 
 5. [Approximation](approximation.html) page
+
+6. [Numerical Error](numerical_error.html) page

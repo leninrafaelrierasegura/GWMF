@@ -57,3 +57,29 @@ This file was created in [`pp6.html`](../preprocessing/pp6.html) using the data 
 
 This file was created in [`pp6.html`](../preprocessing/pp6.html) using the data stored in `data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData` and `graph_construction_on_27JUN2024_FRC013456.RData`.
 
+11. [**`Error_interval_DEF.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_interval_DEF.RData)
+
+This file was created in [`numerical_error.html`](../numerical_error.html).
+
+12. [**`Error_circle_DEF.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_circle_DEF.RData)
+
+This file was created in [`numerical_error.html`](../numerical_error.html).
+
+13. [**`Error_tadpole_DEF_rho0.1.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho0.1.RData)
+
+This file was created in [`numerical_error.html`](../numerical_error.html).
+
+14. [**`Error_tadpole_DEF_rho0.5.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho0.5.RData)
+
+This file was created in [`numerical_error.html`](../numerical_error.html).
+
+15. [**`Error_tadpole_DEF_rho1.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho1.RData)
+
+This file was created in [`numerical_error.html`](../numerical_error.html).
+
+16. [**`Error_tadpole_DEF_rho2.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho2.RData)
+
+This file was created in [`numerical_error.html`](../numerical_error.html).
+
+
+

@@ -17,6 +17,8 @@ navbar:
       href: basis_functions.html
     - text: "Approximation"
       href: approximation.html
+    - text: "Numerical Error"
+      href: numerical_error.html
   right:
     - icon: fa-github
       href: https://github.com/leninrafaelrierasegura/
