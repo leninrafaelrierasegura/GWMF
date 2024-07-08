@@ -469,6 +469,9 @@ div.tocify {
 <li>
   <a href="basis_functions.html">Basis Functions</a>
 </li>
+<li>
+  <a href="approximation.html">Approximation</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -916,7 +919,7 @@ model</h2>
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
 ##     Predictor: y ~ .
 ## Time used:
-##     Pre = 0.263, Running = 0.525, Post = 0.104, Total = 0.892 
+##     Pre = 0.277, Running = 0.51, Post = 0.123, Total = 0.91 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.442 0.377      0.699    1.442      2.186  1.442   0
@@ -990,7 +993,7 @@ non-stationary model</h2>
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
 ##     Predictor: y ~ .
 ## Time used:
-##     Pre = 0.171, Running = 0.764, Post = 0.0898, Total = 1.02 
+##     Pre = 0.172, Running = 0.695, Post = 0.0966, Total = 0.963 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.474 0.379      0.723    1.475      2.215  1.475   0
@@ -1006,7 +1009,7 @@ non-stationary model</h2>
 ## Precision for the Gaussian observations 97.810 3.355     91.358   97.757
 ## Theta1 for field                         0.899 0.106      0.697    0.897
 ## Theta2 for field                         0.923 0.080      0.769    0.922
-## Theta3 for field                        -1.719 2.081     -5.658   -1.770
+## Theta3 for field                        -1.719 2.081     -5.659   -1.770
 ## Theta4 for field                         3.011 1.607     -0.033    2.972
 ##                                         0.975quant   mode
 ## Precision for the Gaussian observations     104.57 97.662
@@ -1027,11 +1030,11 @@ non-stationary model</h2>
 ## Posterior summaries for the linear predictor and the fitted values are computed
 ## (Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)</code></pre>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span></code></pre></div>
-<pre><code>##                    mean        sd 0.025quant  0.5quant 0.975quant      mode
-## Theta1.matern  0.899272 0.1055700  0.6971820  0.897363    1.11275  0.889067
-## Theta2.matern  0.923192 0.0804039  0.7689470  0.921843    1.08547  0.916006
-## Theta3.matern -1.718660 2.0807900 -5.6584600 -1.769850    2.52879 -1.997120
-## Theta4.matern  3.011090 1.6068100 -0.0326347  2.971980    6.28978  2.798470</code></pre>
+<pre><code>##                    mean       sd 0.025quant  0.5quant 0.975quant      mode
+## Theta1.matern  0.899272 0.105570  0.6971820  0.897363    1.11275  0.889067
+## Theta2.matern  0.923192 0.080404  0.7689470  0.921843    1.08547  0.916006
+## Theta3.matern -1.718670 2.080820 -5.6585300 -1.769860    2.52883 -1.997120
+## Theta4.matern  3.011080 1.606830 -0.0326876  2.971970    6.28981  2.798470</code></pre>
 </div>
 </div>
 <div id="cross-validation" class="section level2" number="4.13">
@@ -1137,14 +1140,15 @@ class="citation">(Yuan et al. 2017; Bachl et al. 2019)</span>, knitr v.
 1.47 <span class="citation">(Xie 2014, 2015, 2024)</span>, listviewer v.
 4.0.0 <span class="citation">(de Jong, Gainer, and Russell 2023)</span>,
 mapview v. 2.11.2 <span class="citation">(Appelhans et al. 2023)</span>,
-MetricGraph v. 1.3.0.9000 <span class="citation">(Bolin, Simas, and
-Wallin 2023b, 2023a, 2023c, 2024; Bolin et al. 2023)</span>, patchwork
-v. 1.2.0 <span class="citation">(Pedersen 2024)</span>, plotly v. 4.10.4
-<span class="citation">(Sievert 2020)</span>, rmarkdown v. 2.27 <span
-class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
-Riederer 2020; Allaire et al. 2024)</span>, rSPDE v. 2.3.3.9000 <span
-class="citation">(Bolin and Kirchner 2020; Bolin and Simas 2023; Bolin,
-Simas, and Xiong 2023)</span>, scales v. 1.3.0 <span
+Matrix v. 1.6.5 <span class="citation">(Bates, Maechler, and Jagan
+2024)</span>, MetricGraph v. 1.3.0.9000 <span class="citation">(Bolin,
+Simas, and Wallin 2023b, 2023a, 2023c, 2024; Bolin et al. 2023)</span>,
+patchwork v. 1.2.0 <span class="citation">(Pedersen 2024)</span>, plotly
+v. 4.10.4 <span class="citation">(Sievert 2020)</span>, rmarkdown v.
+2.27 <span class="citation">(Xie, Allaire, and Grolemund 2018; Xie,
+Dervieux, and Riederer 2020; Allaire et al. 2024)</span>, rSPDE v.
+2.3.3.9000 <span class="citation">(Bolin and Kirchner 2020; Bolin and
+Simas 2023; Bolin, Simas, and Xiong 2023)</span>, scales v. 1.3.0 <span
 class="citation">(Wickham, Pedersen, and Seidel 2023)</span>, sf v.
 1.0.16 <span class="citation">(Pebesma 2018; Pebesma and Bivand
 2023)</span>, tidyverse v. 2.0.0 <span class="citation">(Wickham et al.
@@ -1186,6 +1190,12 @@ Lindgren. 2018. <span>“Spatial Modelling with <span>INLA</span>:
 <span>A</span> Review.”</span> <em>WIRES (Invited Extended Review)</em>
 xx (Feb): xx–. <a
 href="http://arxiv.org/abs/1802.06350">http://arxiv.org/abs/1802.06350</a>.
+</div>
+<div id="ref-Matrix" class="csl-entry">
+Bates, Douglas, Martin Maechler, and Mikael Jagan. 2024.
+<em><span>Matrix</span>: Sparse and Dense Matrix Classes and
+Methods</em>. <a
+href="https://CRAN.R-project.org/package=Matrix">https://CRAN.R-project.org/package=Matrix</a>.
 </div>
 <div id="ref-rSPDE2020c" class="csl-entry">
 Bolin, David, and Kristin Kirchner. 2020. <span>“The Rational

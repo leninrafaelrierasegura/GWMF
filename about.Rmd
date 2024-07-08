@@ -9,3 +9,5 @@ title: "Contents of This Website"
 3. [Non-stationarity](non_stationarity.html) page
 
 4. [Basis Functions](basis_functions.html) page
+
+5. [Approximation](approximation.html) page
