@@ -11,7 +11,7 @@
 
 
 
-<title>Modeling</title>
+<title>Stationary and non-stationary models with \nu fixed and estimated</title>
 
 <script src="site_libs/header-attrs-2.27/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -29,11 +29,19 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/clipboard-2.0.6/clipboard.min.js"></script>
+<link href="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+<script src="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+<script>window.xaringanExtraClipboard(null, {"button":"<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"><\/i>","success":"<i class=\"fa fa-check\" style=\"color: #90BE6D\"><\/i>","error":"<i class=\"fa fa-times-circle\" style=\"color: #F94144\"><\/i>"})</script>
 <link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -44,21 +52,145 @@
   ul.task-list{list-style: none;}
     </style>
 
-<style type="text/css">code{white-space: pre;}</style>
-<script type="text/javascript">
-if (window.hljs) {
-  hljs.configure({languages: []});
-  hljs.initHighlightingOnLoad();
-  if (document.readyState && document.readyState === "complete") {
-    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
   }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
 }
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
 </script>
 
 
 
-
-
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 
@@ -219,7 +351,73 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
 
 
 
@@ -229,6 +427,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -284,28 +492,1245 @@ $(document).ready(function () {
 
 <div id="header">
 
-
-
-<h1 class="title toc-ignore">Modeling</h1>
-
-</div>
-
-
-<p>This page contains links to scripts used for data modeling.</p>
-<p>Go back to the <a href="about.html">About page</a>.</p>
-<div
-id="stationary-and-non-stationary-models-with-nu-fixed-and-estimated"
-class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Stationary and
-non-stationary models with <span class="math inline">\(\nu\)</span>
-fixed and estimated</h1>
-<p>For the <span class="math inline">\(\texttt{R}\)</span> code
-performing this step follow this <a
-href="modeling/m1.html">link</a>.</p>
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
 </div>
 
 
 
+<h1 class="title toc-ignore">Stationary and non-stationary models with
+<span class="math inline">\(\nu\)</span> fixed and estimated</h1>
+<h4 class="date">Created: 05-07-2024. Last modified: 09-07-2024.</h4>
+
+</div>
+
+
+<style type="text/css">
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+</style>
+<p>Go back to the <a href="about.html">About page</a>. This <a
+href="data_files/README.html">link</a> might be useful to keep track of
+the files created during the preprocessing.</p>
+<p>Let us set some global options for all code chunks in this
+document.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">FALSE</span>,    <span class="co"># Disable messages printed by R code chunks</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">FALSE</span>,    <span class="co"># Disable warnings printed by R code chunks</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        <span class="co"># Show R code within code chunks in output</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     <span class="co"># Include both R code and its results in output</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       <span class="co"># Evaluate R code chunks</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,       <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">out.width =</span> <span class="st">&quot;100%&quot;</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>)</span></code></pre></div>
+<div id="import-libraries" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Import libraries</h1>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Install R-INLA package</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># install.packages(&quot;INLA&quot;,repos = c(getOption(&quot;repos&quot;),INLA =&quot;https://inla.r-inla-download.org/R/testing&quot;), dep = TRUE)</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Update R-INLA package</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># inla.upgrade(testing = TRUE)</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Install inlabru package</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;inlabru-org/inlabru&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># Install rSPDE package</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/rspde&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># Install MetricGraph package</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/metricgraph&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">library</span>(INLA)</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="fu">library</span>(inlabru)</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="fu">library</span>(rSPDE)</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="fu">library</span>(rmarkdown)</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="fu">library</span>(grateful) <span class="co"># Cite all loaded packages</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>()) <span class="co"># Clear the workspace</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) <span class="co"># Set seed for reproducibility</span></span></code></pre></div>
+</div>
+<div id="load-the-data" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Load the data</h1>
+<p>We load <a
+href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/before_modeling.RData"><code>before_modeling.RData</code></a>,
+which was created in <a
+href="preprocessing/pp6.html"><code>pp6.html</code></a>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">&quot;data_files/before_modeling.RData&quot;</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># List the objects in the workspace</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>data_in_before_modeling <span class="ot">&lt;-</span> <span class="fu">ls</span>()</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">print</span>(data_in_before_modeling)</span></code></pre></div>
+<pre><code>## [1] &quot;data&quot;     &quot;mesh&quot;     &quot;points&quot;   &quot;sf_graph&quot;</code></pre>
+<div id="explore-the-data" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Explore the data</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">get</span>(data_in_before_modeling[<span class="dv">1</span>]) <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">paged_table</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["speed"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["SpeedLimit"],"name":[2],"type":["dbl"],"align":["right"]},{"label":[".group"],"name":[3],"type":["chr"],"align":["left"]},{"label":[".edge_number"],"name":[4],"type":["dbl"],"align":["right"]},{"label":[".distance_on_edge"],"name":[5],"type":["dbl"],"align":["right"]},{"label":[".coord_x"],"name":[6],"type":["dbl"],"align":["right"]},{"label":[".coord_y"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"6.43736","2":"-0.6237783","3":"1","4":"3","5":"0.06689672","6":"-122.4035","7":"37.76472"},{"1":"14.48406","2":"-0.6237783","3":"1","4":"3","5":"0.18700675","6":"-122.4033","7":"37.76473"},{"1":"27.35878","2":"-0.6237783","3":"1","4":"3","5":"0.37288974","6":"-122.4032","7":"37.76474"},{"1":"12.87472","2":"-0.6237783","3":"1","4":"3","5":"0.90319121","6":"-122.4027","7":"37.76479"},{"1":"24.14010","2":"-0.6237783","3":"1","4":"3","5":"0.91945197","6":"-122.4027","7":"37.76479"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">get</span>(data_in_before_modeling[<span class="dv">1</span>]) <span class="sc">|&gt;</span> <span class="fu">dim</span>()</span></code></pre></div>
+<pre><code>## [1] 56011     7</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">get</span>(data_in_before_modeling[<span class="dv">2</span>]) <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">paged_table</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["SpeedLimit"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.1046456"},{"1":"-0.1046456"},{"1":"-0.5076150"},{"1":"-0.5076150"},{"1":"-0.5076150"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">get</span>(data_in_before_modeling[<span class="dv">2</span>]) <span class="sc">|&gt;</span> <span class="fu">dim</span>()</span></code></pre></div>
+<pre><code>## [1] 60054     1</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">get</span>(data_in_before_modeling[<span class="dv">3</span>]) <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">paged_table</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["speed"],"name":[1],"type":["dbl"],"align":["right"]},{"label":[".group"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["index"],"name":[3],"type":["int"],"align":["right"]},{"label":["indexingroup"],"name":[4],"type":["int"],"align":["right"]}],"data":[{"1":"6.43736","2":"1","3":"1","4":"1"},{"1":"14.48406","2":"1","3":"2","4":"2"},{"1":"27.35878","2":"1","3":"3","4":"3"},{"1":"12.87472","2":"1","3":"4","4":"4"},{"1":"24.14010","2":"1","3":"5","4":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">get</span>(data_in_before_modeling[<span class="dv">3</span>]) <span class="sc">|&gt;</span> <span class="fu">dim</span>()</span></code></pre></div>
+<pre><code>## [1] 56011     4</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">summary</span>(sf_graph)</span></code></pre></div>
+<pre><code>## A metric graph object with:
+## 
+## Vertices:
+##   Total: 21754 
+##   Degree 1: 16;  Degree 2: 6971;  Degree 3: 766;  Degree 4: 7831;  Degree 5: 532; 
+##   Degree 6: 3328;  Degree 7: 146;  Degree 8: 2151;  Degree 9: 2;  Degree 10: 10; 
+##   Degree 12: 1; 
+##   With incompatible directions:  1 
+## 
+## Edges: 
+##   Total: 44284 
+##   Lengths: 
+##       Min: 0.002834658  ; Max: 1.480513  ; Total: 2965.023 
+##   Weights: 
+##       Columns: Length FRC SpeedLimit StreetName harmonicAverageSpeed medianSpeed averageSpeed sampleSize averageTravelTime medianTravelTime travelTimeRatio List_Number 5percentile 10percentile 15percentile 20percentile 25percentile 30percentile 35percentile 40percentile 45percentile 50percentile 55percentile 60percentile 65percentile 70percentile 75percentile 80percentile 85percentile 90percentile 95percentile road_type class_6 class_5 class_4 class_0 class_3 class_1 upto1 upto3 upto4 upto5 upto6 density density_per_hour 
+##   That are circles:  0 
+## 
+## Graph units: 
+##   Vertices unit:  degrees  ; Lengths unit:  km 
+## 
+## Longitude and Latitude coordinates:  TRUE
+##   Which spatial package:  sf 
+##   CRS:  EPSG:4326
+## 
+## Some characteristics of the graph:
+##   Connected: TRUE
+##   Has loops: FALSE
+##   Has multiple edges: TRUE
+##   Is a tree: FALSE
+##   Distance consistent: FALSE
+##   Has Euclidean edges: FALSE
+## 
+## Computed quantities inside the graph: 
+##   Laplacian:  FALSE  ; Geodesic distances:  TRUE 
+##   Resistance distances:  FALSE  ; Finite element matrices:  FALSE 
+## 
+## Mesh: 
+##   Max h_e:  0.04999869  ; Min n_e:  0 
+## 
+## Data: 
+##   Columns:  speed SpeedLimit 
+##   Groups:  .group 
+## 
+## Tolerances: 
+##   vertex-vertex:  0.001 
+##   vertex-edge:  0.001 
+##   edge-edge:  0</code></pre>
+</div>
+<div id="plot-the-data" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Plot the data</h2>
+<div id="one-replicate-corresponding-to-january-7"
+class="section level3" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> One replicate,
+corresponding to January 7</h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>sf_graph<span class="sc">$</span><span class="fu">plot</span>(<span class="at">vertex_size =</span> <span class="dv">0</span>, <span class="at">data =</span> <span class="st">&quot;speed&quot;</span>, <span class="at">edge_width =</span> <span class="fl">0.05</span>, <span class="at">group =</span> <span class="dv">1</span>, <span class="at">data_size =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;January 7&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;right&quot;</span>, <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>))</span></code></pre></div>
+<p><img src="modeling_files/figure-html/unnamed-chunk-8-1.png" width="50%" style="display: block; margin: auto;" /></p>
+</div>
+<div id="all-replicates" class="section level3" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> All replicates</h3>
+<div style="color: blue;">
+<hr />
+<p><strong>Press the Show button below to reveal the code.</strong></p>
+<hr />
+</div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># This code chunk only serves the purpose of plotting the four replicates</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>data_to_plot <span class="ot">&lt;-</span> sf_graph<span class="sc">$</span><span class="fu">get_data</span>()</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">&quot;data_files/tomtom.RData&quot;</span>))</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">&quot;data_files/day7142128hour13noconsecutivezeroes.RData&quot;</span>)) </span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>polygon <span class="ot">=</span> <span class="fu">st_multipoint</span>(<span class="fu">c</span>(<span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.53000</span>, <span class="fl">37.69702</span>)), </span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.37000</span>, <span class="fl">37.69702</span>)), </span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.37000</span>, <span class="fl">37.82600</span>)), </span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.53000</span>, <span class="fl">37.82600</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>  <span class="fu">st_cast</span>(<span class="st">&quot;POLYGON&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>  <span class="fu">st_sfc</span>(<span class="at">crs =</span> <span class="fu">st_crs</span>(df))</span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a>from.tomtom <span class="ot">&lt;-</span> tomtom <span class="sc">%&gt;%</span></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>Id, <span class="sc">-</span>Segment.Id, <span class="sc">-</span>NewSegId, <span class="sc">-</span>timeSet, <span class="sc">-</span>dateRange, <span class="sc">-</span>standardDeviationSpeed, <span class="sc">-</span>travelTimeStandardDeviation) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a>  <span class="fu">filter</span>(FRC <span class="sc">!=</span> <span class="st">&quot;7&quot;</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> SpeedLimit, <span class="at">road_type =</span> <span class="fu">paste</span>(<span class="st">&quot;class_&quot;</span>, FRC, <span class="at">sep =</span> <span class="st">&quot;&quot;</span>), <span class="at">aux =</span> <span class="fu">paste</span>(<span class="st">&quot;class_&quot;</span>, FRC, <span class="at">sep =</span> <span class="st">&quot;&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> aux, <span class="at">values_from =</span> value, <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">upto1 =</span> class_0 <span class="sc">+</span> class_1) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">upto3 =</span> upto1 <span class="sc">+</span> class_3) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">upto4 =</span> upto3 <span class="sc">+</span> class_4) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-21"><a href="#cb17-21" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">upto5 =</span> upto4 <span class="sc">+</span> class_5) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">upto6 =</span> upto5 <span class="sc">+</span> class_6) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-23"><a href="#cb17-23" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Length  =</span> Length<span class="sc">/</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb17-24"><a href="#cb17-24" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">density =</span> sampleSize<span class="sc">/</span>Length) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-25"><a href="#cb17-25" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">density_per_hour =</span> density<span class="sc">/</span><span class="dv">24</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-26"><a href="#cb17-26" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="fu">st_crs</span>(df)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-27"><a href="#cb17-27" tabindex="-1"></a>  <span class="fu">st_filter</span>(<span class="at">x =</span> ., <span class="at">y =</span> polygon, <span class="at">.predicate =</span> st_within) </span>
+<span id="cb17-28"><a href="#cb17-28" tabindex="-1"></a></span>
+<span id="cb17-29"><a href="#cb17-29" tabindex="-1"></a>newpolygon <span class="ot">=</span> <span class="fu">st_multipoint</span>(<span class="fu">c</span>(<span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.53000</span>, <span class="fl">37.69702</span>)),</span>
+<span id="cb17-30"><a href="#cb17-30" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.45600</span>, <span class="fl">37.69702</span>)),</span>
+<span id="cb17-31"><a href="#cb17-31" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.44850</span>, <span class="fl">37.70230</span>)),</span>
+<span id="cb17-32"><a href="#cb17-32" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.43000</span>, <span class="fl">37.69702</span>)),</span>
+<span id="cb17-33"><a href="#cb17-33" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.37000</span>, <span class="fl">37.69702</span>)),</span>
+<span id="cb17-34"><a href="#cb17-34" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.37000</span>, <span class="fl">37.80600</span>)),</span>
+<span id="cb17-35"><a href="#cb17-35" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.39000</span>, <span class="fl">37.82600</span>)),</span>
+<span id="cb17-36"><a href="#cb17-36" tabindex="-1"></a>                          <span class="fu">st_point</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">122.53000</span>, <span class="fl">37.82600</span>)))) <span class="sc">%&gt;%</span></span>
+<span id="cb17-37"><a href="#cb17-37" tabindex="-1"></a>  <span class="fu">st_cast</span>(<span class="st">&quot;POLYGON&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-38"><a href="#cb17-38" tabindex="-1"></a>  <span class="fu">st_sfc</span>(<span class="at">crs =</span> <span class="fu">st_crs</span>(df))</span>
+<span id="cb17-39"><a href="#cb17-39" tabindex="-1"></a></span>
+<span id="cb17-40"><a href="#cb17-40" tabindex="-1"></a>from.tomtom <span class="ot">&lt;-</span> from.tomtom <span class="sc">%&gt;%</span> <span class="fu">st_filter</span>(<span class="at">x =</span> ., <span class="at">y =</span> newpolygon, <span class="at">.predicate =</span> st_within)</span>
+<span id="cb17-41"><a href="#cb17-41" tabindex="-1"></a></span>
+<span id="cb17-42"><a href="#cb17-42" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(from.tomtom)</span>
+<span id="cb17-43"><a href="#cb17-43" tabindex="-1"></a>min_x <span class="ot">&lt;-</span> <span class="fu">min</span>(coords[, <span class="st">&quot;X&quot;</span>]) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb17-44"><a href="#cb17-44" tabindex="-1"></a>max_x <span class="ot">&lt;-</span> <span class="fu">max</span>(coords[, <span class="st">&quot;X&quot;</span>]) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb17-45"><a href="#cb17-45" tabindex="-1"></a>min_y <span class="ot">&lt;-</span> <span class="fu">min</span>(coords[, <span class="st">&quot;Y&quot;</span>]) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb17-46"><a href="#cb17-46" tabindex="-1"></a>max_y <span class="ot">&lt;-</span> <span class="fu">max</span>(coords[, <span class="st">&quot;Y&quot;</span>]) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb17-47"><a href="#cb17-47" tabindex="-1"></a></span>
+<span id="cb17-48"><a href="#cb17-48" tabindex="-1"></a><span class="co"># Define labels for each group</span></span>
+<span id="cb17-49"><a href="#cb17-49" tabindex="-1"></a>group_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;January 7&quot;</span>, <span class="st">&quot;January 14&quot;</span>, <span class="st">&quot;January 21&quot;</span>, <span class="st">&quot;January 28&quot;</span>)</span>
+<span id="cb17-50"><a href="#cb17-50" tabindex="-1"></a></span>
+<span id="cb17-51"><a href="#cb17-51" tabindex="-1"></a></span>
+<span id="cb17-52"><a href="#cb17-52" tabindex="-1"></a><span class="co"># Create a base plot with road network</span></span>
+<span id="cb17-53"><a href="#cb17-53" tabindex="-1"></a>base_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb17-54"><a href="#cb17-54" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> from.tomtom, <span class="fu">aes</span>(<span class="at">color =</span> <span class="st">&quot;Highways&quot;</span>), <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">linewidth =</span> <span class="fl">0.02</span>) <span class="sc">+</span></span>
+<span id="cb17-55"><a href="#cb17-55" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x), <span class="at">name =</span> <span class="st">&quot;Longitude&quot;</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(min_x, max_x, <span class="at">by =</span> <span class="fl">0.04</span>)) <span class="sc">+</span> </span>
+<span id="cb17-56"><a href="#cb17-56" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(y) <span class="fu">paste0</span>(y), <span class="at">name =</span> <span class="st">&quot;Latitude&quot;</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(min_y, max_y, <span class="at">by =</span> <span class="fl">0.04</span>)) <span class="sc">+</span></span>
+<span id="cb17-57"><a href="#cb17-57" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb17-58"><a href="#cb17-58" tabindex="-1"></a></span>
+<span id="cb17-59"><a href="#cb17-59" tabindex="-1"></a><span class="co"># Create individual plots for each group and overlay data points</span></span>
+<span id="cb17-60"><a href="#cb17-60" tabindex="-1"></a>group_plots <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">unique</span>(data_to_plot<span class="sc">$</span>.group), <span class="cf">function</span>(gr) {</span>
+<span id="cb17-61"><a href="#cb17-61" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">subset</span>(data_to_plot, .group <span class="sc">==</span> gr), <span class="fu">aes</span>(<span class="at">x =</span> .coord_x, <span class="at">y =</span> .coord_y, <span class="at">color =</span> speed), <span class="at">size =</span> <span class="fl">0.1</span>)</span>
+<span id="cb17-62"><a href="#cb17-62" tabindex="-1"></a>})</span>
+<span id="cb17-63"><a href="#cb17-63" tabindex="-1"></a></span>
+<span id="cb17-64"><a href="#cb17-64" tabindex="-1"></a><span class="co"># Combine the base plot and the group plots</span></span>
+<span id="cb17-65"><a href="#cb17-65" tabindex="-1"></a>combined_plot <span class="ot">&lt;-</span> base_plot <span class="sc">+</span> </span>
+<span id="cb17-66"><a href="#cb17-66" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> .group, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">.group =</span> <span class="cf">function</span>(variable, value) {</span>
+<span id="cb17-67"><a href="#cb17-67" tabindex="-1"></a>    <span class="fu">return</span>(group_labels[value])</span>
+<span id="cb17-68"><a href="#cb17-68" tabindex="-1"></a>  })) <span class="sc">+</span>  <span class="co"># Specify custom labels for facet_wrap</span></span>
+<span id="cb17-69"><a href="#cb17-69" tabindex="-1"></a>  group_plots <span class="sc">+</span></span>
+<span id="cb17-70"><a href="#cb17-70" tabindex="-1"></a>  <span class="fu">scale_color_gradient</span>(<span class="at">name =</span> <span class="st">&quot;Speed&quot;</span>) <span class="sc">+</span></span>
+<span id="cb17-71"><a href="#cb17-71" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">&quot;Speed&quot;</span>) <span class="sc">+</span></span>
+<span id="cb17-72"><a href="#cb17-72" tabindex="-1"></a>  <span class="fu">scale_color_viridis_c</span>(<span class="at">option =</span> <span class="st">&quot;D&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb17-73"><a href="#cb17-73" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>))</span>
+<span id="cb17-74"><a href="#cb17-74" tabindex="-1"></a></span>
+<span id="cb17-75"><a href="#cb17-75" tabindex="-1"></a><span class="co"># Print the combined plot</span></span>
+<span id="cb17-76"><a href="#cb17-76" tabindex="-1"></a><span class="fu">print</span>(combined_plot)</span></code></pre></div>
+<p><img src="modeling_files/figure-html/unnamed-chunk-9-1.png" width="100%" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+</div>
+<div id="modeling" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Modeling</h1>
+<div id="nu-0.5" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> <span
+class="math inline">\(\nu = 0.5\)</span></h2>
+<div id="stationary-model" class="section level3" number="3.1.1">
+<h3><span class="header-section-number">3.1.1</span> Stationary
+model</h3>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>rspde_model_stat <span class="ot">&lt;-</span> <span class="fu">rspde.metric_graph</span>(sf_graph,</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>                                       <span class="at">parameterization =</span> <span class="st">&quot;matern&quot;</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>                                       <span class="at">nu =</span> <span class="fl">0.5</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>data_rspde_bru_stat <span class="ot">&lt;-</span> <span class="fu">graph_data_rspde</span>(rspde_model_stat,</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>                                        <span class="at">repl =</span> <span class="st">&quot;.all&quot;</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>                                        <span class="at">loc_name =</span> <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>cmp_stat <span class="ot">&lt;-</span> speed <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>  <span class="fu">Intercept</span>(<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>  SpeedLimit <span class="sc">+</span></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>  <span class="fu">field</span>(loc, <span class="at">model =</span> rspde_model_stat,</span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>        <span class="at">replicate =</span> data_rspde_bru_stat[[<span class="st">&quot;repl&quot;</span>]])</span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a>rspde_fit_stat <span class="ot">&lt;-</span></span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a>  <span class="fu">bru</span>(cmp_stat,</span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a>      <span class="at">data =</span> data_rspde_bru_stat[[<span class="st">&quot;data&quot;</span>]],</span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a>  )</span>
+<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_stat)</span>
+<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a>fit.rspde <span class="ot">&lt;-</span> <span class="fu">rspde.result</span>(rspde_fit_stat, <span class="st">&quot;field&quot;</span>, rspde_model_stat)</span>
+<span id="cb18-22"><a href="#cb18-22" tabindex="-1"></a><span class="fu">summary</span>(fit.rspde)</span>
+<span id="cb18-23"><a href="#cb18-23" tabindex="-1"></a></span>
+<span id="cb18-24"><a href="#cb18-24" tabindex="-1"></a>rspde_fit_statnu0<span class="fl">.5</span> <span class="ot">&lt;-</span> rspde_fit_stat</span></code></pre></div>
+<pre><code>inlabru version: 2.10.1.9010
+INLA version: 24.06.19
+Components:
+Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L)
+SpeedLimit: main = linear(SpeedLimit), group = exchangeable(1L), replicate = iid(1L)
+field: main = cgeneric(loc), group = exchangeable(1L), replicate = iid(data_rspde_bru_stat[[&quot;repl&quot;]])
+Likelihoods:
+  Family: &#39;gaussian&#39;
+    Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
+    Predictor: speed ~ .
+Time used:
+    Pre = 1.18, Running = 712, Post = 26.4, Total = 739 
+Fixed effects:
+             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+Intercept  24.362 0.281     23.812   24.362     24.916 24.362   0
+SpeedLimit  3.623 0.112      3.404    3.623      3.841  3.623   0
+
+Random effects:
+  Name    Model
+    field CGeneric
+
+Model hyperparameters:
+                                          mean    sd 0.025quant 0.5quant
+Precision for the Gaussian observations  0.012 0.000      0.012    0.012
+Theta1 for field                         3.342 0.027      3.291    3.342
+Theta2 for field                        -0.230 0.063     -0.352   -0.231
+                                        0.975quant   mode
+Precision for the Gaussian observations      0.012  0.012
+Theta1 for field                             3.396  3.341
+Theta2 for field                            -0.105 -0.234
+
+Deviance Information Criterion (DIC) ...............: 420972.66
+Deviance Information Criterion (DIC, saturated) ....: 69651.97
+Effective number of parameters .....................: 13688.58
+
+Watanabe-Akaike information criterion (WAIC) ...: 421684.79
+Effective number of parameters .................: 11742.44
+
+Marginal log-Likelihood:  -217021.45 
+ is computed 
+Posterior summaries for the linear predictor and the fitted values are computed
+(Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)
+
+             mean        sd 0.025quant  0.5quant 0.975quant      mode
+std.dev 28.294800 0.7497110  26.871500 28.276200  29.815300 28.227200
+range    0.795732 0.0497475   0.703982  0.793571   0.899263  0.788327</code></pre>
+</div>
+<div id="non-stationary-model" class="section level3" number="3.1.2">
+<h3><span class="header-section-number">3.1.2</span> Non-stationary
+model</h3>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>B.sigma <span class="ot">=</span> <span class="fu">cbind</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, mesh<span class="sc">$</span>SpeedLimit, <span class="dv">0</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>B.range <span class="ot">=</span> <span class="fu">cbind</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, mesh<span class="sc">$</span>SpeedLimit)</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>init.vec.theta <span class="ot">=</span> <span class="fu">c</span>(fit.rspde<span class="sc">$</span>summary.log.std.dev<span class="sc">$</span>mode, </span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>                   fit.rspde<span class="sc">$</span>summary.log.range<span class="sc">$</span>mode, </span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a>                   <span class="fu">rep</span>(<span class="dv">0</span>, (<span class="fu">ncol</span>(B.sigma)<span class="sc">-</span><span class="dv">3</span>)))</span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a>rspde_model_nonstat <span class="ot">&lt;-</span> <span class="fu">rspde.metric_graph</span>(sf_graph,</span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a>                                          <span class="at">start.theta =</span> init.vec.theta,</span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a>                                          <span class="at">theta.prior.mean =</span> init.vec.theta,</span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a>                                          <span class="at">B.sigma =</span> B.sigma,</span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a>                                          <span class="at">B.range =</span> B.range,</span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a>                                          <span class="at">parameterization =</span> <span class="st">&quot;matern&quot;</span>,</span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a>                                          <span class="at">nu =</span> <span class="fl">0.5</span>)</span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a>data_rspde_bru_nonstat <span class="ot">&lt;-</span> <span class="fu">graph_data_rspde</span>(rspde_model_nonstat,</span>
+<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a>                                           <span class="at">repl =</span> <span class="st">&quot;.all&quot;</span>,</span>
+<span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a>                                           <span class="at">loc_name =</span> <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a>cmp_nonstat <span class="ot">&lt;-</span> speed <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span></span>
+<span id="cb20-19"><a href="#cb20-19" tabindex="-1"></a>  <span class="fu">Intercept</span>(<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-20"><a href="#cb20-20" tabindex="-1"></a>  SpeedLimit <span class="sc">+</span></span>
+<span id="cb20-21"><a href="#cb20-21" tabindex="-1"></a>  <span class="fu">field</span>(loc, <span class="at">model =</span> rspde_model_nonstat,</span>
+<span id="cb20-22"><a href="#cb20-22" tabindex="-1"></a>        <span class="at">replicate =</span> data_rspde_bru_nonstat[[<span class="st">&quot;repl&quot;</span>]])</span>
+<span id="cb20-23"><a href="#cb20-23" tabindex="-1"></a></span>
+<span id="cb20-24"><a href="#cb20-24" tabindex="-1"></a>rspde_fit_nonstat <span class="ot">&lt;-</span></span>
+<span id="cb20-25"><a href="#cb20-25" tabindex="-1"></a>  <span class="fu">bru</span>(cmp_nonstat,</span>
+<span id="cb20-26"><a href="#cb20-26" tabindex="-1"></a>      <span class="at">data =</span> data_rspde_bru_nonstat[[<span class="st">&quot;data&quot;</span>]],</span>
+<span id="cb20-27"><a href="#cb20-27" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb20-28"><a href="#cb20-28" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb20-29"><a href="#cb20-29" tabindex="-1"></a>  )</span>
+<span id="cb20-30"><a href="#cb20-30" tabindex="-1"></a></span>
+<span id="cb20-31"><a href="#cb20-31" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_nonstat)</span>
+<span id="cb20-32"><a href="#cb20-32" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span>
+<span id="cb20-33"><a href="#cb20-33" tabindex="-1"></a></span>
+<span id="cb20-34"><a href="#cb20-34" tabindex="-1"></a></span>
+<span id="cb20-35"><a href="#cb20-35" tabindex="-1"></a>rspde_fit_nonstatnu0<span class="fl">.5</span> <span class="ot">&lt;-</span> rspde_fit_nonstat</span></code></pre></div>
+<pre><code>inlabru version: 2.10.1.9010
+INLA version: 24.06.19
+Components:
+Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L)
+SpeedLimit: main = linear(SpeedLimit), group = exchangeable(1L), replicate = iid(1L)
+field: main = cgeneric(loc), group = exchangeable(1L), replicate = iid(data_rspde_bru_nonstat[[&quot;repl&quot;]])
+Likelihoods:
+  Family: &#39;gaussian&#39;
+    Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
+    Predictor: speed ~ .
+Time used:
+    Pre = 1.12, Running = 493, Post = 22.6, Total = 517 
+Fixed effects:
+             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+Intercept  24.355 0.280     23.808   24.355     24.905 24.355   0
+SpeedLimit  3.630 0.108      3.417    3.630      3.842  3.630   0
+
+Random effects:
+  Name    Model
+    field CGeneric
+
+Model hyperparameters:
+                                          mean    sd 0.025quant 0.5quant
+Precision for the Gaussian observations  0.012 0.000      0.012    0.012
+Theta1 for field                         3.361 0.025      3.313    3.360
+Theta2 for field                        -0.191 0.060     -0.302   -0.193
+Theta3 for field                         0.087 0.031      0.023    0.088
+Theta4 for field                         0.196 0.062      0.069    0.197
+                                        0.975quant   mode
+Precision for the Gaussian observations      0.012  0.012
+Theta1 for field                             3.413  3.357
+Theta2 for field                            -0.066 -0.203
+Theta3 for field                             0.144  0.092
+Theta4 for field                             0.311  0.206
+
+Deviance Information Criterion (DIC) ...............: 420961.94
+Deviance Information Criterion (DIC, saturated) ....: 69665.62
+Effective number of parameters .....................: 13702.13
+
+Watanabe-Akaike information criterion (WAIC) ...: 421669.40
+Effective number of parameters .................: 11749.81
+
+Marginal log-Likelihood:  -217028.86 
+ is computed 
+Posterior summaries for the linear predictor and the fitted values are computed
+(Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)
+
+                    mean        sd 0.025quant   0.5quant 0.975quant       mode
+Theta1.matern  3.3607600 0.0253418  3.3132400  3.3600000  3.4129200  3.3565500
+Theta2.matern -0.1909790 0.0600332 -0.3024400 -0.1931010 -0.0664567 -0.2029110
+Theta3.matern  0.0866002 0.0307684  0.0232740  0.0875326  0.1442740  0.0917472
+Theta4.matern  0.1955290 0.0615616  0.0687321  0.1974260  0.3108150  0.2060140</code></pre>
+</div>
+</div>
+<div id="nu-1.5" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> <span
+class="math inline">\(\nu = 1.5\)</span></h2>
+<div id="stationary-model-1" class="section level3" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> Stationary
+model</h3>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>rspde_model_stat <span class="ot">&lt;-</span> <span class="fu">rspde.metric_graph</span>(sf_graph,</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>                                       <span class="at">parameterization =</span> <span class="st">&quot;matern&quot;</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>                                       <span class="at">nu =</span> <span class="fl">1.5</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>data_rspde_bru_stat <span class="ot">&lt;-</span> <span class="fu">graph_data_rspde</span>(rspde_model_stat,</span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>                                        <span class="at">repl =</span> <span class="st">&quot;.all&quot;</span>,</span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>                                        <span class="at">loc_name =</span> <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a>cmp_stat <span class="ot">&lt;-</span> speed <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span></span>
+<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a>  <span class="fu">Intercept</span>(<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a>  SpeedLimit <span class="sc">+</span></span>
+<span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a>  <span class="fu">field</span>(loc, <span class="at">model =</span> rspde_model_stat,</span>
+<span id="cb22-13"><a href="#cb22-13" tabindex="-1"></a>        <span class="at">replicate =</span> data_rspde_bru_stat[[<span class="st">&quot;repl&quot;</span>]])</span>
+<span id="cb22-14"><a href="#cb22-14" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" tabindex="-1"></a>rspde_fit_stat <span class="ot">&lt;-</span></span>
+<span id="cb22-16"><a href="#cb22-16" tabindex="-1"></a>  <span class="fu">bru</span>(cmp_stat,</span>
+<span id="cb22-17"><a href="#cb22-17" tabindex="-1"></a>      <span class="at">data =</span> data_rspde_bru_stat[[<span class="st">&quot;data&quot;</span>]],</span>
+<span id="cb22-18"><a href="#cb22-18" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb22-19"><a href="#cb22-19" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb22-20"><a href="#cb22-20" tabindex="-1"></a>  )</span>
+<span id="cb22-21"><a href="#cb22-21" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_stat)</span>
+<span id="cb22-23"><a href="#cb22-23" tabindex="-1"></a>fit.rspde <span class="ot">&lt;-</span> <span class="fu">rspde.result</span>(rspde_fit_stat, <span class="st">&quot;field&quot;</span>, rspde_model_stat)</span>
+<span id="cb22-24"><a href="#cb22-24" tabindex="-1"></a><span class="fu">summary</span>(fit.rspde)</span>
+<span id="cb22-25"><a href="#cb22-25" tabindex="-1"></a></span>
+<span id="cb22-26"><a href="#cb22-26" tabindex="-1"></a>rspde_fit_statnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> rspde_fit_stat</span></code></pre></div>
+<pre><code>inlabru version: 2.10.1.9010
+INLA version: 24.06.19
+Components:
+Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L)
+SpeedLimit: main = linear(SpeedLimit), group = exchangeable(1L), replicate = iid(1L)
+field: main = cgeneric(loc), group = exchangeable(1L), replicate = iid(data_rspde_bru_stat[[&quot;repl&quot;]])
+Likelihoods:
+  Family: &#39;gaussian&#39;
+    Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
+    Predictor: speed ~ .
+Time used:
+    Pre = 0.857, Running = 526, Post = 20.1, Total = 547 
+Fixed effects:
+            mean    sd 0.025quant 0.5quant 0.975quant  mode kld
+Intercept  24.13 0.143     23.850    24.13     24.412 24.13   0
+SpeedLimit  5.00 0.110      4.786     5.00      5.214  5.00   0
+
+Random effects:
+  Name    Model
+    field CGeneric
+
+Model hyperparameters:
+                                          mean    sd 0.025quant 0.5quant
+Precision for the Gaussian observations  0.012 0.000      0.011    0.012
+Theta1 for field                         2.906 0.013      2.880    2.907
+Theta2 for field                        -1.721 0.029     -1.778   -1.721
+                                        0.975quant   mode
+Precision for the Gaussian observations      0.012  0.012
+Theta1 for field                             2.932  2.907
+Theta2 for field                            -1.666 -1.719
+
+Deviance Information Criterion (DIC) ...............: 422398.73
+Deviance Information Criterion (DIC, saturated) ....: 69671.40
+Effective number of parameters .....................: 13710.17
+
+Watanabe-Akaike information criterion (WAIC) ...: 423088.25
+Effective number of parameters .................: 11697.74
+
+Marginal log-Likelihood:  -217769.40 
+ is computed 
+Posterior summaries for the linear predictor and the fitted values are computed
+(Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)
+
+             mean         sd 0.025quant  0.5quant 0.975quant      mode
+std.dev 18.293100 0.23782500  17.824200 18.294300  18.758100 18.299800
+range    0.178948 0.00507203   0.168991  0.178946   0.188952  0.179034</code></pre>
+</div>
+<div id="non-stationary-model-1" class="section level3" number="3.2.2">
+<h3><span class="header-section-number">3.2.2</span> Non-stationary
+model</h3>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>B.sigma <span class="ot">=</span> <span class="fu">cbind</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, mesh<span class="sc">$</span>SpeedLimit, <span class="dv">0</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>B.range <span class="ot">=</span> <span class="fu">cbind</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, mesh<span class="sc">$</span>SpeedLimit)</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>init.vec.theta <span class="ot">=</span> <span class="fu">c</span>(fit.rspde<span class="sc">$</span>summary.log.std.dev<span class="sc">$</span>mode, </span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>                   fit.rspde<span class="sc">$</span>summary.log.range<span class="sc">$</span>mode, </span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>                   <span class="fu">rep</span>(<span class="dv">0</span>, (<span class="fu">ncol</span>(B.sigma)<span class="sc">-</span><span class="dv">3</span>)))</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>rspde_model_nonstat <span class="ot">&lt;-</span> <span class="fu">rspde.metric_graph</span>(sf_graph,</span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>                                          <span class="at">B.sigma =</span> B.sigma,</span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>                                          <span class="at">B.range =</span> B.range,</span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a>                                          <span class="at">parameterization =</span> <span class="st">&quot;matern&quot;</span>,</span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>                                          <span class="at">nu =</span> <span class="fl">1.5</span>)</span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a></span>
+<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a>data_rspde_bru_nonstat <span class="ot">&lt;-</span> <span class="fu">graph_data_rspde</span>(rspde_model_nonstat,</span>
+<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a>                                           <span class="at">repl =</span> <span class="st">&quot;.all&quot;</span>,</span>
+<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a>                                           <span class="at">loc_name =</span> <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a></span>
+<span id="cb24-17"><a href="#cb24-17" tabindex="-1"></a>cmp_nonstat <span class="ot">&lt;-</span> speed <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span></span>
+<span id="cb24-18"><a href="#cb24-18" tabindex="-1"></a>  <span class="fu">Intercept</span>(<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb24-19"><a href="#cb24-19" tabindex="-1"></a>  SpeedLimit <span class="sc">+</span></span>
+<span id="cb24-20"><a href="#cb24-20" tabindex="-1"></a>  <span class="fu">field</span>(loc, <span class="at">model =</span> rspde_model_nonstat,</span>
+<span id="cb24-21"><a href="#cb24-21" tabindex="-1"></a>        <span class="at">replicate =</span> data_rspde_bru_nonstat[[<span class="st">&quot;repl&quot;</span>]])</span>
+<span id="cb24-22"><a href="#cb24-22" tabindex="-1"></a></span>
+<span id="cb24-23"><a href="#cb24-23" tabindex="-1"></a>rspde_fit_nonstat <span class="ot">&lt;-</span></span>
+<span id="cb24-24"><a href="#cb24-24" tabindex="-1"></a>  <span class="fu">bru</span>(cmp_nonstat,</span>
+<span id="cb24-25"><a href="#cb24-25" tabindex="-1"></a>      <span class="at">data =</span> data_rspde_bru_nonstat[[<span class="st">&quot;data&quot;</span>]],</span>
+<span id="cb24-26"><a href="#cb24-26" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb24-27"><a href="#cb24-27" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb24-28"><a href="#cb24-28" tabindex="-1"></a>  )</span>
+<span id="cb24-29"><a href="#cb24-29" tabindex="-1"></a></span>
+<span id="cb24-30"><a href="#cb24-30" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_nonstat)</span>
+<span id="cb24-31"><a href="#cb24-31" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span>
+<span id="cb24-32"><a href="#cb24-32" tabindex="-1"></a></span>
+<span id="cb24-33"><a href="#cb24-33" tabindex="-1"></a></span>
+<span id="cb24-34"><a href="#cb24-34" tabindex="-1"></a>rspde_fit_nonstatnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> rspde_fit_nonstat</span></code></pre></div>
+<pre><code>inlabru version: 2.10.1.9010
+INLA version: 24.06.19
+Components:
+Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L)
+SpeedLimit: main = linear(SpeedLimit), group = exchangeable(1L), replicate = iid(1L)
+field: main = cgeneric(loc), group = exchangeable(1L), replicate = iid(data_rspde_bru_nonstat[[&quot;repl&quot;]])
+Likelihoods:
+  Family: &#39;gaussian&#39;
+    Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
+    Predictor: speed ~ .
+Time used:
+    Pre = 1.02, Running = 693, Post = 22.5, Total = 716 
+Fixed effects:
+             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+Intercept  24.125 0.143     23.843   24.124     24.406 24.124   0
+SpeedLimit  5.010 0.109      4.796    5.010      5.222  5.010   0
+
+Random effects:
+  Name    Model
+    field CGeneric
+
+Model hyperparameters:
+                                          mean    sd 0.025quant 0.5quant
+Precision for the Gaussian observations  0.012 0.000      0.011    0.012
+Theta1 for field                         2.906 0.013      2.881    2.906
+Theta2 for field                        -1.724 0.027     -1.777   -1.725
+Theta3 for field                         0.011 0.016     -0.021    0.011
+Theta4 for field                         0.026 0.016     -0.006    0.026
+                                        0.975quant   mode
+Precision for the Gaussian observations      0.012  0.012
+Theta1 for field                             2.931  2.905
+Theta2 for field                            -1.670 -1.726
+Theta3 for field                             0.042  0.012
+Theta4 for field                             0.056  0.026
+
+Deviance Information Criterion (DIC) ...............: 422376.18
+Deviance Information Criterion (DIC, saturated) ....: 69712.35
+Effective number of parameters .....................: 13750.10
+
+Watanabe-Akaike information criterion (WAIC) ...: 423046.43
+Effective number of parameters .................: 11717.29
+
+Marginal log-Likelihood:  -217777.56 
+ is computed 
+Posterior summaries for the linear predictor and the fitted values are computed
+(Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)
+
+                    mean        sd  0.025quant   0.5quant 0.975quant       mode
+Theta1.matern  2.9057300 0.0125565  2.88126000  2.9056400  2.9306900  2.9052800
+Theta2.matern -1.7244400 0.0273559 -1.77745000 -1.7247300 -1.6697400 -1.7259400
+Theta3.matern  0.0110203 0.0159982 -0.02091600  0.0111701  0.0420734  0.0118034
+Theta4.matern  0.0255082 0.0158143 -0.00603783  0.0256485  0.0562279  0.0262408</code></pre>
+</div>
+</div>
+<div id="nu-estimated" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> <span
+class="math inline">\(\nu\)</span> estimated</h2>
+<div id="stationary-model-2" class="section level3" number="3.3.1">
+<h3><span class="header-section-number">3.3.1</span> Stationary
+model</h3>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>rspde_model_stat <span class="ot">&lt;-</span> <span class="fu">rspde.metric_graph</span>(sf_graph,</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>                                       <span class="at">parameterization =</span> <span class="st">&quot;matern&quot;</span>,</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>                                       <span class="at">nu.upper.bound =</span> <span class="fl">1.5</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>data_rspde_bru_stat <span class="ot">&lt;-</span> <span class="fu">graph_data_rspde</span>(rspde_model_stat,</span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>                                        <span class="at">repl =</span> <span class="st">&quot;.all&quot;</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>                                        <span class="at">loc_name =</span> <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a>cmp_stat <span class="ot">&lt;-</span> speed <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span></span>
+<span id="cb26-11"><a href="#cb26-11" tabindex="-1"></a>  <span class="fu">Intercept</span>(<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb26-12"><a href="#cb26-12" tabindex="-1"></a>  SpeedLimit <span class="sc">+</span></span>
+<span id="cb26-13"><a href="#cb26-13" tabindex="-1"></a>  <span class="fu">field</span>(loc, <span class="at">model =</span> rspde_model_stat,</span>
+<span id="cb26-14"><a href="#cb26-14" tabindex="-1"></a>        <span class="at">replicate =</span> data_rspde_bru_stat[[<span class="st">&quot;repl&quot;</span>]])</span>
+<span id="cb26-15"><a href="#cb26-15" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" tabindex="-1"></a>rspde_fit_stat <span class="ot">&lt;-</span></span>
+<span id="cb26-17"><a href="#cb26-17" tabindex="-1"></a>  <span class="fu">bru</span>(cmp_stat,</span>
+<span id="cb26-18"><a href="#cb26-18" tabindex="-1"></a>      <span class="at">data =</span> data_rspde_bru_stat[[<span class="st">&quot;data&quot;</span>]],</span>
+<span id="cb26-19"><a href="#cb26-19" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb26-20"><a href="#cb26-20" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb26-21"><a href="#cb26-21" tabindex="-1"></a>  )</span>
+<span id="cb26-22"><a href="#cb26-22" tabindex="-1"></a></span>
+<span id="cb26-23"><a href="#cb26-23" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_stat)</span>
+<span id="cb26-24"><a href="#cb26-24" tabindex="-1"></a>fit.rspde <span class="ot">&lt;-</span> <span class="fu">rspde.result</span>(rspde_fit_stat, <span class="st">&quot;field&quot;</span>, rspde_model_stat)</span>
+<span id="cb26-25"><a href="#cb26-25" tabindex="-1"></a><span class="fu">summary</span>(fit.rspde)</span>
+<span id="cb26-26"><a href="#cb26-26" tabindex="-1"></a></span>
+<span id="cb26-27"><a href="#cb26-27" tabindex="-1"></a>rspde_fit_statnuest <span class="ot">&lt;-</span> rspde_fit_stat</span></code></pre></div>
+<pre><code>inlabru version: 2.10.1.9010
+INLA version: 24.06.19
+Components:
+Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L)
+SpeedLimit: main = linear(SpeedLimit), group = exchangeable(1L), replicate = iid(1L)
+field: main = cgeneric(loc), group = exchangeable(1L), replicate = iid(data_rspde_bru_stat[[&quot;repl&quot;]])
+Likelihoods:
+  Family: &#39;gaussian&#39;
+    Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
+    Predictor: speed ~ .
+Time used:
+    Pre = 1.18, Running = 5419, Post = 119, Total = 5540 
+Fixed effects:
+             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+Intercept  25.296 1.692     21.978   25.296     28.616 25.296   0
+SpeedLimit  3.718 0.104      3.513    3.718      3.923  3.718   0
+
+Random effects:
+  Name    Model
+    field CGeneric
+
+Model hyperparameters:
+                                          mean    sd 0.025quant 0.5quant
+Precision for the Gaussian observations  0.013 0.000      0.012    0.013
+Theta1 for field                         4.648 0.094      4.512    4.635
+Theta2 for field                         1.635 0.226      1.108    1.667
+Theta3 for field                        -3.216 0.399     -4.149   -3.159
+                                        0.975quant   mode
+Precision for the Gaussian observations      0.013  0.013
+Theta1 for field                             4.868  4.567
+Theta2 for field                             1.961  1.828
+Theta3 for field                            -2.647 -2.866
+
+Deviance Information Criterion (DIC) ...............: 419504.24
+Deviance Information Criterion (DIC, saturated) ....: 71125.83
+Effective number of parameters .....................: 15156.02
+
+Watanabe-Akaike information criterion (WAIC) ...: 420152.89
+Effective number of parameters .................: 12782.18
+
+Marginal log-Likelihood:  -216673.25 
+ is computed 
+Posterior summaries for the linear predictor and the fitted values are computed
+(Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)
+
+               mean         sd 0.025quant   0.5quant 0.975quant       mode
+std.dev 104.7500000 10.2302000 91.1098000 102.647000 129.697000 95.7957000
+range     5.2646200  1.0943000  3.0495600   5.337550   7.105320  5.6435900
+nu        0.0618325  0.0207657  0.0235789   0.061922   0.099379  0.0604903</code></pre>
+</div>
+<div id="non-stationary-model-2" class="section level3" number="3.3.2">
+<h3><span class="header-section-number">3.3.2</span> Non-stationary
+model</h3>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>B.sigma <span class="ot">=</span> <span class="fu">cbind</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, mesh<span class="sc">$</span>SpeedLimit, <span class="dv">0</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a>B.range <span class="ot">=</span> <span class="fu">cbind</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, mesh<span class="sc">$</span>SpeedLimit)</span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>init.vec.theta <span class="ot">=</span> <span class="fu">c</span>(fit.rspde<span class="sc">$</span>summary.log.std.dev<span class="sc">$</span>mode, </span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a>                   fit.rspde<span class="sc">$</span>summary.log.range<span class="sc">$</span>mode, </span>
+<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a>                   <span class="fu">rep</span>(<span class="dv">0</span>, (<span class="fu">ncol</span>(B.sigma)<span class="sc">-</span><span class="dv">3</span>)))</span>
+<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a>rspde_model_nonstat <span class="ot">&lt;-</span> <span class="fu">rspde.metric_graph</span>(sf_graph,</span>
+<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a>                                          <span class="at">start.theta =</span> init.vec.theta,</span>
+<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a>                                          <span class="at">theta.prior.mean =</span> init.vec.theta,</span>
+<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a>                                          <span class="at">B.sigma =</span> B.sigma,</span>
+<span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a>                                          <span class="at">B.range =</span> B.range,</span>
+<span id="cb28-12"><a href="#cb28-12" tabindex="-1"></a>                                          <span class="at">parameterization =</span> <span class="st">&quot;matern&quot;</span>,</span>
+<span id="cb28-13"><a href="#cb28-13" tabindex="-1"></a>                                          <span class="at">nu.upper.bound =</span> <span class="fl">1.5</span>)</span>
+<span id="cb28-14"><a href="#cb28-14" tabindex="-1"></a></span>
+<span id="cb28-15"><a href="#cb28-15" tabindex="-1"></a>data_rspde_bru_nonstat <span class="ot">&lt;-</span> <span class="fu">graph_data_rspde</span>(rspde_model_nonstat,</span>
+<span id="cb28-16"><a href="#cb28-16" tabindex="-1"></a>                                           <span class="at">repl =</span> <span class="st">&quot;.all&quot;</span>,</span>
+<span id="cb28-17"><a href="#cb28-17" tabindex="-1"></a>                                           <span class="at">loc_name =</span> <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb28-18"><a href="#cb28-18" tabindex="-1"></a></span>
+<span id="cb28-19"><a href="#cb28-19" tabindex="-1"></a>cmp_nonstat <span class="ot">&lt;-</span> speed <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span></span>
+<span id="cb28-20"><a href="#cb28-20" tabindex="-1"></a>  <span class="fu">Intercept</span>(<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb28-21"><a href="#cb28-21" tabindex="-1"></a>  SpeedLimit <span class="sc">+</span></span>
+<span id="cb28-22"><a href="#cb28-22" tabindex="-1"></a>  <span class="fu">field</span>(loc, <span class="at">model =</span> rspde_model_nonstat,</span>
+<span id="cb28-23"><a href="#cb28-23" tabindex="-1"></a>        <span class="at">replicate =</span> data_rspde_bru_nonstat[[<span class="st">&quot;repl&quot;</span>]])</span>
+<span id="cb28-24"><a href="#cb28-24" tabindex="-1"></a></span>
+<span id="cb28-25"><a href="#cb28-25" tabindex="-1"></a>rspde_fit_nonstat <span class="ot">&lt;-</span></span>
+<span id="cb28-26"><a href="#cb28-26" tabindex="-1"></a>  <span class="fu">bru</span>(cmp_nonstat,</span>
+<span id="cb28-27"><a href="#cb28-27" tabindex="-1"></a>      <span class="at">data =</span> data_rspde_bru_nonstat[[<span class="st">&quot;data&quot;</span>]],</span>
+<span id="cb28-28"><a href="#cb28-28" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb28-29"><a href="#cb28-29" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb28-30"><a href="#cb28-30" tabindex="-1"></a>  )</span>
+<span id="cb28-31"><a href="#cb28-31" tabindex="-1"></a></span>
+<span id="cb28-32"><a href="#cb28-32" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_nonstat)</span>
+<span id="cb28-33"><a href="#cb28-33" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span>
+<span id="cb28-34"><a href="#cb28-34" tabindex="-1"></a></span>
+<span id="cb28-35"><a href="#cb28-35" tabindex="-1"></a></span>
+<span id="cb28-36"><a href="#cb28-36" tabindex="-1"></a>rspde_fit_nonstatnuest <span class="ot">&lt;-</span> rspde_fit_nonstat</span></code></pre></div>
+<pre><code>inlabru version: 2.10.1.9010
+INLA version: 24.06.19
+Components:
+Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L)
+SpeedLimit: main = linear(SpeedLimit), group = exchangeable(1L), replicate = iid(1L)
+field: main = cgeneric(loc), group = exchangeable(1L), replicate = iid(data_rspde_bru_nonstat[[&quot;repl&quot;]])
+Likelihoods:
+  Family: &#39;gaussian&#39;
+    Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
+    Predictor: speed ~ .
+Time used:
+    Pre = 1.45, Running = 71785, Post = 86.2, Total = 71872 
+Fixed effects:
+             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+Intercept  23.908 2.044     19.982   23.878     27.998 23.875   0
+SpeedLimit  3.735 0.103      3.533    3.735      3.938  3.735   0
+
+Random effects:
+  Name    Model
+    field CGeneric
+
+Model hyperparameters:
+                                          mean    sd 0.025quant 0.5quant
+Precision for the Gaussian observations  0.013 0.000      0.012    0.013
+Theta1 for field                         4.079 0.011      4.054    4.080
+Theta2 for field                         2.164 0.012      2.140    2.165
+Theta3 for field                         0.096 0.007      0.081    0.096
+Theta4 for field                         0.224 0.005      0.214    0.224
+Theta5 for field                        -1.089 0.019     -1.133   -1.086
+                                        0.975quant   mode
+Precision for the Gaussian observations      0.013  0.013
+Theta1 for field                             4.097  4.085
+Theta2 for field                             2.185  2.168
+Theta3 for field                             0.110  0.096
+Theta4 for field                             0.232  0.224
+Theta5 for field                            -1.064 -1.070
+
+Deviance Information Criterion (DIC) ...............: 419479.21
+Deviance Information Criterion (DIC, saturated) ....: 71139.38
+Effective number of parameters .....................: 15190.94
+
+Watanabe-Akaike information criterion (WAIC) ...: 420137.34
+Effective number of parameters .................: 12811.92
+
+Marginal log-Likelihood:  -216696.66 
+ is computed 
+Posterior summaries for the linear predictor and the fitted values are computed
+(Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)
+
+                   mean         sd 0.025quant  0.5quant 0.975quant      mode
+Theta1.matern 4.0788300 0.01090570  4.0544300 4.0797700   4.096690 4.0848900
+Theta2.matern 2.1641600 0.01155710  2.1396700 2.1647200   2.184990 2.1675000
+Theta3.matern 0.0957875 0.00725435  0.0813102 0.0958491   0.109899 0.0961221
+Theta4.matern 0.2237060 0.00456106  0.2143200 0.2237950   0.232354 0.2243240
+nu            0.3778020 0.00525714  0.3654280 0.3787570   0.384910 0.3833140</code></pre>
+</div>
+</div>
+</div>
+<div id="cross-validation" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Cross-validation</h1>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="co"># Load the groups</span></span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">&quot;data_files/GROUPS.RData&quot;</span>))</span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a>distance <span class="ot">=</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">200</span>, <span class="at">by =</span> <span class="dv">20</span>)<span class="sc">/</span><span class="dv">1000</span></span>
+<span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a>mse.statnu0<span class="fl">.5</span> <span class="ot">&lt;-</span> mse.nonstatnu0<span class="fl">.5</span> <span class="ot">&lt;-</span> ls.statnu0<span class="fl">.5</span> <span class="ot">&lt;-</span> ls.nonstatnu0<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,<span class="fu">length</span>(distance))</span>
+<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a>mse.statnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> mse.nonstatnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> ls.statnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> ls.nonstatnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,<span class="fu">length</span>(distance))</span>
+<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a>mse.statnuest <span class="ot">&lt;-</span> mse.nonstatnuest <span class="ot">&lt;-</span> ls.statnuest <span class="ot">&lt;-</span> ls.nonstatnuest <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,<span class="fu">length</span>(distance))</span>
+<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a><span class="co"># cross-validation for-loop</span></span>
+<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(distance)) {</span>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a>  <span class="fu">print</span>(j)</span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a>  <span class="co"># cross-validation of the stationary model</span></span>
+<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a>  cv.statnu0<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">inla.group.cv</span>(rspde_fit_statnu0<span class="fl">.5</span>, <span class="at">groups =</span> GROUPS[[j]])</span>
+<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a>  cv.statnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">inla.group.cv</span>(rspde_fit_statnu1<span class="fl">.5</span>, <span class="at">groups =</span> GROUPS[[j]])</span>
+<span id="cb30-16"><a href="#cb30-16" tabindex="-1"></a>  cv.statnuest <span class="ot">&lt;-</span> <span class="fu">inla.group.cv</span>(rspde_fit_statnuest, <span class="at">groups =</span> GROUPS[[j]])</span>
+<span id="cb30-17"><a href="#cb30-17" tabindex="-1"></a>  <span class="co"># cross-validation of the nonstationary model</span></span>
+<span id="cb30-18"><a href="#cb30-18" tabindex="-1"></a>  cv.nonstatnu0<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">inla.group.cv</span>(rspde_fit_nonstatnu0<span class="fl">.5</span>, <span class="at">groups =</span> GROUPS[[j]])</span>
+<span id="cb30-19"><a href="#cb30-19" tabindex="-1"></a>  cv.nonstatnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">inla.group.cv</span>(rspde_fit_nonstatnu1<span class="fl">.5</span>, <span class="at">groups =</span> GROUPS[[j]])</span>
+<span id="cb30-20"><a href="#cb30-20" tabindex="-1"></a>  cv.nonstatnuest <span class="ot">&lt;-</span> <span class="fu">inla.group.cv</span>(rspde_fit_nonstatnuest, <span class="at">groups =</span> GROUPS[[j]])</span>
+<span id="cb30-21"><a href="#cb30-21" tabindex="-1"></a>  <span class="co"># obtain MSE and LS</span></span>
+<span id="cb30-22"><a href="#cb30-22" tabindex="-1"></a>  mse.statnu0<span class="fl">.5</span>[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>((cv.statnu0<span class="fl">.5</span><span class="sc">$</span>mean <span class="sc">-</span> points<span class="sc">$</span>speed)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb30-23"><a href="#cb30-23" tabindex="-1"></a>  mse.statnu1<span class="fl">.5</span>[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>((cv.statnu1<span class="fl">.5</span><span class="sc">$</span>mean <span class="sc">-</span> points<span class="sc">$</span>speed)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb30-24"><a href="#cb30-24" tabindex="-1"></a>  mse.statnuest[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>((cv.statnuest<span class="sc">$</span>mean <span class="sc">-</span> points<span class="sc">$</span>speed)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb30-25"><a href="#cb30-25" tabindex="-1"></a>  </span>
+<span id="cb30-26"><a href="#cb30-26" tabindex="-1"></a>  </span>
+<span id="cb30-27"><a href="#cb30-27" tabindex="-1"></a>  mse.nonstatnu0<span class="fl">.5</span>[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>((cv.nonstatnu0<span class="fl">.5</span><span class="sc">$</span>mean <span class="sc">-</span> points<span class="sc">$</span>speed)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb30-28"><a href="#cb30-28" tabindex="-1"></a>  mse.nonstatnu1<span class="fl">.5</span>[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>((cv.nonstatnu1<span class="fl">.5</span><span class="sc">$</span>mean <span class="sc">-</span> points<span class="sc">$</span>speed)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb30-29"><a href="#cb30-29" tabindex="-1"></a>  mse.nonstatnuest[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>((cv.nonstatnuest<span class="sc">$</span>mean <span class="sc">-</span> points<span class="sc">$</span>speed)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb30-30"><a href="#cb30-30" tabindex="-1"></a>  </span>
+<span id="cb30-31"><a href="#cb30-31" tabindex="-1"></a>  </span>
+<span id="cb30-32"><a href="#cb30-32" tabindex="-1"></a>  ls.statnu0<span class="fl">.5</span>[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">log</span>(cv.statnu0<span class="fl">.5</span><span class="sc">$</span>cv))</span>
+<span id="cb30-33"><a href="#cb30-33" tabindex="-1"></a>  ls.statnu1<span class="fl">.5</span>[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">log</span>(cv.statnu1<span class="fl">.5</span><span class="sc">$</span>cv))</span>
+<span id="cb30-34"><a href="#cb30-34" tabindex="-1"></a>  ls.statnuest[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">log</span>(cv.statnuest<span class="sc">$</span>cv))</span>
+<span id="cb30-35"><a href="#cb30-35" tabindex="-1"></a>  </span>
+<span id="cb30-36"><a href="#cb30-36" tabindex="-1"></a>  ls.nonstatnu0<span class="fl">.5</span>[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">log</span>(cv.nonstatnu0<span class="fl">.5</span><span class="sc">$</span>cv))</span>
+<span id="cb30-37"><a href="#cb30-37" tabindex="-1"></a>  ls.nonstatnu1<span class="fl">.5</span>[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">log</span>(cv.nonstatnu1<span class="fl">.5</span><span class="sc">$</span>cv))</span>
+<span id="cb30-38"><a href="#cb30-38" tabindex="-1"></a>  ls.nonstatnuest[j] <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">log</span>(cv.nonstatnuest<span class="sc">$</span>cv))</span>
+<span id="cb30-39"><a href="#cb30-39" tabindex="-1"></a>}</span>
+<span id="cb30-40"><a href="#cb30-40" tabindex="-1"></a></span>
+<span id="cb30-41"><a href="#cb30-41" tabindex="-1"></a><span class="co"># Create data frames</span></span>
+<span id="cb30-42"><a href="#cb30-42" tabindex="-1"></a>mse_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb30-43"><a href="#cb30-43" tabindex="-1"></a>  distance,</span>
+<span id="cb30-44"><a href="#cb30-44" tabindex="-1"></a>  <span class="at">Statnu0.5 =</span> mse.statnu0<span class="fl">.5</span>,</span>
+<span id="cb30-45"><a href="#cb30-45" tabindex="-1"></a>  <span class="at">Nonstatnu0.5 =</span> mse.nonstatnu0<span class="fl">.5</span>,</span>
+<span id="cb30-46"><a href="#cb30-46" tabindex="-1"></a>  <span class="at">Statnu1.5 =</span> mse.statnu1<span class="fl">.5</span>,</span>
+<span id="cb30-47"><a href="#cb30-47" tabindex="-1"></a>  <span class="at">Nonstatnu1.5 =</span> mse.nonstatnu1<span class="fl">.5</span>,</span>
+<span id="cb30-48"><a href="#cb30-48" tabindex="-1"></a>  <span class="at">Statnuest =</span> mse.statnuest,</span>
+<span id="cb30-49"><a href="#cb30-49" tabindex="-1"></a>  <span class="at">Nonstatnuest =</span> mse.nonstatnuest</span>
+<span id="cb30-50"><a href="#cb30-50" tabindex="-1"></a>)</span>
+<span id="cb30-51"><a href="#cb30-51" tabindex="-1"></a></span>
+<span id="cb30-52"><a href="#cb30-52" tabindex="-1"></a>ls_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb30-53"><a href="#cb30-53" tabindex="-1"></a>  distance,</span>
+<span id="cb30-54"><a href="#cb30-54" tabindex="-1"></a>  <span class="at">Statnu0.5 =</span> <span class="sc">-</span>ls.statnu0<span class="fl">.5</span>,</span>
+<span id="cb30-55"><a href="#cb30-55" tabindex="-1"></a>  <span class="at">Nonstatnu0.5 =</span> <span class="sc">-</span>ls.nonstatnu0<span class="fl">.5</span>,</span>
+<span id="cb30-56"><a href="#cb30-56" tabindex="-1"></a>  <span class="at">Statnu1.5 =</span> <span class="sc">-</span>ls.statnu1<span class="fl">.5</span>,</span>
+<span id="cb30-57"><a href="#cb30-57" tabindex="-1"></a>  <span class="at">Nonstatnu1.5 =</span> <span class="sc">-</span>ls.nonstatnu1<span class="fl">.5</span>,</span>
+<span id="cb30-58"><a href="#cb30-58" tabindex="-1"></a>  <span class="at">Statnuest =</span> <span class="sc">-</span>ls.statnuest,</span>
+<span id="cb30-59"><a href="#cb30-59" tabindex="-1"></a>  <span class="at">Nonstatnuest =</span> <span class="sc">-</span>ls.nonstatnuest</span>
+<span id="cb30-60"><a href="#cb30-60" tabindex="-1"></a>)</span>
+<span id="cb30-61"><a href="#cb30-61" tabindex="-1"></a><span class="fu">save</span>(mse_df, ls_df, <span class="at">file =</span> <span class="fu">here</span>(<span class="st">&quot;data_files/crossvalidation.RData&quot;</span>))</span></code></pre></div>
+<div id="cross-validation-results" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Cross-validation
+results</h2>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">&quot;data_files/crossvalidation.RData&quot;</span>))</span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>distance <span class="ot">=</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">200</span>, <span class="at">by =</span> <span class="dv">20</span>)<span class="sc">/</span><span class="dv">1000</span></span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a><span class="co"># Convert to long format</span></span>
+<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a>mse_long <span class="ot">&lt;-</span> mse_df <span class="sc">%&gt;%</span></span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>distance, <span class="at">names_to =</span> <span class="st">&quot;nu&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;MSE&quot;</span>)</span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a>ls_long <span class="ot">&lt;-</span> ls_df <span class="sc">%&gt;%</span></span>
+<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>distance, <span class="at">names_to =</span> <span class="st">&quot;nu&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;LogScore&quot;</span>)</span>
+<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a></span>
+<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a><span class="co"># Update the label mappings with the new legend title</span></span>
+<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a>label_mapping <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a>  <span class="st">&quot;Statnu0.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;0.5&quot;</span>, </span>
+<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a>  <span class="st">&quot;Nonstatnu0.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;0.5&quot;</span>, </span>
+<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a>  <span class="st">&quot;Statnu1.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;1.5&quot;</span>, </span>
+<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a>  <span class="st">&quot;Nonstatnu1.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;1.5&quot;</span>, </span>
+<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a>  <span class="st">&quot;Statnuest&quot;</span> <span class="ot">=</span> <span class="st">&quot;est&quot;</span>, </span>
+<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a>  <span class="st">&quot;Nonstatnuest&quot;</span> <span class="ot">=</span> <span class="st">&quot;est&quot;</span></span>
+<span id="cb31-22"><a href="#cb31-22" tabindex="-1"></a>)</span>
+<span id="cb31-23"><a href="#cb31-23" tabindex="-1"></a></span>
+<span id="cb31-24"><a href="#cb31-24" tabindex="-1"></a><span class="co"># Define color and linetype mapping</span></span>
+<span id="cb31-25"><a href="#cb31-25" tabindex="-1"></a>color_mapping <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb31-26"><a href="#cb31-26" tabindex="-1"></a>  <span class="st">&quot;Statnu0.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;blue&quot;</span>, </span>
+<span id="cb31-27"><a href="#cb31-27" tabindex="-1"></a>  <span class="st">&quot;Nonstatnu0.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;red&quot;</span>, </span>
+<span id="cb31-28"><a href="#cb31-28" tabindex="-1"></a>  <span class="st">&quot;Statnu1.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;black&quot;</span>, </span>
+<span id="cb31-29"><a href="#cb31-29" tabindex="-1"></a>  <span class="st">&quot;Nonstatnu1.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;green&quot;</span>, </span>
+<span id="cb31-30"><a href="#cb31-30" tabindex="-1"></a>  <span class="st">&quot;Statnuest&quot;</span> <span class="ot">=</span> <span class="st">&quot;darkorange&quot;</span>, </span>
+<span id="cb31-31"><a href="#cb31-31" tabindex="-1"></a>  <span class="st">&quot;Nonstatnuest&quot;</span> <span class="ot">=</span> <span class="st">&quot;skyblue&quot;</span></span>
+<span id="cb31-32"><a href="#cb31-32" tabindex="-1"></a>)</span>
+<span id="cb31-33"><a href="#cb31-33" tabindex="-1"></a></span>
+<span id="cb31-34"><a href="#cb31-34" tabindex="-1"></a>linetype_mapping <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb31-35"><a href="#cb31-35" tabindex="-1"></a>  <span class="st">&quot;Statnu0.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;dotdash&quot;</span>, </span>
+<span id="cb31-36"><a href="#cb31-36" tabindex="-1"></a>  <span class="st">&quot;Nonstatnu0.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;solid&quot;</span>, </span>
+<span id="cb31-37"><a href="#cb31-37" tabindex="-1"></a>  <span class="st">&quot;Statnu1.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;dotdash&quot;</span>, </span>
+<span id="cb31-38"><a href="#cb31-38" tabindex="-1"></a>  <span class="st">&quot;Nonstatnu1.5&quot;</span> <span class="ot">=</span> <span class="st">&quot;solid&quot;</span>, </span>
+<span id="cb31-39"><a href="#cb31-39" tabindex="-1"></a>  <span class="st">&quot;Statnuest&quot;</span> <span class="ot">=</span> <span class="st">&quot;dotdash&quot;</span>, </span>
+<span id="cb31-40"><a href="#cb31-40" tabindex="-1"></a>  <span class="st">&quot;Nonstatnuest&quot;</span> <span class="ot">=</span> <span class="st">&quot;solid&quot;</span></span>
+<span id="cb31-41"><a href="#cb31-41" tabindex="-1"></a>)</span>
+<span id="cb31-42"><a href="#cb31-42" tabindex="-1"></a></span>
+<span id="cb31-43"><a href="#cb31-43" tabindex="-1"></a><span class="co"># Plot MSE</span></span>
+<span id="cb31-44"><a href="#cb31-44" tabindex="-1"></a>mse_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mse_long, <span class="fu">aes</span>(<span class="at">x =</span> distance, <span class="at">y =</span> MSE, <span class="at">color =</span> nu, <span class="at">linetype =</span> nu)) <span class="sc">+</span></span>
+<span id="cb31-45"><a href="#cb31-45" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb31-46"><a href="#cb31-46" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;MSE&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Distance in km&quot;</span>) <span class="sc">+</span></span>
+<span id="cb31-47"><a href="#cb31-47" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> color_mapping, <span class="at">labels =</span> label_mapping, <span class="at">name =</span> <span class="fu">expression</span>(nu)) <span class="sc">+</span></span>
+<span id="cb31-48"><a href="#cb31-48" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> linetype_mapping, <span class="at">labels =</span> label_mapping, <span class="at">name =</span> <span class="fu">expression</span>(nu)) <span class="sc">+</span></span>
+<span id="cb31-49"><a href="#cb31-49" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb31-50"><a href="#cb31-50" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>))</span>
+<span id="cb31-51"><a href="#cb31-51" tabindex="-1"></a></span>
+<span id="cb31-52"><a href="#cb31-52" tabindex="-1"></a><span class="co"># Plot negative log-score</span></span>
+<span id="cb31-53"><a href="#cb31-53" tabindex="-1"></a>ls_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ls_long, <span class="fu">aes</span>(<span class="at">x =</span> distance, <span class="at">y =</span> LogScore, <span class="at">color =</span> nu, <span class="at">linetype =</span> nu)) <span class="sc">+</span></span>
+<span id="cb31-54"><a href="#cb31-54" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb31-55"><a href="#cb31-55" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;Negative Log-Score&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Distance in km&quot;</span>) <span class="sc">+</span></span>
+<span id="cb31-56"><a href="#cb31-56" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> color_mapping, <span class="at">labels =</span> label_mapping, <span class="at">name =</span> <span class="fu">expression</span>(nu)) <span class="sc">+</span></span>
+<span id="cb31-57"><a href="#cb31-57" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> linetype_mapping, <span class="at">labels =</span> label_mapping, <span class="at">name =</span> <span class="fu">expression</span>(nu)) <span class="sc">+</span></span>
+<span id="cb31-58"><a href="#cb31-58" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb31-59"><a href="#cb31-59" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>))</span>
+<span id="cb31-60"><a href="#cb31-60" tabindex="-1"></a></span>
+<span id="cb31-61"><a href="#cb31-61" tabindex="-1"></a><span class="co"># Combine plots with a shared legend at the top in a single line</span></span>
+<span id="cb31-62"><a href="#cb31-62" tabindex="-1"></a>combined_plot <span class="ot">&lt;-</span> mse_plot <span class="sc">+</span> ls_plot <span class="sc">+</span> </span>
+<span id="cb31-63"><a href="#cb31-63" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">&#39;collect&#39;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb31-64"><a href="#cb31-64" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&#39;right&#39;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb31-65"><a href="#cb31-65" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color =</span> <span class="fu">guide_legend</span>(<span class="at">ncol =</span> <span class="dv">1</span>), <span class="at">linetype =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">1</span>))</span>
+<span id="cb31-66"><a href="#cb31-66" tabindex="-1"></a></span>
+<span id="cb31-67"><a href="#cb31-67" tabindex="-1"></a><span class="co"># Display combined plot</span></span>
+<span id="cb31-68"><a href="#cb31-68" tabindex="-1"></a><span class="fu">print</span>(combined_plot)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="modeling_files/figure-html/unnamed-chunk-17-1.png" alt="MSE and negative Log-Score as functions of distance (in km) for the stationary (dotdash line, $\boldsymbol{\cdot-\cdot}$) and non-stationary (solid line, $\boldsymbol{-\!\!\!-\!\!\!-}$)  cases with $\nu = 0.5$, $\nu = 1.5$, and $\nu$ estimated (est)." width="100%" />
+<p class="caption">
+MSE and negative Log-Score as functions of distance (in km) for the
+stationary (dotdash line, <span
+class="math inline">\(\boldsymbol{\cdot-\cdot}\)</span>) and
+non-stationary (solid line, <span
+class="math inline">\(\boldsymbol{-\!\!\!-\!\!\!-}\)</span>) cases with
+<span class="math inline">\(\nu = 0.5\)</span>, <span
+class="math inline">\(\nu = 1.5\)</span>, and <span
+class="math inline">\(\nu\)</span> estimated (est).
+</p>
+</div>
+</div>
+</div>
+<div id="references" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> References</h1>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<p>We used R version 4.4.0 <span class="citation">(R Core Team
+2024)</span> and the following R packages: ggtext v. 0.1.2 <span
+class="citation">(Wilke and Wiernik 2022)</span>, here v. 1.0.1 <span
+class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
+class="citation">(Cheng et al. 2024)</span>, INLA v. 24.6.27 <span
+class="citation">(Rue, Martino, and Chopin 2009; Lindgren, Rue, and
+Lindström 2011; Martins et al. 2013; Lindgren and Rue 2015; De Coninck
+et al. 2016; Rue et al. 2017; Verbosio et al. 2017; Bakka et al. 2018;
+Kourounis, Fuchs, and Schenk 2018)</span>, inlabru v. 2.10.1.9010 <span
+class="citation">(Yuan et al. 2017; Bachl et al. 2019)</span>, knitr v.
+1.47 <span class="citation">(Xie 2014, 2015, 2024)</span>, latex2exp v.
+0.9.6 <span class="citation">(Meschiari 2022)</span>, listviewer v.
+4.0.0 <span class="citation">(de Jong, Gainer, and Russell 2023)</span>,
+mapview v. 2.11.2 <span class="citation">(Appelhans et al. 2023)</span>,
+Matrix v. 1.6.5 <span class="citation">(Bates, Maechler, and Jagan
+2024)</span>, MetricGraph v. 1.3.0.9000 <span class="citation">(Bolin,
+Simas, and Wallin 2023b, 2023a, 2023c, 2024; Bolin et al. 2023)</span>,
+patchwork v. 1.2.0 <span class="citation">(Pedersen 2024)</span>, plotly
+v. 4.10.4 <span class="citation">(Sievert 2020)</span>, rmarkdown v.
+2.27 <span class="citation">(Xie, Allaire, and Grolemund 2018; Xie,
+Dervieux, and Riederer 2020; Allaire et al. 2024)</span>, rSPDE v.
+2.3.3.9000 <span class="citation">(Bolin and Kirchner 2020; Bolin and
+Simas 2023; Bolin, Simas, and Xiong 2023)</span>, scales v. 1.3.0 <span
+class="citation">(Wickham, Pedersen, and Seidel 2023)</span>, sf v.
+1.0.16 <span class="citation">(Pebesma 2018; Pebesma and Bivand
+2023)</span>, tidyverse v. 2.0.0 <span class="citation">(Wickham et al.
+2019)</span>, TSstudio v. 0.1.7 <span class="citation">(Krispin
+2023)</span>, xaringanExtra v. 0.8.0 <span class="citation">(Aden-Buie
+and Warkentin 2024)</span>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
+<div id="ref-xaringanExtra" class="csl-entry">
+Aden-Buie, Garrick, and Matthew T. Warkentin. 2024. <em><span
+class="nocase">xaringanExtra</span>: Extras and Extensions for
+<span>“<span class="nocase">xaringan</span>”</span> Slides</em>. <a
+href="https://CRAN.R-project.org/package=xaringanExtra">https://CRAN.R-project.org/package=xaringanExtra</a>.
+</div>
+<div id="ref-rmarkdown2024" class="csl-entry">
+Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
+Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span
+class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a
+href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
+</div>
+<div id="ref-mapview" class="csl-entry">
+Appelhans, Tim, Florian Detsch, Christoph Reudenbach, and Stefan
+Woellauer. 2023. <em><span class="nocase">mapview</span>: Interactive
+Viewing of Spatial Data in r</em>. <a
+href="https://CRAN.R-project.org/package=mapview">https://CRAN.R-project.org/package=mapview</a>.
+</div>
+<div id="ref-inlabru2019" class="csl-entry">
+Bachl, Fabian E., Finn Lindgren, David L. Borchers, and Janine B.
+Illian. 2019. <span>“<span class="nocase">inlabru</span>: An
+<span>R</span> Package for <span>Bayesian</span> Spatial Modelling from
+Ecological Survey Data.”</span> <em>Methods in Ecology and
+Evolution</em> 10: 760–66. <a
+href="https://doi.org/10.1111/2041-210X.13168">https://doi.org/10.1111/2041-210X.13168</a>.
+</div>
+<div id="ref-INLA2018f" class="csl-entry">
+Bakka, Haakon, Håvard Rue, Geir-Arne Fuglstad, Andrea I. Riebler, David
+Bolin, Janine Illian, Elias Krainski, Daniel P. Simpson, and Finn K.
+Lindgren. 2018. <span>“Spatial Modelling with <span>INLA</span>:
+<span>A</span> Review.”</span> <em>WIRES (Invited Extended Review)</em>
+xx (Feb): xx–. <a
+href="http://arxiv.org/abs/1802.06350">http://arxiv.org/abs/1802.06350</a>.
+</div>
+<div id="ref-Matrix" class="csl-entry">
+Bates, Douglas, Martin Maechler, and Mikael Jagan. 2024.
+<em><span>Matrix</span>: Sparse and Dense Matrix Classes and
+Methods</em>. <a
+href="https://CRAN.R-project.org/package=Matrix">https://CRAN.R-project.org/package=Matrix</a>.
+</div>
+<div id="ref-rSPDE2020c" class="csl-entry">
+Bolin, David, and Kristin Kirchner. 2020. <span>“The Rational
+<span>SPDE</span> Approach for <span>Gaussian</span> Random Fields with
+General Smoothness.”</span> <em>Journal of Computational and Graphical
+Statistics</em> 29 (2): 274–85. <a
+href="https://doi.org/10.1080/10618600.2019.1665537">https://doi.org/10.1080/10618600.2019.1665537</a>.
+</div>
+<div id="ref-MetricGraph2023c" class="csl-entry">
+Bolin, David, Mihály Kovács, Vivek Kumar, and Alexandre B. Simas. 2023.
+<span>“Regularity and Numerical Approximation of Fractional Elliptic
+Differential Equations on Compact Metric Graphs.”</span> <em>Mathematics
+of Computation</em>. <a
+href="https://doi.org/10.1090/mcom/3929">https://doi.org/10.1090/mcom/3929</a>.
+</div>
+<div id="ref-rSPDE2023a" class="csl-entry">
+Bolin, David, and Alexandre B. Simas. 2023. <em><span
+class="nocase">rSPDE</span>: Rational Approximations of Fractional
+Stochastic Partial Differential Equations</em>. <a
+href="https://CRAN.R-project.org/package=rSPDE">https://CRAN.R-project.org/package=rSPDE</a>.
+</div>
+<div id="ref-MetricGraph2023d" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Jonas Wallin. 2023a. <span>“Markov
+Properties of Gaussian Random Fields on Compact Metric Graphs.”</span>
+<em>arXiv Preprint arXiv:2304.03190</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.03190">https://doi.org/10.48550/arXiv.2304.03190</a>.
+</div>
+<div id="ref-MetricGraph2023a" class="csl-entry">
+———. 2023b. <em><span>MetricGraph</span>: Random Fields on Metric
+Graphs</em>. <a
+href="https://CRAN.R-project.org/package=MetricGraph">https://CRAN.R-project.org/package=MetricGraph</a>.
+</div>
+<div id="ref-MetricGraph2023e" class="csl-entry">
+———. 2023c. <span>“Statistical Inference for Gaussian Whittle-Matérn
+Fields on Metric Graphs.”</span> <em>arXiv Preprint
+arXiv:2304.10372</em>. <a
+href="https://doi.org/10.48550/arXiv.2304.10372">https://doi.org/10.48550/arXiv.2304.10372</a>.
+</div>
+<div id="ref-MetricGraph2024b" class="csl-entry">
+———. 2024. <span>“Gaussian Whittle-Matérn Fields on Metric
+Graphs.”</span> <em>Bernoulli</em> 30 (2): 1611–39. <a
+href="https://doi.org/10.3150/23-BEJ1647">https://doi.org/10.3150/23-BEJ1647</a>.
+</div>
+<div id="ref-rSPDE2023b" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Zhen Xiong. 2023.
+<span>“Covariance-Based Rational Approximations of Fractional SPDEs for
+Computationally Efficient Bayesian Inference.”</span> <em>Journal of
+Computational and Graphical Statistics</em>. <a
+href="https://doi.org/10.1080/10618600.2023.2231051">https://doi.org/10.1080/10618600.2023.2231051</a>.
+</div>
+<div id="ref-htmltools" class="csl-entry">
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
+and Jeff Allen. 2024. <em><span class="nocase">htmltools</span>: Tools
+for HTML</em>. <a
+href="https://CRAN.R-project.org/package=htmltools">https://CRAN.R-project.org/package=htmltools</a>.
+</div>
+<div id="ref-INLA2016g" class="csl-entry">
+De Coninck, Arne, Bernard De Baets, Drosos Kourounis, Fabio Verbosio,
+Olaf Schenk, Steven Maenhout, and Jan Fostier. 2016.
+<span>“<span>Needles</span>: Toward Large-Scale Genomic Prediction with
+Marker-by-Environment Interaction.”</span> <em>Genetics</em> 203 (1):
+543–55. <a
+href="https://doi.org/10.1534/genetics.115.179887">https://doi.org/10.1534/genetics.115.179887</a>.
+</div>
+<div id="ref-listviewer" class="csl-entry">
+de Jong, Jos, Mac Gainer, and Kent Russell. 2023. <em><span
+class="nocase">listviewer</span>: <span>“<span
+class="nocase">htmlwidget</span>”</span> for Interactive Views of r
+Lists</em>. <a
+href="https://CRAN.R-project.org/package=listviewer">https://CRAN.R-project.org/package=listviewer</a>.
+</div>
+<div id="ref-INLA2018i" class="csl-entry">
+Kourounis, D., A. Fuchs, and O. Schenk. 2018. <span>“Towards the Next
+Generation of Multiperiod Optimal Power Flow Solvers.”</span> <em>IEEE
+Transactions on Power Systems</em> PP (99): 1–10. <a
+href="https://doi.org/10.1109/TPWRS.2017.2789187">https://doi.org/10.1109/TPWRS.2017.2789187</a>.
+</div>
+<div id="ref-TSstudio" class="csl-entry">
+Krispin, Rami. 2023. <em><span>TSstudio</span>: Functions for Time
+Series Analysis and Forecasting</em>. <a
+href="https://CRAN.R-project.org/package=TSstudio">https://CRAN.R-project.org/package=TSstudio</a>.
+</div>
+<div id="ref-INLA2015d" class="csl-entry">
+Lindgren, Finn, and Håvard Rue. 2015. <span>“Bayesian Spatial Modelling
+with <span>R</span>-<span>INLA</span>.”</span> <em>Journal of
+Statistical Software</em> 63 (19): 1–25. <a
+href="http://www.jstatsoft.org/v63/i19/">http://www.jstatsoft.org/v63/i19/</a>.
+</div>
+<div id="ref-INLA2011c" class="csl-entry">
+Lindgren, Finn, Håvard Rue, and Johan Lindström. 2011. <span>“An
+Explicit Link Between <span>Gaussian</span> Fields and
+<span>Gaussian</span> <span>Markov</span> Random Fields: The Stochastic
+Partial Differential Equation Approach (with Discussion).”</span>
+<em>Journal of the Royal Statistical Society B</em> 73 (4): 423–98.
+</div>
+<div id="ref-INLA2013b" class="csl-entry">
+Martins, Thiago G., Daniel Simpson, Finn Lindgren, and Håvard Rue. 2013.
+<span>“Bayesian Computing with <span>INLA</span>: <span>N</span>ew
+Features.”</span> <em>Computational Statistics and Data Analysis</em>
+67: 68–83.
+</div>
+<div id="ref-latex2exp" class="csl-entry">
+Meschiari, Stefano. 2022. <em>Latex2exp: Use LaTeX Expressions in
+Plots</em>. <a
+href="https://CRAN.R-project.org/package=latex2exp">https://CRAN.R-project.org/package=latex2exp</a>.
+</div>
+<div id="ref-here" class="csl-entry">
+Müller, Kirill. 2020. <em><span class="nocase">here</span>: A Simpler
+Way to Find Your Files</em>. <a
+href="https://CRAN.R-project.org/package=here">https://CRAN.R-project.org/package=here</a>.
+</div>
+<div id="ref-sf2018" class="csl-entry">
+Pebesma, Edzer. 2018. <span>“<span class="nocase">Simple Features for R:
+Standardized Support for Spatial Vector Data</span>.”</span>
+<em><span>The R Journal</span></em> 10 (1): 439–46. <a
+href="https://doi.org/10.32614/RJ-2018-009">https://doi.org/10.32614/RJ-2018-009</a>.
+</div>
+<div id="ref-sf2023" class="csl-entry">
+Pebesma, Edzer, and Roger Bivand. 2023. <em><span class="nocase">Spatial
+Data Science: With applications in R</span></em>. <span>Chapman and
+Hall/CRC</span>. <a
+href="https://doi.org/10.1201/9780429459016">https://doi.org/10.1201/9780429459016</a>.
+</div>
+<div id="ref-patchwork" class="csl-entry">
+Pedersen, Thomas Lin. 2024. <em><span class="nocase">patchwork</span>:
+The Composer of Plots</em>. <a
+href="https://CRAN.R-project.org/package=patchwork">https://CRAN.R-project.org/package=patchwork</a>.
+</div>
+<div id="ref-base" class="csl-entry">
+R Core Team. 2024. <em><span>R</span>: A Language and Environment for
+Statistical Computing</em>. Vienna, Austria: R Foundation for
+Statistical Computing. <a
+href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-INLA2009a" class="csl-entry">
+Rue, Håvard, Sara Martino, and Nicholas Chopin. 2009. <span>“Approximate
+<span>Bayesian</span> Inference for Latent <span>Gaussian</span> Models
+Using Integrated Nested <span>Laplace</span> Approximations (with
+Discussion).”</span> <em>Journal of the Royal Statistical Society B</em>
+71: 319–92.
+</div>
+<div id="ref-INLA2017e" class="csl-entry">
+Rue, Håvard, Andrea I. Riebler, Sigrunn H. Sørbye, Janine B. Illian,
+Daniel P. Simpson, and Finn K. Lindgren. 2017. <span>“Bayesian Computing
+with <span>INLA</span>: <span>A</span> Review.”</span> <em>Annual
+Reviews of Statistics and Its Applications</em> 4 (March): 395–421. <a
+href="http://arxiv.org/abs/1604.00860">http://arxiv.org/abs/1604.00860</a>.
+</div>
+<div id="ref-plotly" class="csl-entry">
+Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with
+r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a
+href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-INLA2017h" class="csl-entry">
+Verbosio, Fabio, Arne De Coninck, Drosos Kourounis, and Olaf Schenk.
+2017. <span>“Enhancing the Scalability of Selected Inversion
+Factorization Algorithms in Genomic Prediction.”</span> <em>Journal of
+Computational Science</em> 22 (Supplement C): 99–108. <a
+href="https://doi.org/10.1016/j.jocs.2017.08.013">https://doi.org/10.1016/j.jocs.2017.08.013</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
+D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
+<span>“Welcome to the <span class="nocase">tidyverse</span>.”</span>
+<em>Journal of Open Source Software</em> 4 (43): 1686. <a
+href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-scales" class="csl-entry">
+Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2023. <em><span
+class="nocase">scales</span>: Scale Functions for Visualization</em>. <a
+href="https://CRAN.R-project.org/package=scales">https://CRAN.R-project.org/package=scales</a>.
+</div>
+<div id="ref-ggtext" class="csl-entry">
+Wilke, Claus O., and Brenton M. Wiernik. 2022. <em><span
+class="nocase">ggtext</span>: Improved Text Rendering Support for
+<span>“<span class="nocase">ggplot2</span>”</span></em>. <a
+href="https://CRAN.R-project.org/package=ggtext">https://CRAN.R-project.org/package=ggtext</a>.
+</div>
+<div id="ref-knitr2014" class="csl-entry">
+Xie, Yihui. 2014. <span>“<span class="nocase">knitr</span>: A
+Comprehensive Tool for Reproducible Research in <span>R</span>.”</span>
+In <em>Implementing Reproducible Computational Research</em>, edited by
+Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman;
+Hall/CRC.
+</div>
+<div id="ref-knitr2015" class="csl-entry">
+———. 2015. <em>Dynamic Documents with <span>R</span> and Knitr</em>. 2nd
+ed. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-knitr2024" class="csl-entry">
+———. 2024. <em><span class="nocase">knitr</span>: A General-Purpose
+Package for Dynamic Report Generation in r</em>. <a
+href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
+</div>
+<div id="ref-rmarkdown2018" class="csl-entry">
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown:
+The Definitive Guide</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a>.
+</div>
+<div id="ref-rmarkdown2020" class="csl-entry">
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R
+Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
+</div>
+<div id="ref-inlabru2017" class="csl-entry">
+Yuan, Yuan, Bachl, Fabian E., Lindgren, Finn, Borchers, et al. 2017.
+<span>“Point Process Models for Spatio-Temporal Distance Sampling Data
+from a Large-Scale Survey of Blue Whales.”</span> <em>Ann. Appl.
+Stat.</em> 11 (4): 2270–97. <a
+href="https://doi.org/10.1214/17-AOAS1078">https://doi.org/10.1214/17-AOAS1078</a>.
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
 
 </div>
 
@@ -337,14 +1762,48 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>

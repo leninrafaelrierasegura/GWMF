@@ -922,7 +922,7 @@ model</h2>
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
 ##     Predictor: y ~ .
 ## Time used:
-##     Pre = 0.244, Running = 0.459, Post = 0.126, Total = 0.83 
+##     Pre = 0.243, Running = 0.475, Post = 0.0754, Total = 0.794 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.442 0.377      0.699    1.442      2.186  1.442   0
@@ -996,7 +996,7 @@ non-stationary model</h2>
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
 ##     Predictor: y ~ .
 ## Time used:
-##     Pre = 0.154, Running = 0.711, Post = 0.108, Total = 0.973 
+##     Pre = 0.168, Running = 0.742, Post = 0.0865, Total = 0.996 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.474 0.379      0.723    1.475      2.215  1.475   0
@@ -1012,7 +1012,7 @@ non-stationary model</h2>
 ## Precision for the Gaussian observations 97.810 3.355     91.358   97.757
 ## Theta1 for field                         0.899 0.106      0.697    0.897
 ## Theta2 for field                         0.923 0.080      0.769    0.922
-## Theta3 for field                        -1.719 2.081     -5.659   -1.770
+## Theta3 for field                        -1.719 2.081     -5.658   -1.770
 ## Theta4 for field                         3.011 1.607     -0.033    2.972
 ##                                         0.975quant   mode
 ## Precision for the Gaussian observations     104.57 97.662
@@ -1034,10 +1034,10 @@ non-stationary model</h2>
 ## (Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)</code></pre>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span></code></pre></div>
 <pre><code>##                    mean        sd 0.025quant  0.5quant 0.975quant      mode
-## Theta1.matern  0.899272 0.1055710  0.6971810  0.897363    1.11275  0.889067
-## Theta2.matern  0.923192 0.0804046  0.7689460  0.921843    1.08547  0.916007
-## Theta3.matern -1.718710 2.0809400 -5.6588500 -1.769900    2.52900 -1.997120
-## Theta4.matern  3.011040 1.6069200 -0.0329339  2.971940    6.28994  2.798470</code></pre>
+## Theta1.matern  0.899272 0.1055700  0.6971830  0.897363    1.11275  0.889067
+## Theta2.matern  0.923192 0.0804037  0.7689470  0.921843    1.08547  0.916007
+## Theta3.matern -1.718630 2.0807400 -5.6583300 -1.769830    2.52872 -1.997120
+## Theta4.matern  3.011100 1.6067600 -0.0325294  2.971990    6.28972  2.798480</code></pre>
 </div>
 </div>
 <div id="cross-validation" class="section level2" number="4.13">

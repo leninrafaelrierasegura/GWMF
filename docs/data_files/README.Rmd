@@ -82,4 +82,6 @@ This file was created in [`numerical_error.html`](../numerical_error.html).
 This file was created in [`numerical_error.html`](../numerical_error.html).
 
 
+17. [**`crossvalidation.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/crossvalidation.RData)
 
+This file was created in [`modeling.html`](../modeling.html).
