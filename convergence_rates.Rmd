@@ -1,0 +1,23 @@
+---
+title: "Convergence Rates"
+output:
+  html_document:
+    number_sections: true
+---
+
+This page contains links to scripts used to compute the convergence rates.
+
+Go back to the [About page](about.html).
+
+# Interval
+
+The $\texttt{R}$ code for this case can be found [here](convergence_rates/convergence_rates_interval.html).
+
+# Circle
+
+The $\texttt{R}$ code for this case can be found [here](convergence_rates/convergence_rates_circle.html).
+
+# Tadpole
+
+The $\texttt{R}$ code for this case can be found [here](convergence_rates/convergence_rates_tadpole.html).
+

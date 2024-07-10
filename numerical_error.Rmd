@@ -280,7 +280,7 @@ save(Error_interval_DEF, file = here("data_files/Error_interval_DEF.RData"))
 
 ## Plotting the errors
 
-```{r, class.source = "fold-hide"}
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
 load(here("data_files/Error_interval_DEF.RData"))
 
 n_vector = c("998", "198", "98", "8") 
@@ -564,7 +564,7 @@ save(Error_circle_DEF, file = here("data_files/Error_circle_DEF.RData"))
 
 ## Plotting the errors
 
-```{r, class.source = "fold-hide"}
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
 load(here("data_files/Error_circle_DEF.RData"))
 
 n_vector = c("1996", "396", "196", "16") 
@@ -1294,7 +1294,7 @@ save(Error_tadpole_DEF_rho2, file = here("data_files/Error_tadpole_DEF_rho2.RDat
 
 ## Plotting the errors
 
-```{r, class.source = "fold-hide"}
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
 load(here("data_files/Error_tadpole_DEF_rho0.1.RData"))
 load(here("data_files/Error_tadpole_DEF_rho0.5.RData"))
 load(here("data_files/Error_tadpole_DEF_rho1.RData"))

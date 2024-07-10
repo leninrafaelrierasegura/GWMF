@@ -13,3 +13,5 @@ title: "Contents of This Website"
 5. [Approximation](approximation.html) page
 
 6. [Numerical Error](numerical_error.html) page
+
+7. [Convergence Rates](convergence_rates.html) page

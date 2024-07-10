@@ -19,6 +19,8 @@ navbar:
       href: approximation.html
     - text: "Numerical Error"
       href: numerical_error.html
+    - text: "Convergence Rates"
+      href: convergence_rates.html
   right:
     - icon: fa-github
       href: https://github.com/leninrafaelrierasegura/
