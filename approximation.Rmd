@@ -115,6 +115,8 @@ set.seed(1982) # Set seed for reproducibility
 
 # Interval graph
 
+For an implementation of the true covariance matrix using the KL expansion, see [here](approximation_kl.html#kl-expansion-interval).
+
 ```{r, out.width= "50%"}
 # Function to build an interval graph and create a mesh
 gets_graph_interval <- function(n){
@@ -289,6 +291,8 @@ print(L_2_error)
 
 
 # Circle graph
+
+For an implementation of the true covariance matrix using the KL expansion, see [here](approximation_kl.html#kl-expansion-circle).
 
 ```{r, out.width= "50%"}
 # Function to build a circle graph and create a mesh
