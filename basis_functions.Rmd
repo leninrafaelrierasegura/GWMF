@@ -453,416 +453,18 @@ where $x_v^e$ is either $x_0^e$ or $x_{n_e}^e$ depending on the edge direction a
 </div>
 
 ```{r,  fig.height = 8, class.source = "fold-hide", fig.cap = "Figure 3. Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ (solid gray lines) on the graph $\\Gamma= (\\Vcal,\\Ecal)$, where $\\Ecal= \\llav{e_1,\\dots,e_8}$ and $\\Vcal =  \\llav{v_1,\\dots,v_7}$. Note that for all $e_i\\in\\Ecal$, $n_{e_i} = 3$ and $h_{e_i} = 1/3$. In particular, for edge $e_7$, observe that the three regular segments are delimited by the nodes $v_6 = x_0^{e_7}, x_1^{e_7}, x_2^{e_7}, x_3^{e_7} = v_7$. Corresponding to node $x_1^{e_7}$, we have plotted the basis function $\\varphi_1^{e_7}$ in blue. Notice also that the set $\\Ncal_{v_2}$ is depicted in green and its corresponding basis function $\\phi_{v_2}$ is shown in red."}
-#vertical 
-df01 = data.frame(x = c(-1,-1), y = c(0,0), z = c(0,1))
-df02 = data.frame(x = c(-2/3,-2/3), y = c(0,0), z = c(0,1))
-df03 = data.frame(x = c(-1/3,-1/3), y = c(0,0), z = c(0,1))
-df04 = data.frame(x = c(0,0), y = c(0,0), z = c(0,1))
-df05 = data.frame(x = c(0,0), y = c(-1/3,-1/3), z = c(0,1))
-df06 = data.frame(x = c(0,0), y = c(-2/3,-2/3), z = c(0,1))
-df07 = data.frame(x = c(0,0), y = c(-1,-1), z = c(0,1))
-df08 = data.frame(x = c(2/3,2/3), y = c(-1,-1), z = c(0,1))
-df09 = data.frame(x = c(1/3,1/3), y = c(-1,-1), z = c(0,1))
-df10 = data.frame(x = c(1,1), y = c(-1,-1), z = c(0,1))
-df11 = data.frame(x = c(2/3,2/3), y = c(0,0), z = c(0,1))
-df12 = data.frame(x = c(1/3,1/3), y = c(0,0), z = c(0,1))
-df13 = data.frame(x = c(1,1), y = c(0,0), z = c(0,1))
-df14 = data.frame(x = c(2/3,2/3), y = c(1,1), z = c(0,1))
-df15 = data.frame(x = c(1/3,1/3), y = c(1,1), z = c(0,1))
-df16 = data.frame(x = c(1,1), y = c(1,1), z = c(0,1))
-df17 = data.frame(x = c(1,1), y = c(-1/3,-1/3), z = c(0,1))
-df18 = data.frame(x = c(1,1), y = c(-2/3,-2/3), z = c(0,1))
-df19 = data.frame(x = c(1,1), y = c(1/3,1/3), z = c(0,1))
-df20 = data.frame(x = c(1,1), y = c(2/3,2/3), z = c(0,1))
-df21 = data.frame(x = c(0,0), y = c(1/3,1/3), z = c(0,1))
-df22 = data.frame(x = c(0,0), y = c(2/3,2/3), z = c(0,1))
-df23 = data.frame(x = c(0,0), y = c(1,1), z = c(0,1))
-#inclined
-d01 = data.frame(x = c(-1,-2/3), y = c(0,0), z = c(0,1))
-d02 = data.frame(x = c(-2/3,-1/3), y = c(0,0), z = c(0,1))
-d03 = data.frame(x = c(-1/3,0), y = c(0,0), z = c(0,1)) #central
-d04 = data.frame(x = c(0,1/3), y = c(0,0), z = c(0,1))
-d05 = data.frame(x = c(1/3,2/3), y = c(0,0), z = c(0,1))
-d06 = data.frame(x = c(2/3,1), y = c(0,0), z = c(0,1))
-d07 = data.frame(x = c(1,2/3), y = c(0,0), z = c(0,1))
-d08 = data.frame(x = c(2/3,1/3), y = c(0,0), z = c(0,1))
-d09 = data.frame(x = c(1/3,0), y = c(0,0), z = c(0,1)) #central
-d10 = data.frame(x = c(0,-1/3), y = c(0,0), z = c(0,1))
-d11 = data.frame(x = c(-1/3,-2/3), y = c(0,0), z = c(0,1))
-d12 = data.frame(x = c(-2/3,-1), y = c(0,0), z = c(0,1))
-d13 = data.frame(x = c(0,1/3), y = c(1,1), z = c(0,1))
-d14 = data.frame(x = c(1/3,2/3), y = c(1,1), z = c(0,1))#basis
-d15 = data.frame(x = c(2/3,1), y = c(1,1), z = c(0,1))
-d16 = data.frame(x = c(1,2/3), y = c(1,1), z = c(0,1))#basis
-d17 = data.frame(x = c(2/3,1/3), y = c(1,1), z = c(0,1))
-d18 = data.frame(x = c(1/3,0), y = c(1,1), z = c(0,1))
-d19 = data.frame(x = c(0,1/3), y = c(-1,-1), z = c(0,1))
-d20 = data.frame(x = c(1/3,2/3), y = c(-1,-1), z = c(0,1))
-d21 = data.frame(x = c(2/3,1), y = c(-1,-1), z = c(0,1))
-d22 = data.frame(x = c(1,2/3), y = c(-1,-1), z = c(0,1))
-d23 = data.frame(x = c(2/3,1/3), y = c(-1,-1), z = c(0,1))
-d24 = data.frame(x = c(1/3,0), y = c(-1,-1), z = c(0,1))
-d25 = data.frame(y = c(-1,-2/3), x = c(0,0), z = c(0,1))
-d26 = data.frame(y = c(-2/3,-1/3), x = c(0,0), z = c(0,1))
-d27 = data.frame(y = c(-1/3,0), x = c(0,0), z = c(0,1)) #central
-d28 = data.frame(y = c(0,1/3), x = c(0,0), z = c(0,1))
-d29 = data.frame(y = c(1/3,2/3), x = c(0,0), z = c(0,1))
-d30 = data.frame(y = c(2/3,1), x = c(0,0), z = c(0,1))
-d31 = data.frame(y = c(1,2/3), x = c(0,0), z = c(0,1))
-d32 = data.frame(y = c(2/3,1/3), x = c(0,0), z = c(0,1))
-d33 = data.frame(y = c(1/3,0), x = c(0,0), z = c(0,1)) #central
-d34 = data.frame(y = c(0,-1/3), x = c(0,0), z = c(0,1))
-d35 = data.frame(y = c(-1/3,-2/3), x = c(0,0), z = c(0,1))
-d36 = data.frame(y = c(-2/3,-1), x = c(0,0), z = c(0,1))
-d37 = data.frame(y = c(-1,-2/3), x = c(1,1), z = c(0,1))
-d38 = data.frame(y = c(-2/3,-1/3), x = c(1,1), z = c(0,1))
-d39 = data.frame(y = c(-1/3,0), x = c(1,1), z = c(0,1))
-d40 = data.frame(y = c(0,1/3), x = c(1,1), z = c(0,1))
-d41 = data.frame(y = c(1/3,2/3), x = c(1,1), z = c(0,1))
-d42 = data.frame(y = c(2/3,1), x = c(1,1), z = c(0,1))
-d43 = data.frame(y = c(1,2/3), x = c(1,1), z = c(0,1))
-d44 = data.frame(y = c(2/3,1/3), x = c(1,1), z = c(0,1))
-d45 = data.frame(y = c(1/3,0), x = c(1,1), z = c(0,1))
-d46 = data.frame(y = c(0,-1/3), x = c(1,1), z = c(0,1))
-d47 = data.frame(y = c(-1/3,-2/3), x = c(1,1), z = c(0,1))
-d48 = data.frame(y = c(-2/3,-1), x = c(1,1), z = c(0,1))
 # star set
 d49 = data.frame(y = c(1/3,0), x = c(0,0), z = c(0,0))
 d50 = data.frame(y = c(0,0), x = c(1/3,0), z = c(0,0))
 d51 = data.frame(y = c(-1/3,0), x = c(0,0), z = c(0,0))
 d52 = data.frame(y = c(0,0), x = c(-1/3,0), z = c(0,0))
 
-graph$build_mesh(h = 1/40)
-graph$plot(plotly = TRUE, vertex_size = 4, vertex_color = "blue",
-           edge_color = "black", edge_width = 2) %>%  
-  config(mathjax = 'cdn') %>% 
-  layout(title = TeX("\\text{Basis functions on a metric graph }\\Gamma = (\\mathcal{V},\\mathcal{E})"), 
-         showlegend = FALSE,
-                    font = list(family = "Palatino"),
-                    scene = list(
-                      aspectratio = list(x = 1.8, y = 1.8, z = 0.4),
-                      annotations = list(
-                        list(
-                          x = -1, y = 0, z = 0,
-                          text = TeX("v_1"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 0, z = 0,
-                          text = TeX("v_2"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = -1, z = 0,
-                          text = TeX("v_3"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = -1, z = 0,
-                          text = TeX("v_4"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = 0, z = 0,
-                          text = TeX("v_5"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = 1, z = 0,
-                          text = TeX("v_6,x_0^{e_7}"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 1, z = 0,
-                          text = TeX("v_7,x_3^{e_7}"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 2/3, y = 1, z = 0,
-                          text = TeX("x_1^{e_7}"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1/3, y = 1, z = 0,
-                          text = TeX("x_2^{e_7}"),
-                          textangle = 0, ax = 0, ay = 25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 2/3, y = 1, z = 1,
-                          text = TeX("\\varphi_1^{e_7}"),
-                          textangle = 0, ax = 0, ay = 75,
-                          font = list(color = "blue", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 0, z = 1,
-                          text = TeX("\\phi_{v_2}"),
-                          textangle = 0, ax = 0, ay = 75,
-                          font = list(color = "red", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1)
-                        ))) %>% 
-  add_trace(x = -2/3, y = 0, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = -1/3, y = 0, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 0, y = -1/3, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 0, y = -2/3, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 1/3, y = -1, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 2/3, y = -1, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 0, y = 1/3, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 0, y = 2/3, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>% 
-  add_trace(x = 1/3, y = 0, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 2/3, y = 0, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>% 
-  add_trace(x = 1/3, y = 1, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 2/3, y = 1, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>% 
-  add_trace(x = 1, y = 1/3, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 1, y = 2/3, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>% 
-  add_trace(x = 1, y = -1/3, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>%
-  add_trace(x = 1, y = -2/3, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 4, color = "black", symbol = 104)) %>% #so far the botton
-  add_trace(x = -2/3, y = 0, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = -1/3, y = 0, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 0, y = -1/3, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 0, y = -2/3, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 1/3, y = -1, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 2/3, y = -1, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 0, y = 1/3, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 0, y = 2/3, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>% 
-  add_trace(x = 1/3, y = 0, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 2/3, y = 0, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>% 
-  add_trace(x = 1/3, y = 1, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 2/3, y = 1, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>% 
-  add_trace(x = 1, y = 1/3, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 1, y = 2/3, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>% 
-  add_trace(x = 1, y = -1/3, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "black", symbol = 104)) %>%
-  add_trace(x = 1, y = -2/3, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "gray", symbol = 104)) %>% # now the vextex above
-  add_trace(x = -1, y = 0, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(x = 0, y = 0, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "gray", symbol = 104)) %>%
-  add_trace(x = 0, y = 1, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(x = 0, y = -1, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "gray", symbol = 104)) %>%
-  add_trace(x = 1, y = 0, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(x = 1, y = 1, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "gray", symbol = 104)) %>%
-  add_trace(x = 1, y = -1, z = 1, mode = "markers", type = "scatter3d", 
-            marker = list(size = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = df01, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df02, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df03, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df04, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df05, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df06, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df07, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df08, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df09, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df10, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df11, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df12, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df13, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df14, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df15, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df16, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df17, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df18, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df19, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df20, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df21, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df22, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% 
-  add_trace(data = df23, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104, dash = 'dot')) %>% #so far vertical
-  add_trace(data = d01, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d02, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d03, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104)) %>% 
-  add_trace(data = d04, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d05, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d06, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d07, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d08, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d09, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104)) %>% 
-  add_trace(data = d10, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d11, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d12, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d13, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d14, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "blue", symbol = 104)) %>% 
-  add_trace(data = d15, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d16, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "blue", symbol = 104)) %>% 
-  add_trace(data = d17, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d18, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d19, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d20, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d21, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d22, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d23, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d24, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d25, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d26, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d27, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104)) %>% 
-  add_trace(data = d28, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d29, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d30, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d31, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d32, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d33, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104)) %>% 
-  add_trace(data = d34, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d35, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d36, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d37, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d38, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d39, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d40, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d41, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d42, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d43, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d44, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d45, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d46, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d47, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% 
-  add_trace(data = d48, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 1, color = "gray", symbol = 104)) %>% #star set
-  add_trace(data = d49, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 3, color = "green", symbol = 104)) %>% 
-  add_trace(data = d50, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 3, color = "green", symbol = 104)) %>% 
-  add_trace(data = d51, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 3, color = "green", symbol = 104)) %>% 
-  add_trace(data = d52, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 3, color = "green", symbol = 104))
-```
-
-# Basis functions, alternative illustrations
-
-```{r, out.width = "70%", fig.dim = c(10, 10), class.source = "fold-hide"}
-V <- rbind(c(0, 0), c(1, 0), c(1, 1), c(0, 1), c(-1, 1), c(-1, 0), c(0, -1))
-E <- rbind(c(1, 2), c(2, 3), c(3, 4), c(4, 5),
-           c(5, 6), c(6, 1), c(4, 1),c(1, 7))
-graph <- metric_graph$new(V = V, E = E)
-
 graph_to_get_loc <- graph$clone()
 graph_to_get_loc$build_mesh(h = 1/150)
-
-graph_to_get_loc$plot(mesh = TRUE) + 
-  ggtitle("Fine mesh") + 
-  theme_minimal() + 
-  theme(text = element_text(family = "Palatino"))
 
 loc <- graph_to_get_loc$get_mesh_locations()
 
 graph$build_mesh(h = 1/3)
-
-graph$plot(mesh = TRUE) + 
-  ggtitle("Coarse mesh") + 
-  theme_minimal() + 
-  theme(text = element_text(family = "Palatino"))
 
 A <- graph$fem_basis(loc)
 
@@ -872,42 +474,7 @@ DD <- data.frame(A = as.matrix(A)) %>%
   cbind(edge_number = loc[, 1], distance_on_edge = loc[, 2], A.24 = 0)
 
 graph$add_observations(data = DD, normalized = TRUE)
-```
 
-
-```{r, fig.height = 8, class.source = "fold-hide"}
-graph$plot(data = "max_value", vertex_size = 0, plotly = TRUE, edge_width = 0.1) %>%  
-  config(mathjax = 'cdn') %>% 
-  layout(title = TeX("\\text{Basis functions on a metric graph }\\Gamma = (\\mathcal{V},\\mathcal{E})"), 
-         showlegend = FALSE,
-         font = list(family = "Palatino"),
-         scene = list(aspectratio = list(x = 1.8, y = 1.8, z = 0.4)))
-
-graph$plot(data = "A.1", vertex_size = 0, plotly = TRUE, edge_width = 0.1) %>%  
-  config(mathjax = 'cdn') %>% 
-  layout(title = TeX("\\text{One basis function on a metric graph }\\Gamma = (\\mathcal{V},\\mathcal{E})"), 
-         showlegend = FALSE,
-         font = list(family = "Palatino"),
-         scene = list(aspectratio = list(x = 1.8, y = 1.8, z = 0.4)))
-
-graph_to_get_loc$plot_function(X = DD$max_value, vertex_size = 0, plotly = TRUE) %>%  
-  config(mathjax = 'cdn') %>% 
-  layout(title = TeX("\\text{Basis functions on a metric graph }\\Gamma = (\\mathcal{V},\\mathcal{E})"), 
-         showlegend = FALSE,
-         font = list(family = "Palatino"),
-         scene = list(aspectratio = list(x = 1.8, y = 1.8, z = 0.4)))
-
-graph_to_get_loc$plot_function(X = DD$A.1, vertex_size = 0, plotly = TRUE) %>%  
-  config(mathjax = 'cdn') %>% 
-  layout(title = TeX("\\text{One basis function on a metric graph }\\Gamma = (\\mathcal{V},\\mathcal{E})"), 
-         showlegend = FALSE,
-         font = list(family = "Palatino"),
-         scene = list(aspectratio = list(x = 1.8, y = 1.8, z = 0.4)))
-```
-
-
-
-```{r, class.source = "fold-hide"}
 # Initialize the first plot
 p1 <- graph_to_get_loc$plot_function(X = DD[[paste0("A.", 1)]], line_color = "red",
                                      edge_width = 2, line_width = 2, support_width = 0.2, plotly = TRUE)
@@ -984,6 +551,12 @@ pp = p24 %>%
                           font = list(color = "black", size = 16),
                           arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
                         list(
+                          x = 0.15, y = 0, z = 0,
+                          text = TeX("\\mathcal{N}_{v_2}"),
+                          textangle = 0, ax = 0, ay = 25,
+                          font = list(color = "green", size = 16),
+                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
+                        list(
                           x = 2/3, y = 1, z = 1,
                           text = TeX("\\varphi_1^{e_7}"),
                           textangle = 0, ax = 0, ay = 75,
@@ -1050,12 +623,11 @@ pp = p24 %>%
             line = list(width = 3, color = "green", symbol = 104)) %>% 
   add_trace(data = d52, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
             line = list(width = 3, color = "green", symbol = 104))
-```
 
-```{r, fig.height = 8, class.source = "fold-hide"}
 pp
 ```
 
+Follow this [link](basis_functions_alt_illustrations.html) for alternative illustrations.
 
 # References
 
