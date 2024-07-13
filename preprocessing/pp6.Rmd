@@ -86,7 +86,8 @@ knitr::opts_chunk$set(
   eval = TRUE,       # Evaluate R code chunks
   cache = FALSE,       # Enable caching of R code chunks for faster rendering
   fig.align = "center",
-  out.width = "100%",
+  out.width = "60%",
+  fig.dim = c(8,8),
   retina = 2,
   error = TRUE,
   collapse = FALSE
@@ -279,7 +280,7 @@ data_final_filtered <- data %>%
 In black, all the points that belong to the group (or replicate) of the point of interest. In blue, the points in the neighborhood of the point of interest. In red, the point of interest.
 
 
-```{r}
+```{r, fig.align = "center"}
 # Plot the data 
 # in black, all the points that belong to the group (or replicate) of the point of interest
 # in blue, the points in the neighborhood of the point of interest

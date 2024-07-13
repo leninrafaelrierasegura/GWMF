@@ -15,6 +15,9 @@ output:
     number_sections: true
     fig_caption: true
 always_allow_html: true
+bibliography: 
+  - ../references.bib
+  - grateful-refs.bib
 ---
 
 ```{r, eval = FALSE, echo = FALSE}
@@ -110,6 +113,7 @@ library(sf)
 
 library(here) # here() starts from the home directory
 library(rmarkdown)
+library(grateful) # Cite all loaded packages
 
 rm(list = ls()) # Clear the workspace
 set.seed(1982) # Set seed for reproducibility
@@ -246,5 +250,12 @@ TSstudio::ts_plot(bus,
                   title = paste("Speed records, no consecutive zeros, 7 January, 1-2pm, bus ID: ", IDnumber, sep = ""),
                   Xtitle = "Time",
                   Ytitle = "Speed")
+```
+
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
 ```
 

@@ -1,0 +1,346 @@
+---
+title: "Interval"
+date: "Created: 05-07-2024. Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    # df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+always_allow_html: true
+bibliography: 
+  - ../references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+---
+
+```{r, eval = FALSE, echo = FALSE}
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+```
+
+```{r xaringanExtra-clipboard, echo = FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+
+```{css, echo = FALSE}
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+```
+
+
+Go back to the [About page](about.html).
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+knitr::opts_chunk$set(
+  message = FALSE,    # Disable messages printed by R code chunks
+  warning = FALSE,    # Disable warnings printed by R code chunks
+  echo = TRUE,        # Show R code within code chunks in output
+  include = TRUE,     # Include both R code and its results in output
+  eval = TRUE,       # Evaluate R code chunks
+  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  fig.align = "center",
+  #out.width = "100%",
+  retina = 2,
+  error = TRUE,
+  collapse = FALSE
+)
+rm(list = ls())
+set.seed(1982)
+```
+
+# Import libraries
+
+```{r}
+# Install R-INLA package
+# install.packages("INLA",repos = c(getOption("repos"),INLA ="https://inla.r-inla-download.org/R/testing"), dep = TRUE)
+# Update R-INLA package
+# inla.upgrade(testing = TRUE)
+# Install inlabru package
+# remotes::install_github("inlabru-org/inlabru", ref = "devel")
+# Install rSPDE package
+# remotes::install_github("davidbolin/rspde", ref = "devel")
+# Install MetricGraph package
+# remotes::install_github("davidbolin/metricgraph", ref = "devel")
+
+library(INLA)
+library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+library(Matrix)
+
+library(dplyr)
+library(plotly)
+library(scales)
+library(patchwork)
+library(tidyr)
+library(ggplot2)
+library(reshape2)
+library(sf)
+
+library(here)
+library(rmarkdown)
+library(knitr)
+library(grateful) # Cite all loaded packages
+
+library(latex2exp)
+library(plotrix)
+
+rm(list = ls()) # Clear the workspace
+set.seed(1982) # Set seed for reproducibility
+```
+
+
+# Interval graph
+
+Follow this [link](convergence_rates/convergence_rates_interval.html) for more details.
+
+
+```{r}
+# Matern covariance function
+matern.covariance <- function(h, kappa, nu, sigma) {
+  if (nu == 1 / 2) {
+    C <- sigma^2 * exp(-kappa * abs(h))
+  } else {
+    C <- (sigma^2 / (2^(nu - 1) * gamma(nu))) *
+      ((kappa * abs(h))^nu) * besselK(kappa * abs(h), nu)
+  }
+  C[h == 0] <- sigma^2
+  return(as.matrix(C))
+}
+
+# Folded.matern.covariance.1d
+folded.matern.covariance.1d.local <- function(x, kappa, nu, sigma,
+                                              L = 1, N = 10,
+                                              boundary = c("neumann",
+                                                           "dirichlet", "periodic")) {
+  boundary <- tolower(boundary[1])
+  if (!(boundary %in% c("neumann", "dirichlet", "periodic"))) {
+    stop("The possible boundary conditions are 'neumann',
+    'dirichlet' or 'periodic'!")
+  }
+  addi <- t(outer(x, x, "+"))
+  diff <- t(outer(x, x, "-"))
+  s1 <- sapply(-N:N, function(j) { 
+    diff + 2 * j * L
+  })
+  s2 <- sapply(-N:N, function(j) {
+    addi + 2 * j * L
+  })
+  if (boundary == "neumann") {
+    C <- rowSums(matern.covariance(h = s1, kappa = kappa,
+                                   nu = nu, sigma = sigma) +
+                   matern.covariance(h = s2, kappa = kappa,
+                                     nu = nu, sigma = sigma))
+  } else if (boundary == "dirichlet") {
+    C <- rowSums(matern.covariance(h = s1, kappa = kappa,
+                                   nu = nu, sigma = sigma) -
+                   matern.covariance(h = s2, kappa = kappa,
+                                     nu = nu, sigma = sigma))
+  } else {
+    C <- rowSums(matern.covariance(h = s1,
+                                   kappa = kappa, nu = nu, sigma = sigma))
+  }
+  return(matrix(C, nrow = length(x)))
+}
+
+# Function to get the true covariance matrix
+gets_true_cov_mat = function(graph, kappa, nu, sigma, N, boundary){
+  h <- graph$mesh$V[,1]
+  true_cov_mat <- folded.matern.covariance.1d.local(x = h, kappa = kappa, nu = nu, sigma = sigma, N = N, boundary = boundary)
+  return(true_cov_mat)
+}
+
+# Define the graph
+edge <- rbind(c(0,0),c(1,0))
+edges <- list(edge)
+graph <- metric_graph$new(edges = edges)
+
+# parameters
+h.ok <- 2^-10
+type <- "covariance"
+type_rational_approximation = "brasil"
+rho <- 0.5
+#m = 4
+sigma <- 1
+N.folded <- 10
+boundary <- "neumann" # do not change this
+
+# Mesh sizes
+h_aux <- seq(5.5, 4, by = -1/2)
+h_vector <- 2^-h_aux
+h_label <- paste0("2^-", h_aux, "")
+h_label_latex <- sprintf("$2^{-%f}$", h_aux)
+
+# Beta values
+beta_aux <- c(4, 6, 6.5, 7, 7.5)
+beta_vector <- beta_aux/8
+beta_label <- paste0(beta_aux, "/8")
+theoretical_rate <- pmin(4*beta_vector-1/2,2)
+
+graph.ok <- graph$clone()
+# Build graph with overkill mesh
+graph.ok$build_mesh(h = h.ok)
+graph.ok$compute_fem()
+
+# Get the overkill mesh locations
+loc.ok <- graph.ok$mesh$VtE # or graph.ok$get_mesh_locations()
+
+# Initialize the list of graphs and the list of projection matrices
+graphs <- list()
+A <- list()
+for(i in 1:length(h_vector)){
+  graphs[[i]] <- graph$clone()
+  graphs[[i]]$build_mesh(h = h_vector[i])
+  A[[i]] <- graphs[[i]]$fem_basis(loc.ok)
+}
+
+cov.error.interval <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
+
+m_values <- c()
+for (j in 1:length(beta_vector)) {
+  beta <- beta_vector[j]
+  alpha <- 2*beta
+  fract2beta <- alpha - floor(alpha)
+  nu <- alpha - 0.5
+  kappa <- sqrt(8*nu)/rho
+  tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+  
+  Sigma.true.interval <- gets_true_cov_mat(graph = graph.ok, 
+                               kappa = kappa,
+                               nu = nu,
+                               sigma = sigma,
+                               N = N.folded,
+                               boundary = boundary)
+  
+  for (i in 1:length(h_vector)) {
+    h <- h_vector[i]
+    m <- min(20, ceiling((min(4*beta - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract2beta)))
+    m_values <- c(m_values, m)
+    
+    Sigma <- matern.operators(alpha = alpha,  
+                             kappa = kappa, 
+                             tau = tau,
+                             m = m, 
+                             graph = graphs[[i]],
+                             type = type,
+                             type_rational_approximation = type_rational_approximation)$covariance_mesh()
+    
+    Sigma.approx.interval <- A[[i]]%*%Sigma%*%t(A[[i]])
+    
+    cov.error.interval[i,j] <- sqrt(as.double(t(graph.ok$mesh$weights)%*%(Sigma.true.interval - Sigma.approx.interval)^2%*%graph.ok$mesh$weights))
+  }
+}
+
+print(m_values)
+
+slope_interval <- numeric(length(beta_vector))
+
+for (u in 1:length(beta_vector)) {
+  slope_interval[u] <- coef(lm(log(cov.error.interval[,u]) ~ log(h_vector)))[2]
+}
+
+transposed_df <- data.frame(t(data.frame(beta = beta_label, theoretical_rate = theoretical_rate, slope = slope_interval)))
+rownames(transposed_df) <- c("beta", "Theoretical rates", "Interval graph")
+colnames(transposed_df) <- NULL
+# Display the transposed data frame
+transposed_df |> paged_table()
+
+loglog_line_equation <- function(x1, y1, slope) {
+  b <- log10(y1 / (x1 ^ slope))
+  
+  function(x) {
+    (x ^ slope) * (10 ^ b)
+  }
+}
+
+guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
+for (j in 1:length(beta_vector)) {
+  guiding_lines_aux <- matrix(NA, nrow = length(h_vector), ncol = length(h_vector))
+  for(k in 1:length(h_vector)){
+    point_x1 <- h_vector[k]
+    point_y1 <- cov.error.interval[k, j]
+    slope <- theoretical_rate[j]
+    line <- loglog_line_equation(x1 = point_x1, y1 = point_y1, slope = slope)
+    guiding_lines_aux[,k] <- line(h_vector)
+  }
+  guiding_lines[,j] <- apply(guiding_lines_aux, 1, mean)
+}
+
+# Generate default ggplot2 colors
+default_colors <- scales::hue_pal()(ncol(guiding_lines))
+
+# Create the plot_lines list with different colors for each line
+plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
+  geom_line(data = data.frame(x = h_vector, y = guiding_lines[, i]),
+            aes(x = x, y = y), color = default_colors[i], linetype = "dashed", show.legend = FALSE)
+})
+
+df <- as.data.frame(cbind(h_vector, cov.error.interval))
+colnames(df) <- c("h_vector", beta_label)
+df_melted <- melt(df, id.vars = "h_vector", variable.name = "column", value.name = "value")
+
+p.interval <- ggplot() +
+  geom_line(data = df_melted, aes(x = h_vector, y = value, color = column)) +
+  geom_point(data = df_melted, aes(x = h_vector, y = value, color = column)) +
+  plot_lines +
+  labs(title = "Interval graph",
+    x = TeX("$\\hat{h}$"),
+       y = "Covariance Error",
+       color = expression(beta)) +
+  scale_x_log10(breaks = h_vector, labels = TeX(h_label_latex)) +
+  scale_y_log10() +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+```
+
+
+```{r, fig.dim = c(5,4), class.source = "fold-hide"}
+p.interval
+```

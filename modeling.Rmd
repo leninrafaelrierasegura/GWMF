@@ -183,7 +183,7 @@ sf_graph$plot(vertex_size = 0, data = "speed", edge_width = 0.05, group = 1, dat
 </div>
 
 
-```{r, class.source = "fold-hide"}
+```{r, fig.dim = c(8,8), class.source = "fold-hide"}
 # This code chunk only serves the purpose of plotting the four replicates
 data_to_plot <- sf_graph$get_data()
 load(here("data_files/tomtom.RData"))

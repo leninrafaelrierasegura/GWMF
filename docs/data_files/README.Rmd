@@ -85,3 +85,11 @@ This file was created in [`numerical_error.html`](../numerical_error.html).
 17. [**`crossvalidation.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/crossvalidation.RData)
 
 This file was created in [`modeling.html`](../modeling.html).
+
+18.[**`convergence_rates_inte_circ_tadp.png`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/convergence_rates_inte_circ_tadp.png)
+
+This file was created in [`convergence_rates.html`](../convergence_rates.html).
+
+19. [**`stand_and_range.png`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/stand_and_range.png)
+
+This file was created in [`non_stationarity.html`](../non_stationarity.html).

@@ -15,6 +15,9 @@ output:
     number_sections: true
     fig_caption: true
 always_allow_html: true
+bibliography: 
+  - ../references.bib
+  - grateful-refs.bib
 ---
 
 ```{r, eval = FALSE, echo = FALSE}
@@ -75,6 +78,7 @@ knitr::opts_chunk$set(
   cache = FALSE,       # Enable caching of R code chunks for faster rendering
   fig.align = "center",
   out.width = "100%",
+  fig.dim = c(12,12),
   retina = 2,
   error = TRUE,
   collapse = FALSE
@@ -113,6 +117,7 @@ library(ggplot2)
 
 library(here) # here() starts from the home directory
 library(rmarkdown)
+library(grateful) # Cite all loaded packages
 
 rm(list = ls()) # Clear the workspace
 set.seed(1982) # Set seed for reproducibility
@@ -135,11 +140,11 @@ df |> dim()
 ```
 
 
-```{r, fig.height=16}
+```{r}
 # Plot using ggplot
 ggplot(df) +
   geom_sf(aes(color = speed)) +
-  facet_wrap(~day, ncol = 1) +
+  facet_wrap(~day, ncol = 2) +
   theme_minimal() +
   labs(title = "Speed by Day", color = "Speed") +
   theme(plot.title = element_text(hjust = 0.5))
@@ -181,13 +186,18 @@ data_on_graph |> head(5) |> paged_table()
 data_on_graph |> dim()
 ```
 
-```{r, fig.height=16}
+```{r}
 # Plot using ggplot
 ggplot(data_on_graph) +
   geom_point(aes(x = .coord_x, y = .coord_y, color = speed)) +
-  facet_wrap(~day, ncol = 1) +
+  facet_wrap(~day, ncol = 2) +
   theme_minimal() +
   labs(title = "Speed by Day", color = "Speed") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```

@@ -15,6 +15,9 @@ output:
     number_sections: true
     fig_caption: true
 always_allow_html: true
+bibliography: 
+  - ../references.bib
+  - grateful-refs.bib
 ---
 
 ```{r, eval = FALSE, echo = FALSE}
@@ -74,7 +77,8 @@ knitr::opts_chunk$set(
   eval = TRUE,       # Evaluate R code chunks
   cache = FALSE,       # Enable caching of R code chunks for faster rendering
   fig.align = "center",
-  out.width = "100%",
+  out.width = "70%",
+  fig.dim = c(8,8),
   retina = 2,
   error = TRUE,
   collapse = FALSE
@@ -113,6 +117,7 @@ library(ggplot2)
 
 library(here) # here() starts from the home directory
 library(rmarkdown)
+library(grateful) # Cite all loaded packages
 
 rm(list = ls()) # Clear the workspace
 set.seed(1982) # Set seed for reproducibility
@@ -140,7 +145,9 @@ tomtom |> dim()
 ggplot(data = tomtom) +
   geom_sf(aes(color = SpeedLimit)) +
   scale_color_viridis_c(option = "D") +
-  theme_minimal()
+  ggtitle("Street network") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
 ```
 
 
@@ -192,7 +199,9 @@ from.tomtom |> dim()
 ggplot(data = from.tomtom) +
   geom_sf(aes(color = SpeedLimit)) +
   scale_color_viridis_c(option = "D") +
-  theme_minimal()
+  ggtitle("Filtered street network") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
 ```
 
 
@@ -223,11 +232,20 @@ sf_graph$plot(vertex_size = 0,
               edge_weight = "SpeedLimit", 
               edge_width_weight = "SpeedLimit", 
               edge_color = "SpeedLimit",
-              scale_color_weights = ggplot2::scale_color_viridis_c(option = "D"))
+              scale_color_weights = ggplot2::scale_color_viridis_c(option = "D")) +
+  ggtitle("Metric graph of the street network") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
 ```
 
 ```{r}
 graph_w <- sf_graph$get_edge_weights()
 graph_w |> head(5) |> paged_table()
 graph_w |> dim()
+```
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
 ```

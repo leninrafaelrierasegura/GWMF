@@ -110,6 +110,7 @@ rm(list = ls()) # Clear the workspace
 set.seed(1982) # Set seed for reproducibility
 ```
 
+
 # Building the graph object
 
 ```{r}
@@ -121,305 +122,15 @@ graph <- metric_graph$new(V = V, E = E)
 
 # Geodesic distance on a metric graph
 
-Figure 1 below shows an illustration of a compact and connected graph $\Gamma = (\mathcal{V},\mathcal{E})$, where $\mathcal{E}= \{e_1,\dots,e_8\}$ (black lines) and $\mathcal{V} =  \{v_1,\dots,v_7\}$ (blue points).
-
-
-<div style="color: blue;">
-********
-**Press the Show button below to reveal the code.**
-
-********
-</div>
-
-
-```{r, fig.height = 8, class.source = "fold-hide", fig.cap = "Figure 1. Illustration of a compact and connected graph $\\Gamma = \\pare{\\Vcal,\\Ecal}$, where $\\Ecal= \\llav{e_1,\\dots,e_8}$ (black) and $\\Vcal =  \\llav{v_1,\\dots,v_7}$ (blue). Notice that $\\ell_{e_i} = 1$ for $i = 1,\\dots,8$. Note also that, for example, $\\Ecal_{v_2} = \\llav{e_1,e_2,e_5,e_8}$ and therefore $d_{v_2} = 4.$ Given two points $s_1 = (e_3, 0.5)$ and $s_2 = (e_1, 0.5)$, we have that $d(s_1,s_2) = 2$ (red). Following the convention mentioned in the text, we may write, for example, $e_8 = (v_2,v_7) \\cong [0,\\ell_{e_8}]$."}
-df = data.frame(x = c(0.5,0), y = c(-1,-1), z = c(0,0))
-df2 = data.frame(x = c(0,0), y = c(-1,0), z = c(0,0))
-df3 = data.frame(x = c(0,-0.5), y = c(0,0), z = c(0,0))
-
-graph$build_mesh(h = 1/40)
-x <- graph$mesh$V[, 1]
-y <- graph$mesh$V[, 2]
-f <- x^2 - y^2
-graph$plot(plotly = TRUE, vertex_size = 5, vertex_color = "blue",
-           edge_color = "black", edge_width = 2) %>%  
-  config(mathjax = 'cdn') %>% 
-  layout(title = TeX("\\text{Geodesic distance on a metric graph }\\Gamma = (\\mathcal{V},\\mathcal{E})"), 
-    showlegend = FALSE,
-                    font = list(family = "Palatino"),
-                    scene = list(
-                      aspectratio = list(x = 1.6, y = 1.6, z = 1),
-                      annotations = list(
-                        list(
-                          x = -1, y = 0, z = 0,
-                          text = TeX("v_1"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 0, z = 0,
-                          text = TeX("v_2"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = -1, z = 0,
-                          text = TeX("v_3"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = -1, z = 0,
-                          text = TeX("v_4"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = 0, z = 0,
-                          text = TeX("v_5"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = 1, z = 0,
-                          text = TeX("v_6"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 1, z = 0,
-                          text = TeX("v_7"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0.5, y = -1, z = 0,
-                          text = TeX("s_1"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = -0.5, y = 0, z = 0,
-                          text = TeX("s_2"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = -0.5, y = 0, z = 0,
-                          text = TeX("e_1"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = -0.5, z = 0,
-                          text = TeX("e_2"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0.5, y = -1, z = 0,
-                          text = TeX("e_3"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = -0.5, z = 0,
-                          text = TeX("e_4"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0.5, y = 0, z = 0,
-                          text = TeX("e_5"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = 0.5, z = 0,
-                          text = TeX("e_6"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0.5, y = 1, z = 0,
-                          text = TeX("e_7"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 0.5, z = 0,
-                          text = TeX("e_8"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 20),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1)
-                        ))) %>% 
-  add_trace(x = 0.5, y = -1, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 5, color = "red", symbol = 104)) %>% 
-  add_trace(x = -0.5, y = 0, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 5, color = "red", symbol = 104)) %>% 
-  add_trace(data = df, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104)) %>% 
-  add_trace(data = df2, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104)) %>% 
-  add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104))
-```
-
+Follow this [link](functions_on_graph.html#geodesic) for an illustration of the geodesic distance on a metric graph.
 
 # Function on a metric graph
 
-Figure 2 below provides an illustration of a function defined on a graph.
-
-<div style="color: blue;">
-********
-**Press the Show button below to reveal the code.**
-
-********
-</div>
-
-
-```{r, fig.height = 8, class.source = "fold-hide", fig.cap = "Figure 2. Illustration of a function $f$ (in blue) defined on the graph $\\Gamma= (\\Vcal,\\Ecal)$, where $\\Ecal= \\llav{e_1,\\dots,e_8}$ and $\\Vcal =  \\llav{v_1,\\dots,v_7}$. Function $f:\\Gamma\\longrightarrow\\ar$ is the  restriction of the surface $\\gamma:\\ar^2\\longrightarrow\\ar$ to $\\Gamma$, where $\\gamma(x,y) = x^2-y^2$. That is, $f= \\gamma\\big|_\\Gamma$."}
-graph$build_mesh(h = 1/40)
-x <- graph$mesh$V[, 1]
-y <- graph$mesh$V[, 2]
-f <- x^2 - y^2
-
-df = data.frame(x = c(0.5,0), y = c(-1,-1), z = c(0,0))
-df2 = data.frame(x = c(0,0), y = c(-1,0), z = c(0,0))
-df3 = data.frame(x = c(0,-0.5), y = c(0,0), z = c(0,0))
-
-
-graph$plot_function(f,plotly = TRUE, vertex_size = 5, vertex_color = "blue", line_color = "blue",
-           edge_color = "black", edge_width = 2) %>%  
-  config(mathjax = 'cdn') %>% 
-  layout(title = TeX("\\text{Function on a metric graph }\\Gamma = (\\mathcal{V},\\mathcal{E})"), 
-    showlegend = FALSE,
-                    font = list(family = "Palatino"),
-                    scene = list(
-                      aspectratio = list(x = 1.6, y = 1.6, z = 1),
-                      annotations = list(
-                        list(
-                          x = -1, y = 0, z = 0,
-                          text = TeX("v_1"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 0, z = 0,
-                          text = TeX("v_2"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = -1, z = 0,
-                          text = TeX("v_3"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = -1, z = 0,
-                          text = TeX("v_4"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = 0, z = 0,
-                          text = TeX("v_5"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = 1, z = 0,
-                          text = TeX("v_6"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 1, z = 0,
-                          text = TeX("v_7"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0.5, y = -1, z = 0,
-                          text = TeX("s_1"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = -0.5, y = 0, z = 0,
-                          text = TeX("s_2"),
-                          textangle = 0, ax = 0, ay = -25,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "black", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = -0.5, y = 0, z = 0,
-                          text = TeX("e_1"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = -0.5, z = 0,
-                          text = TeX("e_2"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0.5, y = -1, z = 0,
-                          text = TeX("e_3"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = -0.5, z = 0,
-                          text = TeX("e_4"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0.5, y = 0, z = 0,
-                          text = TeX("e_5"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 1, y = 0.5, z = 0,
-                          text = TeX("e_6"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0.5, y = 1, z = 0,
-                          text = TeX("e_7"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = 0.5, z = 0,
-                          text = TeX("e_8"),
-                          textangle = 0, ax = 0, ay = 10,
-                          font = list(color = "black", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1),
-                        list(
-                          x = 0, y = -1, z = 1,
-                          text = TeX("f=\\gamma\\big|_\\Gamma"),
-                          textangle = 0, ax = 60, ay = 0,
-                          font = list(color = "blue", size = 16),
-                          arrowcolor = "white", arrowsize = 1, arrowwidth = 1,arrowhead = 1)
-                        ))) %>% 
-  add_trace(x = 0.5, y = -1, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 5, color = "red", symbol = 104)) %>% 
-  add_trace(x = -0.5, y = 0, z = 0, mode = "markers", type = "scatter3d", 
-            marker = list(size = 5, color = "red", symbol = 104)) %>% 
-  add_trace(data = df, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104)) %>% 
-  add_trace(data = df2, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104)) %>% 
-  add_trace(data = df3, x = ~x, y = ~y, z = ~z, mode = "lines", type = "scatter3d",
-            line = list(width = 2, color = "red", symbol = 104))
-```
+Follow this [link](functions_on_graph.html#functions-def-on-graph) for an illustration of a function on a metric graph.
 
 # Basis functions on a metric graph
+
+Follow this [link](basis_functions_alt_illustrations.html) for alternative illustrations of basis functions on a metric graph.
 
 Let each edge $e\in\Ecal$ be subdivided into $n_{e}\geq 2$ regular segments of length $h_{e}$, and be delimited by the nodes $0 = x_0^{e},x_1^{e},\dots,x_{n_{e}-1}^{e}, x_{n_{e}}^{e} = \ell_{e}$. For each $j = 1,\dots,n_{e}-1$, we consider the following standard hat basis functions 
 \begin{equation*}
@@ -452,7 +163,7 @@ where $x_v^e$ is either $x_0^e$ or $x_{n_e}^e$ depending on the edge direction a
 ********
 </div>
 
-```{r,  fig.height = 8, class.source = "fold-hide", fig.cap = "Figure 3. Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ (solid gray lines) on the graph $\\Gamma= (\\Vcal,\\Ecal)$, where $\\Ecal= \\llav{e_1,\\dots,e_8}$ and $\\Vcal =  \\llav{v_1,\\dots,v_7}$. Note that for all $e_i\\in\\Ecal$, $n_{e_i} = 3$ and $h_{e_i} = 1/3$. In particular, for edge $e_7$, observe that the three regular segments are delimited by the nodes $v_6 = x_0^{e_7}, x_1^{e_7}, x_2^{e_7}, x_3^{e_7} = v_7$. Corresponding to node $x_1^{e_7}$, we have plotted the basis function $\\varphi_1^{e_7}$ in blue. Notice also that the set $\\Ncal_{v_2}$ is depicted in green and its corresponding basis function $\\phi_{v_2}$ is shown in red."}
+```{r, fig.height = 8, class.source = "fold-hide", fig.cap = "Figure 3. Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ (solid gray lines) on the graph $\\Gamma= (\\Vcal,\\Ecal)$, where $\\Ecal= \\llav{e_1,\\dots,e_8}$ and $\\Vcal =  \\llav{v_1,\\dots,v_7}$. Note that for all $e_i\\in\\Ecal$, $n_{e_i} = 3$ and $h_{e_i} = 1/3$. In particular, for edge $e_7$, observe that the three regular segments are delimited by the nodes $v_6 = x_0^{e_7}, x_1^{e_7}, x_2^{e_7}, x_3^{e_7} = v_7$. Corresponding to node $x_1^{e_7}$, we have plotted the basis function $\\varphi_1^{e_7}$ in blue. Notice also that the set $\\Ncal_{v_2}$ is depicted in green and its corresponding basis function $\\phi_{v_2}$ is shown in red."}
 # star set
 d49 = data.frame(y = c(1/3,0), x = c(0,0), z = c(0,0))
 d50 = data.frame(y = c(0,0), x = c(1/3,0), z = c(0,0))
@@ -460,7 +171,7 @@ d51 = data.frame(y = c(-1/3,0), x = c(0,0), z = c(0,0))
 d52 = data.frame(y = c(0,0), x = c(-1/3,0), z = c(0,0))
 
 graph_to_get_loc <- graph$clone()
-graph_to_get_loc$build_mesh(h = 1/150)
+graph_to_get_loc$build_mesh(h = 1/120)
 
 loc <- graph_to_get_loc$get_mesh_locations()
 
@@ -476,7 +187,7 @@ DD <- data.frame(A = as.matrix(A)) %>%
 graph$add_observations(data = DD, normalized = TRUE)
 
 # Initialize the first plot
-p1 <- graph_to_get_loc$plot_function(X = DD[[paste0("A.", 1)]], line_color = "red",
+p <- graph_to_get_loc$plot_function(X = DD[[paste0("A.", 1)]], line_color = "red",
                                      edge_width = 2, line_width = 2, support_width = 0.2, plotly = TRUE)
 # Loop through to create the remaining plots
 for (i in 2:24) {
@@ -484,11 +195,10 @@ for (i in 2:24) {
   if (i == 11) {line_color <- "blue"}
   if (i == 24) {line_color <- "black"}
   X <- DD[[paste0("A.", i)]]
-  p <- get(paste0("p", i - 1))
-  assign(paste0("p", i), graph_to_get_loc$plot_function(X = X, line_color = line_color, edge_width = 2, line_width = 2, support_width = 0.2, plotly = TRUE, p = p))
+  p <- graph_to_get_loc$plot_function(X = X, line_color = line_color, edge_width = 2, line_width = 2, support_width = 0.2, plotly = TRUE, p = p)
 }
 
-pp = p24 %>%  
+pp = p %>%  
   config(mathjax = 'cdn') %>% 
   layout(title = TeX("\\text{Basis functions on a metric graph }\\Gamma = (\\mathcal{V},\\mathcal{E})"), 
          showlegend = FALSE,
@@ -627,7 +337,6 @@ pp = p24 %>%
 pp
 ```
 
-Follow this [link](basis_functions_alt_illustrations.html) for alternative illustrations.
 
 # References
 

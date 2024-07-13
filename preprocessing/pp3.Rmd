@@ -15,6 +15,9 @@ output:
     number_sections: true
     fig_caption: true
 always_allow_html: true
+bibliography: 
+  - ../references.bib
+  - grateful-refs.bib
 ---
 
 ```{r, eval = FALSE, echo = FALSE}
@@ -94,6 +97,7 @@ library(dplyr)
 library(here)
 library(rmarkdown)
 library(listviewer) # to use jsonedit()
+library(grateful) # Cite all loaded packages
 
 rm(list = ls()) # Clear the workspace
 set.seed(1982) # Set seed for reproducibility
@@ -215,3 +219,9 @@ kable(table_data, align = "cll",
 
 ```
 
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```
