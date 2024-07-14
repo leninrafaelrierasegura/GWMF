@@ -13,6 +13,8 @@ navbar:
       href: modeling.html
     - text: "Non-stationarity"
       href: non_stationarity.html
+    - text: "Simulation"
+      href: simulation.html
     - text: "Basis Functions"
       href: basis_functions.html
     - text: "Approximation"

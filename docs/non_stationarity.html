@@ -467,6 +467,9 @@ div.tocify {
   <a href="non_stationarity.html">Non-stationarity</a>
 </li>
 <li>
+  <a href="simulation.html">Simulation</a>
+</li>
+<li>
   <a href="basis_functions.html">Basis Functions</a>
 </li>
 <li>
@@ -504,7 +507,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Non-stationarity</h1>
-<h4 class="date">Created: 05-07-2024. Last modified: 13-07-2024.</h4>
+<h4 class="date">Created: 05-07-2024. Last modified: 14-07-2024.</h4>
 
 </div>
 
@@ -967,7 +970,7 @@ model</h2>
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
 ##     Predictor: y ~ .
 ## Time used:
-##     Pre = 0.268, Running = 0.504, Post = 0.0837, Total = 0.855 
+##     Pre = 0.254, Running = 0.495, Post = 0.0793, Total = 0.828 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.442 0.377      0.699    1.442      2.186  1.442   0
@@ -1043,7 +1046,7 @@ non-stationary model</h2>
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
 ##     Predictor: y ~ .
 ## Time used:
-##     Pre = 0.155, Running = 0.755, Post = 0.0859, Total = 0.996 
+##     Pre = 0.15, Running = 0.689, Post = 0.0886, Total = 0.928 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.474 0.379      0.723    1.475      2.215  1.475   0
@@ -1059,7 +1062,7 @@ non-stationary model</h2>
 ## Precision for the Gaussian observations 97.810 3.355     91.358   97.757
 ## Theta1 for field                         0.899 0.106      0.697    0.897
 ## Theta2 for field                         0.923 0.080      0.769    0.922
-## Theta3 for field                        -1.719 2.081     -5.659   -1.770
+## Theta3 for field                        -1.719 2.081     -5.658   -1.770
 ## Theta4 for field                         3.011 1.607     -0.033    2.972
 ##                                         0.975quant   mode
 ## Precision for the Gaussian observations     104.57 97.662
@@ -1080,11 +1083,11 @@ non-stationary model</h2>
 ## Posterior summaries for the linear predictor and the fitted values are computed
 ## (Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)</code></pre>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span></code></pre></div>
-<pre><code>##                    mean       sd 0.025quant  0.5quant 0.975quant      mode
-## Theta1.matern  0.899272 0.105570   0.697182  0.897363    1.11275  0.889067
-## Theta2.matern  0.923192 0.080404   0.768947  0.921843    1.08547  0.916006
-## Theta3.matern -1.718660 2.080810  -5.658510 -1.769850    2.52882 -1.997120
-## Theta4.matern  3.011080 1.606820  -0.032674  2.971970    6.28980  2.798470</code></pre>
+<pre><code>##                    mean        sd 0.025quant  0.5quant 0.975quant      mode
+## Theta1.matern  0.899272 0.1055700  0.6971820  0.897363    1.11275  0.889067
+## Theta2.matern  0.923192 0.0804038  0.7689470  0.921843    1.08547  0.916006
+## Theta3.matern -1.718650 2.0807800 -5.6584200 -1.769840    2.52877 -1.997120
+## Theta4.matern  3.011090 1.6067900 -0.0325975  2.971980    6.28976  2.798480</code></pre>
 <!-- ::: -->
 <!-- :::: -->
 </div>
@@ -1181,7 +1184,8 @@ cross-validation results</h2>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
 <p>We used R version 4.4.0 <span class="citation">(R Core Team
 2024)</span> and the following R packages: ggtext v. 0.1.2 <span
-class="citation">(Wilke and Wiernik 2022)</span>, here v. 1.0.1 <span
+class="citation">(Wilke and Wiernik 2022)</span>, gridExtra v. 2.3 <span
+class="citation">(Auguie 2017)</span>, here v. 1.0.1 <span
 class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
 class="citation">(Cheng et al. 2024)</span>, INLA v. 24.6.27 <span
 class="citation">(Rue, Martino, and Chopin 2009; Lindgren, Rue, and
@@ -1229,6 +1233,12 @@ Appelhans, Tim, Florian Detsch, Christoph Reudenbach, and Stefan
 Woellauer. 2023. <em><span class="nocase">mapview</span>: Interactive
 Viewing of Spatial Data in r</em>. <a
 href="https://CRAN.R-project.org/package=mapview">https://CRAN.R-project.org/package=mapview</a>.
+</div>
+<div id="ref-gridExtra" class="csl-entry">
+Auguie, Baptiste. 2017. <em><span class="nocase">gridExtra</span>:
+Miscellaneous Functions for <span>“<span>Grid</span>”</span>
+Graphics</em>. <a
+href="https://CRAN.R-project.org/package=gridExtra">https://CRAN.R-project.org/package=gridExtra</a>.
 </div>
 <div id="ref-inlabru2019" class="csl-entry">
 Bachl, Fabian E., Finn Lindgren, David L. Borchers, and Janine B.

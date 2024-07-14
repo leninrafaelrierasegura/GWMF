@@ -1,0 +1,578 @@
+---
+title: "Simulation"
+date: "Created: 05-07-2024. Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    # df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+---
+
+```{r, eval = FALSE, echo = FALSE}
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+```
+
+```{r xaringanExtra-clipboard, echo = FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+
+```{css, echo = FALSE}
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+```
+
+
+Go back to the [About page](about.html).
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+knitr::opts_chunk$set(
+  message = FALSE,    # Disable messages printed by R code chunks
+  warning = FALSE,    # Disable warnings printed by R code chunks
+  echo = TRUE,        # Show R code within code chunks in output
+  include = TRUE,     # Include both R code and its results in output
+  eval = TRUE,       # Evaluate R code chunks
+  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  fig.align = "center",
+  #out.width = "100%",
+  retina = 2,
+  error = TRUE,
+  collapse = FALSE
+)
+rm(list = ls())
+set.seed(1982)
+```
+
+# Import libraries
+
+```{r}
+library(INLA)
+library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+
+library(dplyr)
+library(plotly)
+library(scales)
+library(patchwork)
+library(tidyr)
+library(sf)
+
+library(ggplot2)
+library(gridExtra)
+
+library(here)
+library(rmarkdown)
+library(grateful) # Cite all loaded packages
+
+rm(list = ls()) # Clear the workspace
+set.seed(1982) # Set seed for reproducibility
+```
+
+
+# Preprocessing
+
+## Build the graph
+
+```{r}
+edges <- logo_lines() # This is a function from MetricGraph package that returns a list of edges
+logo_graph <- metric_graph$new(edges = edges) # Create a new graph object
+
+#logo_graph$prune_vertices()
+logo_graph$build_mesh(h = 0.05) # Build the mesh
+```
+
+Keep in mind the following relationships.
+
+- $\alpha = \nu + 1/2$,
+- $\rho = \dfrac{\sqrt{8\nu}}{\kappa}$,
+- $\tau^2 = \dfrac{\Gamma(\nu)}{\sigma^2 \kappa^{2\nu}(4\pi)^{d/2}\Gamma(\nu + d/2)}$.
+
+```{r}
+# Set the parameters
+sigma <- 0.1 # Standard deviation
+range <- 10 # Range
+nu <- 1.5 # Smoothness parameter
+theta <- c(1, 1, -2.5, 2.5) # Log-regression coefficients
+nu_ns <- 1.5 # Smoothness parameter for non-stationarity
+cor_threshold <- 0.1 # Define correlation threshold
+sigma.e <- 0.1 # Standard deviation of the error term
+n_repl <- 40 # Number of replications
+# Number of observations per edge
+obs.per.edge <- 25
+```
+
+```{r}
+# Construct the approximation
+op <- matern.operators(nu = nu, 
+                       sigma = sigma,
+                       range = range,  
+                       parameterization = "matern",
+                       graph = logo_graph)    
+
+# Simulate the field
+cov <- as.vector(simulate(op))
+```
+
+
+## Build a non-stationary covariance function for a generalized Whittle–Matérn field
+
+We use the simulated field to build a non-stationary covariance function for a generalized Whittle–Matérn field $u$. That is, we consider the model 
+
+\begin{equation}
+\label{NS-SPDE}\tag{2}
+(\kappa^2(s)-\Delta)^{\alpha/2}\tau(s) u = \mathcal{W},
+\end{equation}
+
+with non-stationary parameters (in the `matern` parameterization) given by
+
+\begin{equation}
+\label{logregressions}
+    \begin{aligned}
+    \log(\sigma(s)) &= \theta_1 + \theta_3 \text{cov}(s),\\
+    \log(\rho(s)) &= \theta_2 + \theta_4 \text{cov}(s).
+\end{aligned}
+\end{equation}
+
+Take into account that `theta` $= (\theta_1, \theta_2, \theta_3, \theta_4)$.
+
+```{r}
+# Non-stationary parameters
+B.sigma = cbind(0, 1, 0, cov, 0)
+B.range = cbind(0, 0, 1, 0, cov)
+
+# Construct the approximation 
+ns_op <- rSPDE::spde.matern.operators(graph = logo_graph,
+                                                parameterization = "matern",
+                                                B.sigma = B.sigma,
+                                                B.range = B.range,
+                                                theta = theta,
+                                                nu = nu_ns)
+
+# Covariance matrix
+est_cov_matrix <- ns_op$covariance_mesh()
+
+# Precision matrix
+Q <- precision(ns_op)
+```
+
+## Compute the practical correlation range and the standard deviation
+
+```{r}
+# Compute distance matrix on the mesh
+logo_graph$compute_geodist_mesh()
+
+# Get the distance matrix
+dist_matrix <- logo_graph$mesh$geo_dist
+
+# Initialize vector to store the practical correlation range
+est_range = rep(NA, dim(est_cov_matrix)[1])
+  
+# Compute the practical correlation range
+for (i in 1:dim(est_cov_matrix)[1]) {
+  est_range[i] <- data.frame(cor = est_cov_matrix[i,], dist = dist_matrix[i,]) %>% 
+    arrange(dist) %>% 
+    filter(cor < cor_threshold) %>%
+  slice(1) %>%
+  pull(dist)
+}
+
+# Compute the standard deviation
+est_sigma <- sqrt(diag(INLA::inla.qinv(Q))) # It can also be computed as sqrt(Matrix::diag(est_cov_matrix))
+```
+
+
+## Plot the practical correlation range and the standard deviation
+
+```{r, fig.dim = c(9,4)}
+# Extract the mesh locations in Euclidean coordinates
+xypoints <- logo_graph$mesh$V
+
+# Define data frames for plotting
+sd_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_sigma, .group = 1)
+rho_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_range, .group = 2)
+data_param_cov <- rbind(sd_df, rho_df)
+
+group_labels <- c("Standard deviation", "Practical correlation range")
+
+min_x <- min(data_param_cov$x) |> round(2)
+max_x <- max(data_param_cov$x) |> round(2)
+min_y <- min(data_param_cov$y) |> round(2)
+max_y <- max(data_param_cov$y) |> round(2)
+
+# Create a base plot
+base_plot <- ggplot() +
+  geom_point(data = sd_df, aes(x = x, y = y), color = "black", size = 0.5, shape = 1) +
+  scale_x_continuous(labels = function(x) paste0(x), name = "x", breaks = seq(min_x, max_x, by = 2)) +  
+  scale_y_continuous(labels = function(y) paste0(y), name = "y", breaks = seq(min_y, max_y, by = 2)) +
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+
+# Create individual plots for each group and overlay data points
+group_plots <- lapply(unique(data_param_cov$.group), function(gr) {
+  geom_point(data = subset(data_param_cov, .group == gr), aes(x = x, y = y, color = z), size = 1)
+})
+
+# Combine the base plot and the group plots
+combined_plot <- base_plot + 
+  facet_wrap(~ .group, ncol = 2, labeller = labeller(.group = function(variable, value) {
+    return(group_labels[value])
+  })) +  # Specify custom labels for facet_wrap
+  group_plots +
+  scale_color_gradient(name = "") +
+  labs(color = "Value") +
+  scale_color_viridis_c(option = "D")
+
+# Print the combined plot
+print(combined_plot)
+```
+
+
+# Simulation
+
+## Simulate and plot the non-stationary field
+
+```{r, fig.dim = c(20, 30)}
+# Simulate the non-stationary field
+u_non_stat <- simulate(ns_op, nsim = n_repl)
+
+
+list_fields <- list()
+# Plot the simulated observations
+for (i in 1:n_repl) {
+  list_fields[[i]] <- logo_graph$plot_function(X = u_non_stat[,i], vertex_size = 0) + 
+  ggtitle(paste("Field ", i)) + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+}
+do.call(grid.arrange, c(list_fields, ncol = 5))
+```
+
+## Simulate observations
+
+```{r}
+Y <- c()
+EDGE_NUMBER <- c()
+DISTANCE_ON_EDGE <- c()
+X2 <- c()
+REPL <- c()
+for (k in 1:n_repl) {
+  obs.loc <- NULL
+  for(i in 1:logo_graph$nE) {
+    obs.loc <- rbind(obs.loc,
+                     cbind(rep(i,obs.per.edge), runif(obs.per.edge)))
+    }
+  n.obs <- obs.per.edge*logo_graph$nE
+
+  # Compute the FEM basis functions on the observation locations
+  A <- logo_graph$fem_basis(obs.loc)
+
+  # Define two covariates
+  x2 <- sin(obs.loc[,2])
+
+  # Simulate observations
+  Y <- c(Y, 1 - 3*x2 + as.vector(A %*% u_non_stat[, k] + sigma.e * rnorm(n.obs)))
+  EDGE_NUMBER <- c(EDGE_NUMBER, obs.loc[,1])
+  DISTANCE_ON_EDGE <- c(DISTANCE_ON_EDGE, obs.loc[,2])
+  X2 <- c(X2, x2)
+  REPL <- c(REPL, rep(k, n.obs))
+  }
+
+```
+
+
+```{r}
+# Create a data frame with the observations
+df_data <- data.frame(y = Y, 
+                      edge_number = EDGE_NUMBER,
+                      distance_on_edge = DISTANCE_ON_EDGE,
+                      x2 = X2,
+                      day = REPL)
+```
+
+
+## Add and plot the simulated data
+
+```{r, fig.dim = c(20, 30)}
+# Add the observations to the graph
+logo_graph$add_observations(data = df_data, group = "day", normalized = TRUE, clear_obs = TRUE)
+
+# Get the data
+data <- logo_graph$get_data()
+
+list_plots <- list()
+# Plot the simulated observations
+for (i in 1:n_repl) {
+  list_plots[[i]] <- logo_graph$plot(data = "y", group = i, vertex_size = 0) + 
+    ggtitle(paste("Replicate ", i)) + 
+    theme_minimal() + 
+    theme(text = element_text(family = "Palatino"))
+}
+do.call(grid.arrange, c(list_plots, ncol = 5))
+```
+
+
+## Compute the distance matrix and create the groups
+
+```{r}
+# Create an auxiliary dataset aux with the edge_number, distance_on_edge, and group variables to compute the distance matrix
+aux <- data |>
+  rename(distance_on_edge = .distance_on_edge, edge_number = .edge_number) |> # Rename the variables (because sf_graph$compute_geodist_PtE() requires so)
+  as.data.frame() |> # Transform to a data frame (i.e., remove the metric_graph class)
+  dplyr::select(edge_number, distance_on_edge, .group) # Select only the edge_number, distance_on_edge, and group variables
+
+# Initialize the list distmatrixlist to store the distance matrices
+distmatrixlist <- list()
+
+# Compute the distance matrices for each group
+for (i in 1:n_repl) {
+  distmatrixlist[[i]] <- logo_graph$compute_geodist_PtE(PtE = aux %>% 
+                                                       filter(.group == as.character(i)) %>% 
+                                                       dplyr::select(-.group),
+                                                     normalized = TRUE,
+                                                     include_vertices = FALSE)
+}
+
+points = data %>%
+  as.data.frame() %>%
+  mutate(., index = 1:nrow(.)) %>% 
+  dplyr:::select(y, .group, index) %>%
+  mutate(.group = as.numeric(.group)) %>%
+  group_by(.group) %>%
+  mutate(indexingroup = seq_len(n())) %>%
+  ungroup()
+
+# Define the distance vector
+distance <- seq(from = 0, to = 2.5, by = 0.25)
+
+# Compute the groups for cross-validation
+GROUPS <- list()
+for (j in 1:length(distance)) {
+  print(j)
+  GROUPS[[j]] = list()
+  for (i in 1:nrow(points)) {
+    rowi <- points[i, ]
+    which.in.group <- which(as.vector(distmatrixlist[[rowi$.group]][rowi$indexingroup,]) <= distance[j])
+    GROUPS[[j]][[i]] <- filter(points, .group == rowi$.group)[which.in.group, ]$index
+  }
+}
+
+```
+
+
+
+:::: {style="display: flex; to display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 10px;"}
+
+::: {}
+
+## Fit the stationary model
+
+```{r}
+rspde_model_stat <- rspde.metric_graph(logo_graph,
+                                       parameterization = "matern",
+                                       nu = nu_ns)
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        loc_name = "loc")
+cmp_stat <- y ~ -1 +
+  Intercept(1) +
+  x2 +
+  field(loc, model = rspde_model_stat,
+        replicate = data_rspde_bru_stat[["repl"]])
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_stat)
+summary(rspde.result(rspde_fit_stat, "field", rspde_model_stat))
+```
+
+
+:::
+
+::: {}
+
+
+## Fit the non-stationary model
+
+```{r}
+rspde_model_nonstat <- rspde.metric_graph(logo_graph,
+                                          B.sigma = B.sigma,
+                                          B.range = B.range,
+                                          parameterization = "matern",
+                                          nu = nu_ns)
+
+data_rspde_bru_nonstat <- graph_data_rspde(rspde_model_nonstat,
+                                           repl = ".all",
+                                           loc_name = "loc")
+cmp_nonstat <- y ~ -1 +
+  Intercept(1) +
+  x2 +
+  field(loc, model = rspde_model_nonstat,
+        replicate = data_rspde_bru_nonstat[["repl"]])
+
+rspde_fit_nonstat <-
+  bru(cmp_nonstat,
+      data = data_rspde_bru_nonstat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+summary(rspde_fit_nonstat)
+summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+```
+
+
+:::
+
+::::
+
+
+## Cross-validation
+
+```{r}
+mse.stat <- mse.nonstat <- ls.stat <- ls.nonstat <- rep(0,length(distance))
+# cross-validation for-loop
+for (j in 1:length(distance)) {
+  # cross-validation of the stationary model
+  cv.stat <- inla.group.cv(rspde_fit_stat, groups = GROUPS[[j]])
+  # cross-validation of the nonstationary model
+  cv.nonstat <- inla.group.cv(rspde_fit_nonstat, groups = GROUPS[[j]])
+  # obtain MSE and LS
+  mse.stat[j] <- mean((cv.stat$mean - data$y)^2)
+  mse.nonstat[j] <- mean((cv.nonstat$mean - data$y)^2)
+  ls.stat[j] <- mean(log(cv.stat$cv))
+  ls.nonstat[j] <- mean(log(cv.nonstat$cv))
+}
+```
+
+## Plot cross-validation results
+
+```{r}
+# Create data frames
+mse_df <- data.frame(
+  distance,
+  Statnu0.5 = mse.stat,
+  Nonstatnu0.5 = mse.nonstat
+)
+
+ls_df <- data.frame(
+  distance,
+  Statnu0.5 = -ls.stat,
+  Nonstatnu0.5 = -ls.nonstat
+)
+
+# Convert to long format
+mse_long <- mse_df %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "MSE")
+
+ls_long <- ls_df %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "LogScore")
+
+
+# Update the label mappings with the new legend title
+label_mapping <- c(
+  "Statnu0.5" = "0.5", 
+  "Nonstatnu0.5" = "0.5"
+)
+
+# Define color and linetype mapping
+color_mapping <- c(
+  "Statnu0.5" = "blue", 
+  "Nonstatnu0.5" = "red"
+)
+
+linetype_mapping <- c(
+  "Statnu0.5" = "dotdash", 
+  "Nonstatnu0.5" = "solid"
+)
+
+# Plot MSE
+mse_plot <- ggplot(mse_long, aes(x = distance, y = MSE, color = nu, linetype = nu)) +
+  geom_line(linewidth = 1) +
+  labs(y = "MSE", x = "Distance") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(nu)) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(nu)) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Plot negative log-score
+ls_plot <- ggplot(ls_long, aes(x = distance, y = LogScore, color = nu, linetype = nu)) +
+  geom_line(linewidth = 1) +
+  labs(y = "Negative Log-Score", x = "Distance") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(nu)) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(nu)) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Combine plots with a shared legend at the top in a single line
+combined_plot <- mse_plot + ls_plot + 
+  plot_layout(guides = 'collect') & 
+  theme(legend.position = 'right') & 
+  guides(color = guide_legend(nrow = 2), linetype = guide_legend(nrow = 1))
+
+# Display combined plot
+print(combined_plot)
+```
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```
