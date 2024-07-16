@@ -533,6 +533,8 @@ init.vec.theta = c(fit.rspde$summary.log.std.dev$mode,
                    rep(0, (ncol(B.sigma)-3)))
 
 rspde_model_nonstat <- rspde.metric_graph(sf_graph,
+                                          start.theta = init.vec.theta,
+                                          theta.prior.mean = init.vec.theta,
                                           B.sigma = B.sigma,
                                           B.range = B.range,
                                           parameterization = "matern",

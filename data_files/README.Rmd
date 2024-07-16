@@ -93,3 +93,7 @@ This file was created in [`convergence_rates.html`](../convergence_rates.html).
 19. [**`stand_and_range.png`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/stand_and_range.png)
 
 This file was created in [`non_stationarity.html`](../non_stationarity.html).
+
+20. [**`data.pems/`**](https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files/data.pems)
+
+This folder was downloaded from this [GitHub repository](https://github.com/davidbolin/MetricGraph/tree/7f4c90171c40b9bf7ea29e9b048c93d88477c5d1/examples/data.pems) and contains the data used in the [`pems.html`](../pems.html) vignette.  

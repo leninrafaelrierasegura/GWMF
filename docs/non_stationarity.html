@@ -458,6 +458,9 @@ div.tocify {
   <a href="about.html">About</a>
 </li>
 <li>
+  <a href="pems.html">PeMS</a>
+</li>
+<li>
   <a href="preprocessing.html">Preprocessing</a>
 </li>
 <li>
@@ -507,7 +510,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Non-stationarity</h1>
-<h4 class="date">Created: 05-07-2024. Last modified: 14-07-2024.</h4>
+<h4 class="date">Created: 05-07-2024. Last modified: 16-07-2024.</h4>
 
 </div>
 
@@ -970,7 +973,7 @@ model</h2>
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
 ##     Predictor: y ~ .
 ## Time used:
-##     Pre = 0.254, Running = 0.495, Post = 0.0793, Total = 0.828 
+##     Pre = 0.259, Running = 0.608, Post = 0.117, Total = 0.984 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.442 0.377      0.699    1.442      2.186  1.442   0
@@ -1046,7 +1049,7 @@ non-stationary model</h2>
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
 ##     Predictor: y ~ .
 ## Time used:
-##     Pre = 0.15, Running = 0.689, Post = 0.0886, Total = 0.928 
+##     Pre = 0.183, Running = 0.779, Post = 0.108, Total = 1.07 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.474 0.379      0.723    1.475      2.215  1.475   0
@@ -1062,7 +1065,7 @@ non-stationary model</h2>
 ## Precision for the Gaussian observations 97.810 3.355     91.358   97.757
 ## Theta1 for field                         0.899 0.106      0.697    0.897
 ## Theta2 for field                         0.923 0.080      0.769    0.922
-## Theta3 for field                        -1.719 2.081     -5.658   -1.770
+## Theta3 for field                        -1.719 2.081     -5.659   -1.770
 ## Theta4 for field                         3.011 1.607     -0.033    2.972
 ##                                         0.975quant   mode
 ## Precision for the Gaussian observations     104.57 97.662
@@ -1084,10 +1087,10 @@ non-stationary model</h2>
 ## (Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)</code></pre>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span></code></pre></div>
 <pre><code>##                    mean        sd 0.025quant  0.5quant 0.975quant      mode
-## Theta1.matern  0.899272 0.1055700  0.6971820  0.897363    1.11275  0.889067
-## Theta2.matern  0.923192 0.0804038  0.7689470  0.921843    1.08547  0.916006
-## Theta3.matern -1.718650 2.0807800 -5.6584200 -1.769840    2.52877 -1.997120
-## Theta4.matern  3.011090 1.6067900 -0.0325975  2.971980    6.28976  2.798480</code></pre>
+## Theta1.matern  0.899272 0.1055700  0.6971810  0.897363    1.11275  0.889067
+## Theta2.matern  0.923192 0.0804044  0.7689460  0.921843    1.08547  0.916007
+## Theta3.matern -1.718690 2.0808900 -5.6587100 -1.769880    2.52892 -1.997120
+## Theta4.matern  3.011060 1.6068800 -0.0328227  2.971950    6.28988  2.798470</code></pre>
 <!-- ::: -->
 <!-- :::: -->
 </div>

@@ -460,6 +460,9 @@ div.tocify {
   <a href="about.html">About</a>
 </li>
 <li>
+  <a href="pems.html">PeMS</a>
+</li>
+<li>
   <a href="preprocessing.html">Preprocessing</a>
 </li>
 <li>
@@ -510,7 +513,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Stationary and non-stationary models with
 <span class="math inline">\(\nu\)</span> fixed and estimated</h1>
-<h4 class="date">Created: 05-07-2024. Last modified: 14-07-2024.</h4>
+<h4 class="date">Created: 05-07-2024. Last modified: 16-07-2024.</h4>
 
 </div>
 
@@ -1035,33 +1038,35 @@ model</h3>
 <span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>                   <span class="fu">rep</span>(<span class="dv">0</span>, (<span class="fu">ncol</span>(B.sigma)<span class="sc">-</span><span class="dv">3</span>)))</span>
 <span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a></span>
 <span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>rspde_model_nonstat <span class="ot">&lt;-</span> <span class="fu">rspde.metric_graph</span>(sf_graph,</span>
-<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>                                          <span class="at">B.sigma =</span> B.sigma,</span>
-<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>                                          <span class="at">B.range =</span> B.range,</span>
-<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a>                                          <span class="at">parameterization =</span> <span class="st">&quot;matern&quot;</span>,</span>
-<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>                                          <span class="at">nu =</span> <span class="fl">1.5</span>)</span>
-<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a></span>
-<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a>data_rspde_bru_nonstat <span class="ot">&lt;-</span> <span class="fu">graph_data_rspde</span>(rspde_model_nonstat,</span>
-<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a>                                           <span class="at">repl =</span> <span class="st">&quot;.all&quot;</span>,</span>
-<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a>                                           <span class="at">loc_name =</span> <span class="st">&quot;loc&quot;</span>)</span>
-<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a></span>
-<span id="cb24-17"><a href="#cb24-17" tabindex="-1"></a>cmp_nonstat <span class="ot">&lt;-</span> speed <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span></span>
-<span id="cb24-18"><a href="#cb24-18" tabindex="-1"></a>  <span class="fu">Intercept</span>(<span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb24-19"><a href="#cb24-19" tabindex="-1"></a>  SpeedLimit <span class="sc">+</span></span>
-<span id="cb24-20"><a href="#cb24-20" tabindex="-1"></a>  <span class="fu">field</span>(loc, <span class="at">model =</span> rspde_model_nonstat,</span>
-<span id="cb24-21"><a href="#cb24-21" tabindex="-1"></a>        <span class="at">replicate =</span> data_rspde_bru_nonstat[[<span class="st">&quot;repl&quot;</span>]])</span>
-<span id="cb24-22"><a href="#cb24-22" tabindex="-1"></a></span>
-<span id="cb24-23"><a href="#cb24-23" tabindex="-1"></a>rspde_fit_nonstat <span class="ot">&lt;-</span></span>
-<span id="cb24-24"><a href="#cb24-24" tabindex="-1"></a>  <span class="fu">bru</span>(cmp_nonstat,</span>
-<span id="cb24-25"><a href="#cb24-25" tabindex="-1"></a>      <span class="at">data =</span> data_rspde_bru_nonstat[[<span class="st">&quot;data&quot;</span>]],</span>
-<span id="cb24-26"><a href="#cb24-26" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
-<span id="cb24-27"><a href="#cb24-27" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb24-28"><a href="#cb24-28" tabindex="-1"></a>  )</span>
-<span id="cb24-29"><a href="#cb24-29" tabindex="-1"></a></span>
-<span id="cb24-30"><a href="#cb24-30" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_nonstat)</span>
-<span id="cb24-31"><a href="#cb24-31" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span>
-<span id="cb24-32"><a href="#cb24-32" tabindex="-1"></a></span>
-<span id="cb24-33"><a href="#cb24-33" tabindex="-1"></a></span>
-<span id="cb24-34"><a href="#cb24-34" tabindex="-1"></a>rspde_fit_nonstatnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> rspde_fit_nonstat</span></code></pre></div>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>                                          <span class="at">start.theta =</span> init.vec.theta,</span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>                                          <span class="at">theta.prior.mean =</span> init.vec.theta,</span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a>                                          <span class="at">B.sigma =</span> B.sigma,</span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>                                          <span class="at">B.range =</span> B.range,</span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a>                                          <span class="at">parameterization =</span> <span class="st">&quot;matern&quot;</span>,</span>
+<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a>                                          <span class="at">nu =</span> <span class="fl">1.5</span>)</span>
+<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a></span>
+<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a>data_rspde_bru_nonstat <span class="ot">&lt;-</span> <span class="fu">graph_data_rspde</span>(rspde_model_nonstat,</span>
+<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a>                                           <span class="at">repl =</span> <span class="st">&quot;.all&quot;</span>,</span>
+<span id="cb24-17"><a href="#cb24-17" tabindex="-1"></a>                                           <span class="at">loc_name =</span> <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb24-18"><a href="#cb24-18" tabindex="-1"></a></span>
+<span id="cb24-19"><a href="#cb24-19" tabindex="-1"></a>cmp_nonstat <span class="ot">&lt;-</span> speed <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span></span>
+<span id="cb24-20"><a href="#cb24-20" tabindex="-1"></a>  <span class="fu">Intercept</span>(<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb24-21"><a href="#cb24-21" tabindex="-1"></a>  SpeedLimit <span class="sc">+</span></span>
+<span id="cb24-22"><a href="#cb24-22" tabindex="-1"></a>  <span class="fu">field</span>(loc, <span class="at">model =</span> rspde_model_nonstat,</span>
+<span id="cb24-23"><a href="#cb24-23" tabindex="-1"></a>        <span class="at">replicate =</span> data_rspde_bru_nonstat[[<span class="st">&quot;repl&quot;</span>]])</span>
+<span id="cb24-24"><a href="#cb24-24" tabindex="-1"></a></span>
+<span id="cb24-25"><a href="#cb24-25" tabindex="-1"></a>rspde_fit_nonstat <span class="ot">&lt;-</span></span>
+<span id="cb24-26"><a href="#cb24-26" tabindex="-1"></a>  <span class="fu">bru</span>(cmp_nonstat,</span>
+<span id="cb24-27"><a href="#cb24-27" tabindex="-1"></a>      <span class="at">data =</span> data_rspde_bru_nonstat[[<span class="st">&quot;data&quot;</span>]],</span>
+<span id="cb24-28"><a href="#cb24-28" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb24-29"><a href="#cb24-29" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb24-30"><a href="#cb24-30" tabindex="-1"></a>  )</span>
+<span id="cb24-31"><a href="#cb24-31" tabindex="-1"></a></span>
+<span id="cb24-32"><a href="#cb24-32" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_nonstat)</span>
+<span id="cb24-33"><a href="#cb24-33" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span>
+<span id="cb24-34"><a href="#cb24-34" tabindex="-1"></a></span>
+<span id="cb24-35"><a href="#cb24-35" tabindex="-1"></a></span>
+<span id="cb24-36"><a href="#cb24-36" tabindex="-1"></a>rspde_fit_nonstatnu1<span class="fl">.5</span> <span class="ot">&lt;-</span> rspde_fit_nonstat</span></code></pre></div>
 <pre><code>inlabru version: 2.10.1.9010
 INLA version: 24.06.19
 Components:
