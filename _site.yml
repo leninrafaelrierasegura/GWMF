@@ -8,7 +8,7 @@ navbar:
     - text: "About"
       href: about.html
     - text: "PeMS"
-      href: pems.html
+      href: pems2.html
     - text: "Preprocessing"
       href: preprocessing.html
     - text: "Modeling"
