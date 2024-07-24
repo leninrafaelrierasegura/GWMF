@@ -1,0 +1,1403 @@
+---
+title: "Numerical error"
+date: "Created: 05-07-2024. Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    # df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+---
+
+```{r, eval = FALSE, echo = FALSE}
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+```
+
+```{r xaringanExtra-clipboard, echo = FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+
+```{css, echo = FALSE}
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+```
+
+
+Go back to the [About page](about.html). This [link](data_files/README.html) might be useful to keep track of the files created during the preprocessing.
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+knitr::opts_chunk$set(
+  message = FALSE,    # Disable messages printed by R code chunks
+  warning = FALSE,    # Disable warnings printed by R code chunks
+  echo = TRUE,        # Show R code within code chunks in output
+  include = TRUE,     # Include both R code and its results in output
+  eval = TRUE,       # Evaluate R code chunks
+  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  fig.align = "center",
+  out.width = "120%",
+  retina = 2,
+  error = TRUE,
+  collapse = FALSE
+)
+rm(list = ls())
+set.seed(1982)
+```
+
+# Import libraries
+
+```{r}
+library(MetricGraph)
+library(Matrix)
+library(rSPDE)
+
+library(dplyr)
+library(tidyverse)
+library(plotly)
+library(ggplot2)
+library(latex2exp)
+library(ggtext)
+
+library(grateful) # Cite all loaded packages
+library(here) # here() starts from the home directory
+
+rm(list = ls()) # Clear the workspace
+set.seed(1982) # Set seed for reproducibility
+```
+
+
+# Interval graph
+
+
+<div style="color: blue;">
+********
+**Press the Show button below to reveal the code.**
+
+********
+</div>
+
+
+```{r, eval = FALSE, class.source = "fold-hide"}
+# library calls
+library(MetricGraph)
+library(Matrix)
+library(rSPDE)
+
+# function 1
+gets_graph_interval <- function(n){
+  edge <- rbind(c(0,0),c(1,0))
+  edges = list(edge)
+  graph <- metric_graph$new(edges = edges)
+  graph$build_mesh(n = n)
+  return(graph)
+}
+
+# matern covariance function. Same as in the package
+matern.covariance <- function(h, kappa, nu, sigma) {
+  if (nu == 1 / 2) {
+    C <- sigma^2 * exp(-kappa * abs(h))
+  } else {
+    C <- (sigma^2 / (2^(nu - 1) * gamma(nu))) *
+      ((kappa * abs(h))^nu) * besselK(kappa * abs(h), nu)
+  }
+  C[h == 0] <- sigma^2
+  return(as.matrix(C))
+}
+
+# folded.matern.covariance.1d I edited
+folded.matern.covariance.1d.local <- function(x, kappa, nu, sigma,
+                                              L = 1, N = 10,
+                                              boundary = c("neumann",
+                                                           "dirichlet", "periodic")) {
+  boundary <- tolower(boundary[1])
+  if (!(boundary %in% c("neumann", "dirichlet", "periodic"))) {
+    stop("The possible boundary conditions are 'neumann',
+    'dirichlet' or 'periodic'!")
+  }
+  addi = t(outer(x, x, "+"))
+  diff = t(outer(x, x, "-"))
+  s1 <- sapply(-N:N, function(j) { 
+    diff + 2 * j * L
+  })
+  s2 <- sapply(-N:N, function(j) {
+    addi + 2 * j * L
+  })
+  if (boundary == "neumann") {
+    C <- rowSums(matern.covariance(h = s1, kappa = kappa,
+                                   nu = nu, sigma = sigma) +
+                   matern.covariance(h = s2, kappa = kappa,
+                                     nu = nu, sigma = sigma))
+  } else if (boundary == "dirichlet") {
+    C <- rowSums(matern.covariance(h = s1, kappa = kappa,
+                                   nu = nu, sigma = sigma) -
+                   matern.covariance(h = s2, kappa = kappa,
+                                     nu = nu, sigma = sigma))
+  } else {
+    C <- rowSums(matern.covariance(h = s1,
+                                   kappa = kappa, nu = nu, sigma = sigma))
+  }
+  return(matrix(C, nrow = length(x)))
+}
+
+# function 2
+gets_true_cov_mat = function(graph, kappa, nu, sigma, N, boundary){
+  h = graph$mesh$V[,1] 
+  true_cov_mat = folded.matern.covariance.1d.local(x = h, kappa = kappa, nu = nu, sigma = sigma, N = N, boundary = boundary)
+  return(true_cov_mat)
+}
+
+
+# parameters
+n_vector = c(998, 198, 98, 8)
+type_vector = c("covariance", "operator")
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+rho_vector = c(0.1, 0.5, 1, 2)
+m_vector = c(0,1,2,3,4)
+nu_vector = seq(0.1,2.49,by=0.05)
+boundary = "neumann"
+sigma = 1
+N.folded = 10
+
+Error = list()
+for (s in c(1,2,3,4)) { # loop over n_vector
+  Error[[as.character(n_vector[s])]] = list()
+  n = n_vector[s]
+  graph = gets_graph_interval(n = n)
+  for (i in c(1)) { # loop over type_vector
+    Error[[as.character(n_vector[s])]][[type_vector[i]]] = list()
+    type = type_vector[i]
+    for (j in c(1,2,3)) { # loop over type_rational_approximation_vector
+      Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]] = list()
+      type_rational_approximation = type_rational_approximation_vector[j]
+      for (k in c(1,2,3,4)) { # loop over rho_vector
+        Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]] = list()
+        rho = rho_vector[k]
+        for (l in 1:length(m_vector)) { # loop over m_vector
+          Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]] = matrix(NA, nrow = length(nu_vector), ncol = 2)
+          colnames(Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]]) = c("L_inf_error", "L_2_error")
+          m = m_vector[l]
+          for (r in 1:length(nu_vector)) { # loop over nu_vector
+            nu = nu_vector[r]
+            
+            kappa = sqrt(8*nu)/rho
+            tau = sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+            alpha = nu + 1/2
+            
+            tryCatch({
+              # getting true covariance
+              true_cov_mat = gets_true_cov_mat(graph = graph,
+                                               kappa = kappa,
+                                               nu = nu,
+                                               sigma = sigma,
+                                               N = N.folded,
+                                               boundary = boundary)
+              
+              # getting the approximate covariance matrix
+              op = matern.operators(alpha = alpha, 
+                                    kappa = kappa, 
+                                    tau = tau,
+                                    m = m, 
+                                    graph = graph,
+                                    type = type,
+                                    type_rational_approximation = type_rational_approximation)
+              
+              appr_cov_mat = op$covariance_mesh()
+            
+            # computing the errors
+            L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
+            L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
+            
+            Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][r,1] = L_inf_error
+            Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][r,2] = L_2_error
+            }, error = function(err){
+              warning(paste("Error occurred at iteration n=", n, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              print(paste("Error occurred at iteration n=", n, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][r,1] = NA
+              Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][r,2] = NA
+            })
+            print(paste("n=", n, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu))
+          }
+        }
+      }
+    }
+  }
+}
+
+Error_interval_DEF = Error
+save(Error_interval_DEF, file = here("data_files/Error_interval_DEF.RData"))
+```
+
+## Plotting the errors
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
+load(here("data_files/Error_interval_DEF.RData"))
+
+n_vector = c("998", "198", "98", "8") 
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+nu_vector = seq(0.1,2.49,by=0.05)[1:29]
+
+n = "998"
+t = "chebfun"
+
+
+dat = rbind(
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,1],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+## L2
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,2],
+                     Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+)
+)
+
+
+dat$rho = factor(dat$rho, levels = c("0.1", "0.5", "1", "2"))
+dat$L = factor(dat$L, levels = c("L2", "Linf"))
+levels(dat$rho) = c("0.1" = latex2exp::TeX("$\\rho = 0.1$"), "0.5" = latex2exp::TeX("$\\rho = 0.5$"), "1" = latex2exp::TeX("$\\rho = 1$"), "2" = latex2exp::TeX("$\\rho = 2$"))
+levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "Linf" = latex2exp::TeX("$L_\\infty(\\Gamma\\times\\Gamma)$ error"))
+
+
+p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
+  facet_grid(L ~ rho, labeller = label_parsed) +
+  geom_line() +
+  scale_y_log10(n.breaks = 7) +
+  scale_x_continuous(n.breaks = 6) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Interval graph")
+p
+```
+
+
+# Circle graph
+
+
+<div style="color: blue;">
+********
+**Press the Show button below to reveal the code.**
+
+********
+</div>
+
+
+```{r, eval = FALSE, class.source = "fold-hide"}
+# library calls
+library(MetricGraph)
+library(Matrix)
+library(rSPDE)
+
+# function 1
+gets_graph_circle <- function(n){
+  r = 1/(pi)
+  theta <- seq(from=-pi,to=pi,length.out = 100)
+  edge <- cbind(1+r+r*cos(theta),r*sin(theta))
+  edges = list(edge)
+  graph <- metric_graph$new(edges = edges)
+  graph$build_mesh(n = n)
+  return(graph)
+}
+
+# matern covariance function. Same as in the package
+matern.covariance <- function(h, kappa, nu, sigma) {
+  if (nu == 1 / 2) {
+    C <- sigma^2 * exp(-kappa * abs(h))
+  } else {
+    C <- (sigma^2 / (2^(nu - 1) * gamma(nu))) *
+      ((kappa * abs(h))^nu) * besselK(kappa * abs(h), nu)
+  }
+  C[h == 0] <- sigma^2
+  return(as.matrix(C))
+}
+
+# folded.matern.covariance.1d I edited
+folded.matern.covariance.1d.local <- function(x, kappa, nu, sigma, L = 1, N = 10, boundary = c("neumann",
+                                                                                               "dirichlet", "periodic")) {
+  boundary <- tolower(boundary[1])
+  if (!(boundary %in% c("neumann", "dirichlet", "periodic"))) {
+    stop("The possible boundary conditions are 'neumann',
+    'dirichlet' or 'periodic'!")
+  }
+  addi = t(outer(x, x, "+"))
+  diff = t(outer(x, x, "-"))
+  s1 <- sapply(-N:N, function(j) { # s1 is a matrix of size length(h)x(2N+1)
+    diff + 2 * j * L
+  })
+  s2 <- sapply(-N:N, function(j) {
+    addi + 2 * j * L
+  })
+  if (boundary == "neumann") {
+    C <- rowSums(matern.covariance(h = s1, kappa = kappa,
+                                   nu = nu, sigma = sigma) +
+                   matern.covariance(h = s2, kappa = kappa,
+                                     nu = nu, sigma = sigma))
+  } else if (boundary == "dirichlet") {
+    C <- rowSums(matern.covariance(h = s1, kappa = kappa,
+                                   nu = nu, sigma = sigma) -
+                   matern.covariance(h = s2, kappa = kappa,
+                                     nu = nu, sigma = sigma))
+  } else {
+    C <- rowSums(matern.covariance(h = s1,
+                                   kappa = kappa, nu = nu, sigma = sigma))
+  }
+  return(matrix(C, nrow = length(x)))
+}
+
+# function 2
+gets_true_cov_mat = function(graph, kappa, nu, sigma, N, boundary){
+  h = c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[,2])
+  true_cov_mat = folded.matern.covariance.1d.local(x = h, kappa = kappa, nu = nu, sigma = sigma, N = N, boundary = boundary)
+  return(true_cov_mat)
+}
+
+
+# parameters
+n_vector = 2*c(998, 198, 98, 8)
+type_vector = c("covariance", "operator")
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+rho_vector = c(0.1, 0.5, 1, 2)
+m_vector = c(0,1,2,3,4)
+nu_vector = seq(0.1,2.49,by=0.05)
+boundary = "periodic"
+sigma = 1
+N.folded = 10
+
+Error = list()
+for (s in c(1,2,3,4)) { # loop over n_vector
+  Error[[as.character(n_vector[s])]] = list()
+  n = n_vector[s]
+  graph = gets_graph_circle(n = n)
+  for (i in c(1)) { # loop over type_vector
+    Error[[as.character(n_vector[s])]][[type_vector[i]]] = list()
+    type = type_vector[i]
+    for (j in c(1,2,3)) { # loop over type_rational_approximation_vector
+      Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]] = list()
+      type_rational_approximation = type_rational_approximation_vector[j]
+      for (k in c(1,2,3,4)) { # loop over rho_vector
+        Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]] = list()
+        rho = rho_vector[k]
+        for (l in 1:length(m_vector)) { # loop over m_vector
+          Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]] = matrix(NA, nrow = length(nu_vector), ncol = 2)
+          colnames(Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]]) = c("L_inf_error", "L_2_error")
+          m = m_vector[l]
+          for (r in 1:length(nu_vector)) { # loop over nu_vector
+            nu = nu_vector[r]
+            
+            kappa = sqrt(8*nu)/rho
+            tau = sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+            alpha = nu + 1/2
+            
+            tryCatch({
+              # getting true covariance
+              true_cov_mat = gets_true_cov_mat(graph = graph,
+                                               kappa = kappa,
+                                               nu = nu,
+                                               sigma = sigma,
+                                               N = N.folded,
+                                               boundary = boundary)
+              
+              # getting the approximate covariance matrix
+              op = matern.operators(alpha = alpha, 
+                                    kappa = kappa, 
+                                    tau = tau,
+                                    m = m, 
+                                    graph = graph,
+                                    type = type,
+                                    type_rational_approximation = type_rational_approximation)
+              
+              appr_cov_mat = op$covariance_mesh()
+            
+            # computing the errors
+            L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
+            L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
+            
+            Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][r,1] = L_inf_error
+            Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][r,2] = L_2_error
+            }, error = function(err){
+              warning(paste("Error occurred at iteration n=", n, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              print(paste("Error occurred at iteration n=", n, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][r,1] = NA
+              Error[[as.character(n_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][r,2] = NA
+            })
+            print(paste("n=", n, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu))
+          }
+        }
+      }
+    }
+  }
+}
+Error_circle_DEF = Error
+save(Error_circle_DEF, file = here("data_files/Error_circle_DEF.RData"))
+```
+
+
+## Plotting the errors
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
+load(here("data_files/Error_circle_DEF.RData"))
+
+n_vector = c("1996", "396", "196", "16") 
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+nu_vector = seq(0.1,2.49,by=0.05)[1:29]
+
+n = "1996"
+t = "chebfun"
+  
+
+dat = rbind(
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,1],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+## L2
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,2],
+                     Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+)
+)
+
+
+dat$rho = factor(dat$rho, levels = c("0.1", "0.5", "1", "2"))
+dat$L = factor(dat$L, levels = c("L2", "Linf"))
+levels(dat$rho) = c("0.1" = latex2exp::TeX("$\\rho = 0.1$"), "0.5" = latex2exp::TeX("$\\rho = 0.5$"), "1" = latex2exp::TeX("$\\rho = 1$"), "2" = latex2exp::TeX("$\\rho = 2$"))
+levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "Linf" = latex2exp::TeX("$L_\\infty(\\Gamma\\times\\Gamma)$ error"))
+
+
+p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
+  facet_grid(L ~ rho, labeller = label_parsed) +
+  geom_line() +
+  scale_y_log10(n.breaks = 7) +
+  scale_x_continuous(n.breaks = 6) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Circle graph")
+p
+```
+
+# Tadpole graph
+
+
+## `rho = 0.1`
+
+<div style="color: blue;">
+********
+**Press the Show button below to reveal the code.**
+
+********
+</div>
+
+
+```{r, eval = FALSE, class.source = "fold-hide"}
+# library calls
+library(MetricGraph)
+library(Matrix)
+library(rSPDE)
+
+# function 1
+tadpole.eig <- function(k,graph){
+  x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
+  x2 <- c(0,graph$get_edge_lengths()[2]*graph$mesh$PtE[graph$mesh$PtE[,1]==2,2]) 
+  
+  if(k==0){ 
+    f.e1 <- rep(1,length(x1)) 
+    f.e2 <- rep(1,length(x2)) 
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    f = list(phi=f1/sqrt(3)) 
+    
+  } else {
+    f.e1 <- -2*sin(pi*k*1/2)*cos(pi*k*x1/2) 
+    f.e2 <- sin(pi*k*x2/2)                  
+    
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    
+    if((k %% 2)==1){ 
+      f = list(phi=f1/sqrt(3)) 
+    } else { 
+      f.e1 <- (-1)^{k/2}*cos(pi*k*x1/2)
+      f.e2 <- cos(pi*k*x2/2)
+      f2 = c(f.e1[1],f.e2[1],f.e1[-1],f.e2[-1]) 
+      f <- list(phi=f1,psi=f2/sqrt(3/2))
+    }
+  }
+  
+  return(f)
+}
+
+# function 2
+gets_graph <- function(h){
+  edge1 <- rbind(c(0,0),c(1,0))
+  theta <- seq(from=-pi,to=pi,length.out = 100)
+  edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
+  edges = list(edge1, edge2)
+  graph <- metric_graph$new(edges = edges)
+  graph$build_mesh(h=h)
+  return(graph)
+}
+
+#function 3
+gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
+  Sigma.kl <- matrix(0,nrow = dim(graph$mesh$V)[1],ncol = dim(graph$mesh$V)[1])
+  for(i in 0:n.overkill){
+    phi <- tadpole.eig(i,graph)$phi
+    Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*phi%*%t(phi)
+    if(i>0 && (i %% 2)==0){ 
+      psi <- tadpole.eig(i,graph)$psi
+      Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*psi%*%t(psi)
+    }
+    
+  }
+  Sigma.kl <- Sigma.kl/tau^2
+  return(Sigma.kl)
+}
+
+# parameters
+h_vector = c(0.001, 0.005, 0.01, 0.1)
+type_vector = c("covariance", "operator")
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+rho_vector = c(0.1, 0.5, 1, 2)
+m_vector = c(0,1,2,3,4)
+nu_vector = seq(0.1,2.49,by=0.05) 
+n.overkill = 1000
+sigma = 1
+
+Error = list()
+for (s in c(1,2,3,4)) { # loop over h_vector
+  Error[[as.character(h_vector[s])]] = list()
+  h = h_vector[s]
+  graph = gets_graph(h = h)
+  for (i in c(1)) { # loop over type_vector
+    Error[[as.character(h_vector[s])]][[type_vector[i]]] = list()
+    type = type_vector[i]
+    for (j in c(1,2,3)) { # loop over type_rational_approximation_vector
+      Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]] = list()
+      type_rational_approximation = type_rational_approximation_vector[j]
+      for (k in c(1)) { # loop over rho_vector
+        Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]] = list()
+        rho = rho_vector[k]
+        for (l in 1:length(m_vector)) { # loop over m_vector
+          Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]] = matrix(NA, nrow = length(nu_vector), ncol = 2)
+          colnames(Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]]) = c("L_inf_error", "L_2_error")
+          m = m_vector[l]
+          for (n in 1:length(nu_vector)) { # loop over nu_vector
+            nu = nu_vector[n]
+            
+            kappa = sqrt(8*nu)/rho
+            tau = sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+            alpha = nu + 1/2
+            
+            tryCatch({
+            # getting true covariance
+            true_cov_mat = gets_true_cov_mat(graph = graph,
+                                             kappa = kappa,
+                                             tau = tau,
+                                             alpha = alpha,
+                                             n.overkill = n.overkill)
+            
+            # getting the approximate covariance matrix
+            op = matern.operators(alpha = alpha, 
+                                  kappa = kappa, 
+                                  tau = tau,
+                                  m = m, 
+                                  graph = graph,
+                                  type = type,
+                                  type_rational_approximation = type_rational_approximation)
+            appr_cov_mat = op$covariance_mesh()
+            
+            # computing the errors
+            L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
+            L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
+            
+            Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,1] = L_inf_error
+            Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,2] = L_2_error
+            }, error = function(err){
+              warning(paste("Error occurred at iteration h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              print(paste("Error occurred at iteration h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,1] = NA
+              Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,2] = NA
+            })
+            print(paste("h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu))
+          }
+        }
+      }
+    }
+  }
+}
+
+Error_tadpole_DEF_rho0.1 = Error
+save(Error_tadpole_DEF_rho0.1, file = here("data_files/Error_tadpole_DEF_rho0.1.RData"))
+```
+
+
+## `rho = 0.5`
+
+
+<div style="color: blue;">
+********
+**Press the Show button below to reveal the code.**
+
+********
+</div>
+
+
+```{r, eval = FALSE, class.source = "fold-hide"}
+# library calls
+library(MetricGraph)
+library(Matrix)
+library(rSPDE)
+
+# function 1
+tadpole.eig <- function(k,graph){
+  x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
+  x2 <- c(0,graph$get_edge_lengths()[2]*graph$mesh$PtE[graph$mesh$PtE[,1]==2,2]) 
+  
+  if(k==0){ 
+    f.e1 <- rep(1,length(x1)) 
+    f.e2 <- rep(1,length(x2)) 
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    f = list(phi=f1/sqrt(3)) 
+    
+  } else {
+    f.e1 <- -2*sin(pi*k*1/2)*cos(pi*k*x1/2) 
+    f.e2 <- sin(pi*k*x2/2)                  
+    
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    
+    if((k %% 2)==1){ 
+      f = list(phi=f1/sqrt(3)) 
+    } else { 
+      f.e1 <- (-1)^{k/2}*cos(pi*k*x1/2)
+      f.e2 <- cos(pi*k*x2/2)
+      f2 = c(f.e1[1],f.e2[1],f.e1[-1],f.e2[-1]) 
+      f <- list(phi=f1,psi=f2/sqrt(3/2))
+    }
+  }
+  
+  return(f)
+}
+
+# function 2
+gets_graph <- function(h){
+  edge1 <- rbind(c(0,0),c(1,0))
+  theta <- seq(from=-pi,to=pi,length.out = 100)
+  edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
+  edges = list(edge1, edge2)
+  graph <- metric_graph$new(edges = edges)
+  graph$build_mesh(h=h)
+  return(graph)
+}
+
+#function 3
+gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
+  Sigma.kl <- matrix(0,nrow = dim(graph$mesh$V)[1],ncol = dim(graph$mesh$V)[1])
+  for(i in 0:n.overkill){
+    phi <- tadpole.eig(i,graph)$phi
+    Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*phi%*%t(phi)
+    if(i>0 && (i %% 2)==0){ 
+      psi <- tadpole.eig(i,graph)$psi
+      Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*psi%*%t(psi)
+    }
+    
+  }
+  Sigma.kl <- Sigma.kl/tau^2
+  return(Sigma.kl)
+}
+
+# parameters
+h_vector = c(0.001, 0.005, 0.01, 0.1)
+type_vector = c("covariance", "operator")
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+rho_vector = c(0.1, 0.5, 1, 2)
+m_vector = c(0,1,2,3,4)
+nu_vector = seq(0.1,2.49,by=0.05) 
+n.overkill = 1000
+sigma = 1
+
+Error = list()
+for (s in c(1,2,3,4)) { # loop over h_vector
+  Error[[as.character(h_vector[s])]] = list()
+  h = h_vector[s]
+  graph = gets_graph(h = h)
+  for (i in c(1)) { # loop over type_vector
+    Error[[as.character(h_vector[s])]][[type_vector[i]]] = list()
+    type = type_vector[i]
+    for (j in c(1,2,3)) { # loop over type_rational_approximation_vector
+      Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]] = list()
+      type_rational_approximation = type_rational_approximation_vector[j]
+      for (k in c(2)) { # loop over rho_vector
+        Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]] = list()
+        rho = rho_vector[k]
+        for (l in 1:length(m_vector)) { # loop over m_vector
+          Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]] = matrix(NA, nrow = length(nu_vector), ncol = 2)
+          colnames(Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]]) = c("L_inf_error", "L_2_error")
+          m = m_vector[l]
+          for (n in 1:length(nu_vector)) { # loop over nu_vector
+            nu = nu_vector[n]
+            
+            kappa = sqrt(8*nu)/rho
+            tau = sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+            alpha = nu + 1/2
+            
+            tryCatch({
+            # getting true covariance
+            true_cov_mat = gets_true_cov_mat(graph = graph,
+                                             kappa = kappa,
+                                             tau = tau,
+                                             alpha = alpha,
+                                             n.overkill = n.overkill)
+            
+            # getting the approximate covariance matrix
+            op = matern.operators(alpha = alpha, 
+                                  kappa = kappa, 
+                                  tau = tau,
+                                  m = m, 
+                                  graph = graph,
+                                  type = type,
+                                  type_rational_approximation = type_rational_approximation)
+            appr_cov_mat = op$covariance_mesh()
+            
+            # computing the errors
+            L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
+            L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
+            
+            Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,1] = L_inf_error
+            Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,2] = L_2_error
+            }, error = function(err){
+              warning(paste("Error occurred at iteration h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              print(paste("Error occurred at iteration h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,1] = NA
+              Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,2] = NA
+            })
+            print(paste("h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu))
+          }
+        }
+      }
+    }
+  }
+}
+
+Error_tadpole_DEF_rho0.5 = Error
+save(Error_tadpole_DEF_rho0.5, file = here("data_files/Error_tadpole_DEF_rho0.5.RData"))
+```
+
+
+## `rho = 1`
+
+
+<div style="color: blue;">
+********
+**Press the Show button below to reveal the code.**
+
+********
+</div>
+
+
+```{r, eval = FALSE, class.source = "fold-hide"}
+# library calls
+library(MetricGraph)
+library(Matrix)
+library(rSPDE)
+
+# function 1
+tadpole.eig <- function(k,graph){
+  x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
+  x2 <- c(0,graph$get_edge_lengths()[2]*graph$mesh$PtE[graph$mesh$PtE[,1]==2,2]) 
+  
+  if(k==0){ 
+    f.e1 <- rep(1,length(x1)) 
+    f.e2 <- rep(1,length(x2)) 
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    f = list(phi=f1/sqrt(3)) 
+    
+  } else {
+    f.e1 <- -2*sin(pi*k*1/2)*cos(pi*k*x1/2) 
+    f.e2 <- sin(pi*k*x2/2)                  
+    
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    
+    if((k %% 2)==1){ 
+      f = list(phi=f1/sqrt(3)) 
+    } else { 
+      f.e1 <- (-1)^{k/2}*cos(pi*k*x1/2)
+      f.e2 <- cos(pi*k*x2/2)
+      f2 = c(f.e1[1],f.e2[1],f.e1[-1],f.e2[-1]) 
+      f <- list(phi=f1,psi=f2/sqrt(3/2))
+    }
+  }
+  
+  return(f)
+}
+
+# function 2
+gets_graph <- function(h){
+  edge1 <- rbind(c(0,0),c(1,0))
+  theta <- seq(from=-pi,to=pi,length.out = 100)
+  edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
+  edges = list(edge1, edge2)
+  graph <- metric_graph$new(edges = edges)
+  graph$build_mesh(h=h)
+  return(graph)
+}
+
+#function 3
+gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
+  Sigma.kl <- matrix(0,nrow = dim(graph$mesh$V)[1],ncol = dim(graph$mesh$V)[1])
+  for(i in 0:n.overkill){
+    phi <- tadpole.eig(i,graph)$phi
+    Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*phi%*%t(phi)
+    if(i>0 && (i %% 2)==0){ 
+      psi <- tadpole.eig(i,graph)$psi
+      Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*psi%*%t(psi)
+    }
+    
+  }
+  Sigma.kl <- Sigma.kl/tau^2
+  return(Sigma.kl)
+}
+
+# parameters
+h_vector = c(0.001, 0.005, 0.01, 0.1)
+type_vector = c("covariance", "operator")
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+rho_vector = c(0.1, 0.5, 1, 2)
+m_vector = c(0,1,2,3,4)
+nu_vector = seq(0.1,2.49,by=0.05) 
+n.overkill = 1000
+sigma = 1
+
+Error = list()
+for (s in c(1,2,3,4)) { # loop over h_vector
+  Error[[as.character(h_vector[s])]] = list()
+  h = h_vector[s]
+  graph = gets_graph(h = h)
+  for (i in c(1)) { # loop over type_vector
+    Error[[as.character(h_vector[s])]][[type_vector[i]]] = list()
+    type = type_vector[i]
+    for (j in c(1,2,3)) { # loop over type_rational_approximation_vector
+      Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]] = list()
+      type_rational_approximation = type_rational_approximation_vector[j]
+      for (k in c(3)) { # loop over rho_vector
+        Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]] = list()
+        rho = rho_vector[k]
+        for (l in 1:length(m_vector)) { # loop over m_vector
+          Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]] = matrix(NA, nrow = length(nu_vector), ncol = 2)
+          colnames(Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]]) = c("L_inf_error", "L_2_error")
+          m = m_vector[l]
+          for (n in 1:length(nu_vector)) { # loop over nu_vector
+            nu = nu_vector[n]
+            
+            kappa = sqrt(8*nu)/rho
+            tau = sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+            alpha = nu + 1/2
+            
+            tryCatch({
+            # getting true covariance
+            true_cov_mat = gets_true_cov_mat(graph = graph,
+                                             kappa = kappa,
+                                             tau = tau,
+                                             alpha = alpha,
+                                             n.overkill = n.overkill)
+            
+            # getting the approximate covariance matrix
+            op = matern.operators(alpha = alpha, 
+                                  kappa = kappa, 
+                                  tau = tau,
+                                  m = m, 
+                                  graph = graph,
+                                  type = type,
+                                  type_rational_approximation = type_rational_approximation)
+            appr_cov_mat = op$covariance_mesh()
+            
+            # computing the errors
+            L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
+            L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
+            
+            Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,1] = L_inf_error
+            Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,2] = L_2_error
+            }, error = function(err){
+              warning(paste("Error occurred at iteration h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              print(paste("Error occurred at iteration h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,1] = NA
+              Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,2] = NA
+            })
+            print(paste("h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu))
+          }
+        }
+      }
+    }
+  }
+}
+
+Error_tadpole_DEF_rho1 = Error
+save(Error_tadpole_DEF_rho1, file = here("data_files/Error_tadpole_DEF_rho1.RData"))
+```
+
+
+## `rho = 2`
+
+<div style="color: blue;">
+********
+**Press the Show button below to reveal the code.**
+
+********
+</div>
+
+
+```{r, eval = FALSE, class.source = "fold-hide"}
+# library calls
+library(MetricGraph)
+library(Matrix)
+library(rSPDE)
+
+# function 1
+tadpole.eig <- function(k,graph){
+  x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
+  x2 <- c(0,graph$get_edge_lengths()[2]*graph$mesh$PtE[graph$mesh$PtE[,1]==2,2]) 
+  
+  if(k==0){ 
+    f.e1 <- rep(1,length(x1)) 
+    f.e2 <- rep(1,length(x2)) 
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    f = list(phi=f1/sqrt(3)) 
+    
+  } else {
+    f.e1 <- -2*sin(pi*k*1/2)*cos(pi*k*x1/2) 
+    f.e2 <- sin(pi*k*x2/2)                  
+    
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    
+    if((k %% 2)==1){ 
+      f = list(phi=f1/sqrt(3)) 
+    } else { 
+      f.e1 <- (-1)^{k/2}*cos(pi*k*x1/2)
+      f.e2 <- cos(pi*k*x2/2)
+      f2 = c(f.e1[1],f.e2[1],f.e1[-1],f.e2[-1]) 
+      f <- list(phi=f1,psi=f2/sqrt(3/2))
+    }
+  }
+  
+  return(f)
+}
+
+# function 2
+gets_graph <- function(h){
+  edge1 <- rbind(c(0,0),c(1,0))
+  theta <- seq(from=-pi,to=pi,length.out = 100)
+  edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
+  edges = list(edge1, edge2)
+  graph <- metric_graph$new(edges = edges)
+  graph$build_mesh(h=h)
+  return(graph)
+}
+
+#function 3
+gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
+  Sigma.kl <- matrix(0,nrow = dim(graph$mesh$V)[1],ncol = dim(graph$mesh$V)[1])
+  for(i in 0:n.overkill){
+    phi <- tadpole.eig(i,graph)$phi
+    Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*phi%*%t(phi)
+    if(i>0 && (i %% 2)==0){ 
+      psi <- tadpole.eig(i,graph)$psi
+      Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*psi%*%t(psi)
+    }
+    
+  }
+  Sigma.kl <- Sigma.kl/tau^2
+  return(Sigma.kl)
+}
+
+# parameters
+h_vector = c(0.001, 0.005, 0.01, 0.1)
+type_vector = c("covariance", "operator")
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+rho_vector = c(0.1, 0.5, 1, 2)
+m_vector = c(0,1,2,3,4)
+nu_vector = seq(0.1,2.49,by=0.05) 
+n.overkill = 1000
+sigma = 1
+
+Error = list()
+for (s in c(1,2,3,4)) { # loop over h_vector
+  Error[[as.character(h_vector[s])]] = list()
+  h = h_vector[s]
+  graph = gets_graph(h = h)
+  for (i in c(1)) { # loop over type_vector
+    Error[[as.character(h_vector[s])]][[type_vector[i]]] = list()
+    type = type_vector[i]
+    for (j in c(1,2,3)) { # loop over type_rational_approximation_vector
+      Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]] = list()
+      type_rational_approximation = type_rational_approximation_vector[j]
+      for (k in c(4)) { # loop over rho_vector
+        Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]] = list()
+        rho = rho_vector[k]
+        for (l in 1:length(m_vector)) { # loop over m_vector
+          Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]] = matrix(NA, nrow = length(nu_vector), ncol = 2)
+          colnames(Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]]) = c("L_inf_error", "L_2_error")
+          m = m_vector[l]
+          for (n in 1:length(nu_vector)) { # loop over nu_vector
+            nu = nu_vector[n]
+            
+            kappa = sqrt(8*nu)/rho
+            tau = sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+            alpha = nu + 1/2
+            
+            tryCatch({
+            # getting true covariance
+            true_cov_mat = gets_true_cov_mat(graph = graph,
+                                             kappa = kappa,
+                                             tau = tau,
+                                             alpha = alpha,
+                                             n.overkill = n.overkill)
+            
+            # getting the approximate covariance matrix
+            op = matern.operators(alpha = alpha, 
+                                  kappa = kappa, 
+                                  tau = tau,
+                                  m = m, 
+                                  graph = graph,
+                                  type = type,
+                                  type_rational_approximation = type_rational_approximation)
+            appr_cov_mat = op$covariance_mesh()
+            
+            # computing the errors
+            L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
+            L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
+            
+            Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,1] = L_inf_error
+            Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,2] = L_2_error
+            }, error = function(err){
+              warning(paste("Error occurred at iteration h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              print(paste("Error occurred at iteration h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu, "Error:", conditionMessage(err)))
+              Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,1] = NA
+              Error[[as.character(h_vector[s])]][[type_vector[i]]][[type_rational_approximation_vector[j]]][[as.character(rho_vector[k])]][[as.character(m_vector[l])]][n,2] = NA
+            })
+            print(paste("h=", h, ",type=", type, ",type_rational_approximation=", type_rational_approximation, ",rho=", rho, ",m=", m, ",nu=", nu))
+          }
+        }
+      }
+    }
+  }
+}
+
+Error_tadpole_DEF_rho2 = Error
+save(Error_tadpole_DEF_rho2, file = here("data_files/Error_tadpole_DEF_rho2.RData"))
+```
+
+## Plotting the errors
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
+load(here("data_files/Error_tadpole_DEF_rho0.1.RData"))
+load(here("data_files/Error_tadpole_DEF_rho0.5.RData"))
+load(here("data_files/Error_tadpole_DEF_rho1.RData"))
+load(here("data_files/Error_tadpole_DEF_rho2.RData"))
+
+h_vector = c("0.001", "0.005", "0.01", "0.1")
+type_rational_approximation_vector = c("chebfun", "brasil", "chebfunLB")
+nu_vector = seq(0.1,2.49,by=0.05)[1:29]
+
+n = "0.001"
+t = "chebfun"
+
+
+dat = rbind(
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
+                     Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,1],
+                     Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,1],
+                     Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
+                     Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,1],
+                     Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,1],
+                     Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
+                     Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,1],
+                     Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,1],
+                     Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
+                     Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,1],
+                     Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,1],
+                     Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,1]),
+           L = rep("Linf", times = 4*29)
+),
+
+## L2
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
+                     Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,2],
+                     Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,2],
+                     Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
+                     Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,2],
+                     Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,2],
+                     Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
+                     Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,2],
+                     Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,2],
+                     Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+),
+
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
+                     Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,2],
+                     Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,2],
+                     Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,2]),
+           L = rep("L2", times = 4*29)
+)
+)
+
+
+dat$rho = factor(dat$rho, levels = c("0.1", "0.5", "1", "2"))
+dat$L = factor(dat$L, levels = c("L2", "Linf"))
+levels(dat$rho) = c("0.1" = latex2exp::TeX("$\\rho = 0.1$"), "0.5" = latex2exp::TeX("$\\rho = 0.5$"), "1" = latex2exp::TeX("$\\rho = 1$"), "2" = latex2exp::TeX("$\\rho = 2$"))
+levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "Linf" = latex2exp::TeX("$L_\\infty(\\Gamma\\times\\Gamma)$ error"))
+
+
+p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
+  facet_grid(L ~ rho, labeller = label_parsed) +
+  geom_line() +
+  scale_y_log10(n.breaks = 7) +
+  scale_x_continuous(n.breaks = 6) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Tadpole graph")
+p
+```
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```

@@ -277,7 +277,61 @@ sd_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_sigma, .group = 
 rho_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_range, .group = 2)
 data_param_cov <- rbind(sd_df, rho_df)
 
-group_labels <- c("Standard deviation", "Practical correlation range")
+group_labels <- c("Marginal standard deviation", "Practical correlation range")
+
+min_x <- min(data_param_cov$x) |> round(2)
+max_x <- max(data_param_cov$x) |> round(2)
+min_y <- min(data_param_cov$y) |> round(2)
+max_y <- max(data_param_cov$y) |> round(2)
+
+# Create a base plot
+base_plot <- ggplot() +
+  geom_point(data = sd_df, aes(x = x, y = y), color = "black", size = 0.5, shape = 1) +
+  scale_x_continuous(labels = function(x) paste0(x), name = "x", breaks = seq(min_x, max_x, by = 2)) +  
+  scale_y_continuous(labels = function(y) paste0(y), name = "y", breaks = seq(min_y, max_y, by = 2)) +
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+
+# Create individual plots for each group and overlay data points
+group_plots <- lapply(unique(data_param_cov$.group), function(gr) {
+  geom_point(data = subset(data_param_cov, .group == gr), aes(x = x, y = y, color = z), size = 1)
+})
+
+# Combine the base plot and the group plots
+combined_plot <- base_plot + 
+  facet_wrap(~ .group, ncol = 2, labeller = labeller(.group = function(variable, value) {
+    return(group_labels[value])
+  })) +  # Specify custom labels for facet_wrap
+  group_plots +
+  scale_color_gradient(name = "") +
+  labs(color = "") +
+  scale_color_viridis_c(option = "D")
+
+# Print the combined plot
+print(combined_plot)
+```
+
+
+```{r}
+ggsave(here("data_files/stand_and_range.png"), plot = combined_plot, dpi = 300)
+```
+
+
+## Plot tau and kappa
+
+```{r, fig.dim = c(9,4)}
+# Extract the mesh locations in Euclidean coordinates
+xypoints <- logo_graph$mesh$V
+
+est_kappa <- sqrt(8*nu_ns)/est_range
+est_tau <- sqrt(gamma(nu_ns) / (est_sigma^2 * est_kappa^(2*nu_ns) * (4*pi)^(1/2) * gamma(nu_ns + 1/2)))
+
+# Define data frames for plotting
+sd_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_tau, .group = 1)
+rho_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = est_kappa, .group = 2)
+data_param_cov <- rbind(sd_df, rho_df)
+
+group_labels <- c("Tau", "Kappa")
 
 min_x <- min(data_param_cov$x) |> round(2)
 max_x <- max(data_param_cov$x) |> round(2)
@@ -310,11 +364,6 @@ combined_plot <- base_plot +
 # Print the combined plot
 print(combined_plot)
 ```
-
-```{r}
-ggsave(here("data_files/stand_and_range.png"), plot = combined_plot, dpi = 300)
-```
-
 
 ```{r}
 # Extract the mesh locations in Euclidean coordinates

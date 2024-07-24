@@ -2,7 +2,7 @@
 title: "Contents of This Website"
 ---
 
-1. [PeMS](pems2.html) page
+1. [PeMS](pems3.html) page
 
 2. [Preprocessing](preprocessing.html) page
 
@@ -16,6 +16,6 @@ title: "Contents of This Website"
 
 7. [Approximation](approximation.html) page
 
-8. [Numerical Error](numerical_error.html) page
+8. [Numerical Error](numerical_error2.html) page
 
 9. [Convergence Rates](convergence_rates.html) page

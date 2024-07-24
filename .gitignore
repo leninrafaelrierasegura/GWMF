@@ -10,3 +10,5 @@ source_folder/
 **/january.RData
 **/README.html
 data_files/README.html
+**/pems_repl_all_data.RData
+**/pems3_all_data.RData

@@ -1,0 +1,738 @@
+---
+title: "PeMS replicates"
+date: "Created: 05-07-2024. Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    # df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+always_allow_html: true
+bibliography:
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+---
+
+```{r, eval = FALSE, echo = FALSE}
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+```
+
+```{r xaringanExtra-clipboard, echo = FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+
+```{css, echo = FALSE}
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+```
+
+
+Go back to the [About page](about.html).
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+knitr::opts_chunk$set(
+  message = FALSE,    # Disable messages printed by R code chunks
+  warning = FALSE,    # Disable warnings printed by R code chunks
+  echo = TRUE,        # Show R code within code chunks in output
+  include = TRUE,     # Include both R code and its results in output
+  eval = TRUE,       # Evaluate R code chunks
+  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  fig.align = "center",
+  #out.width = "100%",
+  retina = 2,
+  error = TRUE,
+  collapse = FALSE
+)
+rm(list = ls())
+set.seed(1982)
+```
+
+# Import libraries
+
+```{r}
+library(INLA)
+library(inlabru)
+library(rSPDE)
+library(MetricGraph)
+
+library(dplyr)
+library(plotly)
+library(scales)
+library(patchwork)
+library(tidyr)
+library(sf)
+
+library(here)
+library(rmarkdown)
+library(grateful) # Cite all loaded packages
+
+rm(list = ls()) # Clear the workspace
+set.seed(1982) # Set seed for reproducibility
+```
+
+# Preprocessing
+
+## Load the data
+
+Object `pems_repl` is available after loading `MetricGraph` library.
+
+```{r}
+pems_data <- pems_repl$data
+```
+
+## Partition the data
+
+Half of the replicates are used to compute the summary statistic (`Y_log_sd` and `Y_mean`) and the other half (`Y`) are used to fit the model.
+
+```{r}
+# Sample half of the replicates
+sampled_numbers <- sample(1:26, 13, replace = FALSE)
+not_sampled_numbers <- setdiff(1:26, sampled_numbers)
+
+# Compute the log of the standard deviation at each location
+Y_log_sd <- pems_data |> 
+  filter(repl %in% sampled_numbers) |> 
+  group_by(distance_on_edge, edge_number) |> 
+  summarise(log_sd_y = log(sd(y))) |> 
+  ungroup()
+
+# Compute the mean at each location
+Y_mean <- pems_data |> 
+  filter(repl %in% sampled_numbers) |> 
+  group_by(distance_on_edge, edge_number) |> 
+  summarise(mean_y = mean(y)) |> 
+  ungroup()
+
+# Get the remaining replicates for the model
+Y <- pems_data |> 
+  filter(repl %in% not_sampled_numbers)
+```
+
+Observe that `Y_log_sd` corresponds to $\log$ of the standard deviation at each location.
+
+## Biuld the graph
+
+```{r}
+# Build the graph
+graph <- metric_graph$new(edges = pems_repl$edges, longlat=TRUE)
+```
+
+## Covariate for the non-stationary model
+
+```{r}
+# Add the observations (log(sd(.)) at each location)
+graph$add_observations(data = Y_log_sd, normalized = TRUE, clear_obs = TRUE)
+
+# Build the mesh
+graph$build_mesh(h = 0.05) 
+
+# Plot the log of the standard deviation
+graph$plot(data = "log_sd_y", vertex_size = 0) + 
+  ggtitle("Log(sd(s_i)) using half of the replicates") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
+
+Below we fit $\log(\mathrm{sd}(s_i))\sim N(\beta_0+u(s_i), \sigma_e^2)$.
+
+
+```{r}
+rspde_model_stat <- rspde.metric_graph(graph,
+                                       parameterization = "matern")
+
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        loc_name = "loc")
+
+cmp_stat <- log_sd_y ~ -1 +
+  Intercept(1) +
+  field(loc, model = rspde_model_stat)
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+model_for_log_sd_y <- rspde_fit_stat
+
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+```
+
+We now compute the kriging predictor $E(u(s_i)|\log(\mathrm{sd}(s_i)))$ (denoted as `cov` below) and standardize it.
+
+```{r}
+# Define the locations for prediction (mesh points)
+data_prd_list_mesh <- graph$get_mesh_locations(bru = TRUE, loc = "loc")
+
+# Compute the kriging predictor
+log_sd_y_pred <- predict(rspde_model_stat, cmp_stat, rspde_fit_stat, newdata = data_prd_list_mesh, ~Intercept + field)
+
+# Get the mean of the kriging predictor and standardize it
+cov <- log_sd_y_pred$pred$mean
+cov <- (cov - mean(cov))/sd(cov)
+
+# Plot the field
+graph$plot_function(X = cov, vertex_size = 0) + 
+  ggtitle("Standardized kriging predictor of log of sd") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
+
+We use `cov` to build the auxiliary matrices for the non-stationary models.
+
+```{r}
+# Non-stationary models for tau and kappa
+B.tau = cbind(0, 1, 0, cov, 0)
+B.kappa = cbind(0, 0, 1, 0, cov)
+```
+
+## Covariate for the mean
+
+```{r}
+# Add the observations (mean(.) at each location)
+graph$add_observations(data = Y_mean, normalized = TRUE, clear_obs = TRUE)
+
+# Plot the mean
+graph$plot(data = "mean_y", vertex_size = 0) + 
+  ggtitle("Mean value using half of the replicates") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
+
+
+```{r}
+# fit
+rspde_model_stat <- rspde.metric_graph(graph,
+                                       parameterization = "matern")
+
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        loc_name = "loc")
+
+cmp_stat <- mean_y ~ -1 +
+  Intercept(1) +
+  field(loc, model = rspde_model_stat)
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+model_for_mean_y <- rspde_fit_stat
+
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+```
+
+
+```{r}
+# Define list for prediction
+data_prd_list <- list()
+
+# Define the locations for prediction
+AAA = as.matrix(data.frame(Y_mean$edge_number, Y_mean$distance_on_edge))
+colnames(AAA) = c("", "d.e")
+
+# AAA is the observation locations and data_prd_list_mesh$loc is the mesh locations
+data_prd_list[["loc"]] = rbind(AAA, data_prd_list_mesh$loc)
+
+# Compute the kriging predictor
+mean_y_pred <- predict(rspde_model_stat, cmp_stat, rspde_fit_stat, newdata = data_prd_list, ~Intercept + field)
+
+# Get the mean of the kriging predictor
+mean_y_pred_aux <- mean_y_pred$pred$mean
+
+# Get the covariate for the mean
+cov_for_mean_aux <- mean_y_pred_aux[1:nrow(Y_mean)]
+
+# Get the covariate for the mean to plot (on the mesh locations)
+cov_for_mean_to_plot <- mean_y_pred_aux[(nrow(Y_mean) + 1):length(mean_y_pred_aux)]
+
+# Plot the field
+graph$plot_function(X = cov_for_mean_to_plot, vertex_size = 0) + 
+  ggtitle("Kriging predictor of the mean") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
+
+## Check the covariate for the mean
+
+```{r, fig.dim = c(20,5)}
+plot(Y_mean$mean_y, type = "l", col = "blue")
+lines(cov_for_mean_aux, col = "red")
+```
+
+## Add the remaining replicates to the graph
+
+We add the remaining half of the replicates to the graph.
+
+```{r}
+new_Y <- Y |> 
+  mutate(cov_for_mean = rep(cov_for_mean_aux, times = length(not_sampled_numbers)))
+
+
+graph$add_observations(data = new_Y, normalized = TRUE, clear_obs = TRUE, group = "repl")
+
+data <- graph$get_data()
+
+graph$plot(data = "y", group = 1, vertex_size = 0) + 
+  ggtitle("PeMS data, replicate 1") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+```
+
+## Compute groups for cross-validation
+
+
+```{r}
+# Define aux data frame to compute the distance matrix
+aux <- data |> filter(repl == unique(data$repl)[1]) |>
+  rename(distance_on_edge = .distance_on_edge, edge_number = .edge_number) |> # Rename the variables (because graph$compute_geodist_PtE() requires so)
+  as.data.frame() |> # Transform to a data frame (i.e., remove the metric_graph class)
+  dplyr::select(edge_number, distance_on_edge)
+
+# Compute the distance matrix
+distmatrix <- graph$compute_geodist_PtE(PtE = aux,
+                                             normalized = TRUE,
+                                             include_vertices = FALSE)
+# Define the distance vector
+distance = seq(from = 0, to = 10, by = 0.1)
+
+GROUPS <- list()
+for (j in 1:length(distance)) {
+  GROUPS[[j]] = list()
+  for (i in 1:nrow(aux)) {
+    GROUPS[[j]][[i]] <- which(as.vector(distmatrix[i, ]) <= distance[j])
+  }
+}
+
+NEW_GROUPS <- list()
+for (j in 1:length(distance)) {
+  my_list <- GROUPS[[j]]
+  aux_list <- list()
+  for (i in 0:(length(sampled_numbers) - 1)) {
+  added_vectors <- lapply(my_list, function(vec) vec + i*nrow(aux))
+  aux_list <- c(aux_list, added_vectors)
+  }
+  NEW_GROUPS[[j]] <- aux_list
+}
+
+GROUPS <- NEW_GROUPS
+```
+
+## Check the groups
+
+```{r}
+indexofinterest <- 326 # Any number between 1 and nrow(data)
+pointofinterest <- GROUPS[[20]][[indexofinterest]]
+pointofinterest2 <- GROUPS[[50]][[indexofinterest]]
+p <- graph$plot(vertex_size = 0) +
+  geom_point(data = data, aes(x = .coord_x, y = .coord_y), color = "darkviolet") +
+  geom_point(data = data[pointofinterest2, ], aes(x = .coord_x, y = .coord_y), color = "green") +
+  geom_point(data = data[pointofinterest, ], aes(x = .coord_x, y = .coord_y), color = "blue") +
+  geom_point(data = data[indexofinterest, ], aes(x = .coord_x, y = .coord_y), color = "red") +
+  ggtitle("Groups") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino")) +
+  coord_fixed()
+ggplotly(p)
+```
+
+
+# Modeling
+
+## $\nu = 0.5$
+
+### Stationary model
+
+```{r}
+rspde_model_stat <- rspde.metric_graph(graph,
+                                       parameterization = "spde",
+                                       nu = 0.5)
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        loc_name = "loc")
+cmp_stat <- y ~ -1 +
+  Intercept(1) +
+  cov_for_mean +
+  field(loc, model = rspde_model_stat,
+        replicate = data_rspde_bru_stat[["repl"]])
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+
+rspde_fit_statnu0.5 <- rspde_fit_stat
+```
+
+
+### Non-stationary model
+
+
+```{r}
+rspde_model_nonstat <- rspde.metric_graph(graph,
+                                          B.tau = B.tau,
+                                          B.kappa =  B.kappa,
+                                          parameterization = "spde",
+                                          nu = 0.5)
+
+data_rspde_bru_nonstat <- graph_data_rspde(rspde_model_nonstat,
+                                           repl = ".all",
+                                           loc_name = "loc")
+cmp_nonstat <- y ~ -1 +
+  Intercept(1) +
+  cov_for_mean +
+  field(loc, model = rspde_model_nonstat,
+        replicate = data_rspde_bru_nonstat[["repl"]])
+
+rspde_fit_nonstat <-
+  bru(cmp_nonstat,
+      data = data_rspde_bru_nonstat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_nonstat)
+summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+
+
+rspde_fit_nonstatnu0.5 <- rspde_fit_nonstat
+```
+
+## $\nu = 1.5$
+
+### Stationary model
+
+```{r}
+rspde_model_stat <- rspde.metric_graph(graph,
+                                       parameterization = "spde",
+                                       nu = 1.5)
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        loc_name = "loc")
+
+cmp_stat <- y ~ -1 +
+  Intercept(1) +
+  cov_for_mean +
+  field(loc, model = rspde_model_stat,
+        replicate = data_rspde_bru_stat[["repl"]])
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+
+rspde_fit_statnu1.5 <- rspde_fit_stat
+```
+
+### Non-stationary model
+
+```{r}
+rspde_model_nonstat <- rspde.metric_graph(graph,
+                                          B.tau = B.tau,
+                                          B.kappa =  B.kappa,
+                                          parameterization = "spde",
+                                          nu = 1.5)
+
+data_rspde_bru_nonstat <- graph_data_rspde(rspde_model_nonstat,
+                                           repl = ".all",
+                                           loc_name = "loc")
+
+cmp_nonstat <- y ~ -1 +
+  Intercept(1) +
+  cov_for_mean +
+  field(loc, model = rspde_model_nonstat,
+        replicate = data_rspde_bru_nonstat[["repl"]])
+
+rspde_fit_nonstat <-
+  bru(cmp_nonstat,
+      data = data_rspde_bru_nonstat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_nonstat)
+summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+
+
+rspde_fit_nonstatnu1.5 <- rspde_fit_nonstat
+```
+
+## $\nu$ estimated
+
+### Stationary model
+
+```{r}
+rspde_model_stat <- rspde.metric_graph(graph,
+                                       parameterization = "spde")
+
+
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
+                                        repl = ".all",
+                                        loc_name = "loc")
+
+cmp_stat <- y ~ -1 +
+  Intercept(1) +
+  cov_for_mean +
+  field(loc, model = rspde_model_stat,
+        replicate = data_rspde_bru_stat[["repl"]])
+
+rspde_fit_stat <-
+  bru(cmp_stat,
+      data = data_rspde_bru_stat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_stat)
+fit.rspde <- rspde.result(rspde_fit_stat, "field", rspde_model_stat)
+summary(fit.rspde)
+
+rspde_fit_statnuest <- rspde_fit_stat
+```
+
+### Non-stationary model
+
+```{r}
+rspde_model_nonstat <- rspde.metric_graph(graph,
+                                          B.tau = B.tau,
+                                          B.kappa =  B.kappa,
+                                          parameterization = "spde")
+
+data_rspde_bru_nonstat <- graph_data_rspde(rspde_model_nonstat,
+                                           repl = ".all",
+                                           loc_name = "loc")
+
+cmp_nonstat <- y ~ -1 +
+  Intercept(1) +
+  cov_for_mean +
+  field(loc, model = rspde_model_nonstat,
+        replicate = data_rspde_bru_nonstat[["repl"]])
+
+rspde_fit_nonstat <-
+  bru(cmp_nonstat,
+      data = data_rspde_bru_nonstat[["data"]],
+      family = "gaussian",
+      options = list(verbose = FALSE)
+  )
+
+summary(rspde_fit_nonstat)
+summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+
+# rspde_fit_nonstat <-bru_rerun(rspde_fit_nonstat)
+# summary(rspde_fit_nonstat)
+# summary(rspde.result(rspde_fit_nonstat, "field", rspde_model_nonstat))
+
+rspde_fit_nonstatnuest <- rspde_fit_nonstat
+```
+
+
+
+# Cross-validation
+
+
+```{r}
+mse.statnu0.5 <- mse.nonstatnu0.5 <- ls.statnu0.5 <- ls.nonstatnu0.5 <- rep(0,length(distance))
+mse.statnu1.5 <- mse.nonstatnu1.5 <- ls.statnu1.5 <- ls.nonstatnu1.5 <- rep(0,length(distance))
+mse.statnuest <- mse.nonstatnuest <- ls.statnuest <- ls.nonstatnuest <- rep(0,length(distance))
+
+# cross-validation for-loop
+for (j in 1:length(distance)) {
+  print(j)
+  # cross-validation of the stationary model
+  cv.statnu0.5 <- inla.group.cv(rspde_fit_statnu0.5, groups = GROUPS[[j]])
+  cv.statnu1.5 <- inla.group.cv(rspde_fit_statnu1.5, groups = GROUPS[[j]])
+  cv.statnuest <- inla.group.cv(rspde_fit_statnuest, groups = GROUPS[[j]])
+  # cross-validation of the nonstationary model
+  cv.nonstatnu0.5 <- inla.group.cv(rspde_fit_nonstatnu0.5, groups = GROUPS[[j]])
+  cv.nonstatnu1.5 <- inla.group.cv(rspde_fit_nonstatnu1.5, groups = GROUPS[[j]])
+  cv.nonstatnuest <- inla.group.cv(rspde_fit_nonstatnuest, groups = GROUPS[[j]])
+  # obtain MSE and LS
+  mse.statnu0.5[j] <- mean((cv.statnu0.5$mean - data$y)^2)
+  mse.statnu1.5[j] <- mean((cv.statnu1.5$mean - data$y)^2)
+  mse.statnuest[j] <- mean((cv.statnuest$mean - data$y)^2)
+  
+  
+  mse.nonstatnu0.5[j] <- mean((cv.nonstatnu0.5$mean - data$y)^2)
+  mse.nonstatnu1.5[j] <- mean((cv.nonstatnu1.5$mean - data$y)^2)
+  mse.nonstatnuest[j] <- mean((cv.nonstatnuest$mean - data$y)^2)
+  
+  
+  ls.statnu0.5[j] <- mean(log(cv.statnu0.5$cv))
+  ls.statnu1.5[j] <- mean(log(cv.statnu1.5$cv))
+  ls.statnuest[j] <- mean(log(cv.statnuest$cv))
+  
+  ls.nonstatnu0.5[j] <- mean(log(cv.nonstatnu0.5$cv))
+  ls.nonstatnu1.5[j] <- mean(log(cv.nonstatnu1.5$cv))
+  ls.nonstatnuest[j] <- mean(log(cv.nonstatnuest$cv))
+}
+
+# Create data frames
+mse_df <- data.frame(
+  distance,
+  Statnu0.5 = mse.statnu0.5,
+  Nonstatnu0.5 = mse.nonstatnu0.5,
+  Statnu1.5 = mse.statnu1.5,
+  Nonstatnu1.5 = mse.nonstatnu1.5,
+  Statnuest = mse.statnuest,
+  Nonstatnuest = mse.nonstatnuest
+)
+
+ls_df <- data.frame(
+  distance,
+  Statnu0.5 = -ls.statnu0.5,
+  Nonstatnu0.5 = -ls.nonstatnu0.5,
+  Statnu1.5 = -ls.statnu1.5,
+  Nonstatnu1.5 = -ls.nonstatnu1.5,
+  Statnuest = -ls.statnuest,
+  Nonstatnuest = -ls.nonstatnuest
+)
+```
+
+```{r, fig.dim = c(16,6), fig.cap = "MSE and negative Log-Score as functions of distance (in km) for the stationary (dotdash line, $\\boldsymbol{\\cdot-\\cdot}$) and non-stationary (solid line, $\\boldsymbol{-\\!\\!\\!-\\!\\!\\!-}$)  cases with $\\nu = 0.5$, $\\nu = 1.5$, and $\\nu$ estimated (est)."}
+
+# Convert to long format
+mse_long <- mse_df %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "MSE")
+
+ls_long <- ls_df %>%
+  pivot_longer(cols = -distance, names_to = "nu", values_to = "LogScore")
+
+
+# Update the label mappings with the new legend title
+label_mapping <- c(
+  "Statnu0.5" = "0.5", 
+  "Nonstatnu0.5" = "0.5", 
+  "Statnu1.5" = "1.5", 
+  "Nonstatnu1.5" = "1.5", 
+  "Statnuest" = "est", 
+  "Nonstatnuest" = "est"
+)
+
+# Define color and linetype mapping
+color_mapping <- c(
+  "Statnu0.5" = "blue", 
+  "Nonstatnu0.5" = "red", 
+  "Statnu1.5" = "black", 
+  "Nonstatnu1.5" = "green", 
+  "Statnuest" = "darkorange", 
+  "Nonstatnuest" = "skyblue"
+)
+
+linetype_mapping <- c(
+  "Statnu0.5" = "dotdash", 
+  "Nonstatnu0.5" = "solid", 
+  "Statnu1.5" = "dotdash", 
+  "Nonstatnu1.5" = "solid", 
+  "Statnuest" = "dotdash", 
+  "Nonstatnuest" = "solid"
+)
+
+# Plot MSE
+mse_plot <- ggplot(mse_long, aes(x = distance, y = MSE, color = nu, linetype = nu)) +
+  geom_line(linewidth = 1) +
+  labs(y = "MSE", x = "Distance in km") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(nu)) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(nu)) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Plot negative log-score
+ls_plot <- ggplot(ls_long, aes(x = distance, y = LogScore, color = nu, linetype = nu)) +
+  geom_line(linewidth = 1) +
+  labs(y = "Negative Log-Score", x = "Distance in km") +
+  scale_color_manual(values = color_mapping, labels = label_mapping, name = expression(nu)) +
+  scale_linetype_manual(values = linetype_mapping, labels = label_mapping, name = expression(nu)) +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino"))
+
+# Combine plots with a shared legend at the top in a single line
+combined_plot <- mse_plot + ls_plot + 
+  plot_layout(guides = 'collect') & 
+  theme(legend.position = 'right') & 
+  guides(color = guide_legend(ncol = 1), linetype = guide_legend(nrow = 1))
+
+# Display combined plot
+print(combined_plot)
+```
+
+```{r}
+save.image(here("data_files/pems_repl_all_data.RData"))
+```
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```
+
+
