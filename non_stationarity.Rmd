@@ -418,11 +418,25 @@ print(combined_plot)
 # Simulate the non-stationary field
 u_non_stat <- simulate(ns_op)
 
-# Plot the non-stationary field
-logo_graph$plot_function(X = u_non_stat, vertex_size = 0) + 
-  ggtitle("Simulated non-stationary field") + 
+# Plot the graph
+pl <- logo_graph$plot(vertex_size = 1, vertex_color = "blue") + 
+  ggtitle(latex2exp::TeX("MetricGraph package's logo")) + 
   theme_minimal() + 
   theme(text = element_text(family = "Palatino"))
+
+
+# Plot the non-stationary field
+nsp <- logo_graph$plot_function(X = u_non_stat, vertex_size = 0) + 
+  ggtitle("Simulated non-stationary process") + 
+  theme_minimal() + 
+  theme(text = element_text(family = "Palatino"))
+
+plt_aux <- pl + nsp
+```
+
+
+```{r}
+ggsave(here("data_files/graph_and_sim.png"), plot = plt_aux, dpi = 300)
 ```
 
 ## Simulate observations
