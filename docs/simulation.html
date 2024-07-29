@@ -458,7 +458,7 @@ div.tocify {
   <a href="about.html">About</a>
 </li>
 <li>
-  <a href="pems2.html">PeMS</a>
+  <a href="pems3.html">PeMS</a>
 </li>
 <li>
   <a href="preprocessing.html">Preprocessing</a>
@@ -479,7 +479,7 @@ div.tocify {
   <a href="approximation.html">Approximation</a>
 </li>
 <li>
-  <a href="numerical_error.html">Numerical Error</a>
+  <a href="numerical_error2.html">Numerical Error</a>
 </li>
 <li>
   <a href="convergence_rates.html">Convergence Rates</a>
@@ -510,7 +510,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Simulation</h1>
-<h4 class="date">Created: 05-07-2024. Last modified: 18-07-2024.</h4>
+<h4 class="date">Created: 05-07-2024. Last modified: 29-07-2024.</h4>
 
 </div>
 
@@ -892,7 +892,7 @@ model</h2>
 <span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a>  )</span>
 <span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a></span>
 <span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_stat)</span></code></pre></div>
-<pre><code>## inlabru version: 2.10.1.9010
+<pre><code>## inlabru version: 2.11.1.9001
 ## INLA version: 24.06.27
 ## Components:
 ## Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L)
@@ -901,9 +901,11 @@ model</h2>
 ## Likelihoods:
 ##   Family: &#39;gaussian&#39;
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
+##     Response class: &#39;numeric&#39;
 ##     Predictor: y ~ .
+##     Used components: effects[Intercept, x2, field], latent[]
 ## Time used:
-##     Pre = 0.192, Running = 8.93, Post = 3.23, Total = 12.4 
+##     Pre = 0.21, Running = 8.67, Post = 3.3, Total = 12.2 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.083 0.071      0.944    1.083      1.221  1.083   0
@@ -965,7 +967,7 @@ non-stationary model</h2>
 <span id="cb19-20"><a href="#cb19-20" tabindex="-1"></a>      <span class="at">options =</span> <span class="fu">list</span>(<span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb19-21"><a href="#cb19-21" tabindex="-1"></a>  )</span>
 <span id="cb19-22"><a href="#cb19-22" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_nonstat)</span></code></pre></div>
-<pre><code>## inlabru version: 2.10.1.9010
+<pre><code>## inlabru version: 2.11.1.9001
 ## INLA version: 24.06.27
 ## Components:
 ## Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L)
@@ -974,9 +976,11 @@ non-stationary model</h2>
 ## Likelihoods:
 ##   Family: &#39;gaussian&#39;
 ##     Data class: &#39;metric_graph_data&#39;, &#39;list&#39;
+##     Response class: &#39;numeric&#39;
 ##     Predictor: y ~ .
+##     Used components: effects[Intercept, x2, field], latent[]
 ## Time used:
-##     Pre = 0.194, Running = 15.3, Post = 3.85, Total = 19.3 
+##     Pre = 0.216, Running = 15.4, Post = 4.02, Total = 19.6 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
 ## Intercept  1.081 0.066      0.952    1.081      1.210  1.081   0
@@ -991,32 +995,32 @@ non-stationary model</h2>
 ## Precision for the Gaussian observations 99.05 0.855     97.363    99.05
 ## Theta1 for field                         1.00 0.017      0.970     1.00
 ## Theta2 for field                         1.00 0.013      0.978     1.00
-## Theta3 for field                        -2.27 0.195     -2.699    -2.25
-## Theta4 for field                         2.64 0.152      2.305     2.65
+## Theta3 for field                        -2.27 0.196     -2.700    -2.25
+## Theta4 for field                         2.64 0.152      2.304     2.65
 ##                                         0.975quant  mode
 ## Precision for the Gaussian observations     100.73 99.06
 ## Theta1 for field                              1.04  1.00
 ## Theta2 for field                              1.03  1.00
-## Theta3 for field                             -1.95 -2.16
+## Theta3 for field                             -1.94 -2.16
 ## Theta4 for field                              2.89  2.72
 ## 
-## Deviance Information Criterion (DIC) ...............: -67538.60
-## Deviance Information Criterion (DIC, saturated) ....: 64838.70
-## Effective number of parameters .....................: 16830.66
+## Deviance Information Criterion (DIC) ...............: -67538.64
+## Deviance Information Criterion (DIC, saturated) ....: 64838.85
+## Effective number of parameters .....................: 16830.69
 ## 
-## Watanabe-Akaike information criterion (WAIC) ...: -68091.48
-## Effective number of parameters .................: 12976.21
+## Watanabe-Akaike information criterion (WAIC) ...: -68091.49
+## Effective number of parameters .................: 12976.26
 ## 
-## Marginal log-Likelihood:  9239.07 
+## Marginal log-Likelihood:  9239.08 
 ##  is computed 
 ## Posterior summaries for the linear predictor and the fitted values are computed
 ## (Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)</code></pre>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">rspde.result</span>(rspde_fit_nonstat, <span class="st">&quot;field&quot;</span>, rspde_model_nonstat))</span></code></pre></div>
 <pre><code>##                   mean        sd 0.025quant 0.5quant 0.975quant     mode
-## Theta1.matern  1.00239 0.0169518   0.969546  1.00221    1.03629  1.00145
-## Theta2.matern  1.00353 0.0132030   0.977909  1.00340    1.02989  1.00286
-## Theta3.matern -2.26644 0.1947160  -2.698590 -2.24925   -1.94468 -2.16365
-## Theta4.matern  2.64080 0.1517300   2.304750  2.65384    2.89266  2.71897</code></pre>
+## Theta1.matern  1.00239 0.0169533   0.969541  1.00221    1.03629  1.00145
+## Theta2.matern  1.00353 0.0132038   0.977907  1.00340    1.02989  1.00286
+## Theta3.matern -2.26606 0.1955570  -2.699770 -2.24893   -1.94242 -2.16365
+## Theta4.matern  2.64104 0.1524230   2.303670  2.65404    2.89440  2.71894</code></pre>
 </div>
 </div>
 <div id="cross-validation" class="section level2" number="3.7">
@@ -1118,7 +1122,7 @@ class="citation">(Cheng et al. 2024)</span>, INLA v. 24.6.27 <span
 class="citation">(Rue, Martino, and Chopin 2009; Lindgren, Rue, and
 Lindström 2011; Martins et al. 2013; Lindgren and Rue 2015; De Coninck
 et al. 2016; Rue et al. 2017; Verbosio et al. 2017; Bakka et al. 2018;
-Kourounis, Fuchs, and Schenk 2018)</span>, inlabru v. 2.10.1.9010 <span
+Kourounis, Fuchs, and Schenk 2018)</span>, inlabru v. 2.11.1.9001 <span
 class="citation">(Yuan et al. 2017; Bachl et al. 2019)</span>, knitr v.
 1.47 <span class="citation">(Xie 2014, 2015, 2024)</span>, latex2exp v.
 0.9.6 <span class="citation">(Meschiari 2022)</span>, listviewer v.

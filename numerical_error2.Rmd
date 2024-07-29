@@ -385,13 +385,25 @@ levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "
 p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
   facet_grid(L ~ rho, labeller = label_parsed) +
   geom_line() +
-  scale_y_log10(n.breaks = 7) +
+  scale_y_log10(n.breaks = 5) +
   scale_x_continuous(n.breaks = 6) +
   theme_bw() +
-  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
-  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Interval graph")
-p
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino"),
+        plot.title = element_text(size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "Covariance Error", color = "m") + ggtitle("Interval graph")
 ```
+
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
+p
+ggsave(here("data_files/new_interval_upto1.5.png"), plot = p, dpi = 300)
+```
+
 
 
 # Circle graph
@@ -658,16 +670,25 @@ dat$L = factor(dat$L, levels = c("L2", "Linf"))
 levels(dat$rho) = c("0.1" = latex2exp::TeX("$\\rho = 0.1$"), "0.5" = latex2exp::TeX("$\\rho = 0.5$"), "1" = latex2exp::TeX("$\\rho = 1$"), "2" = latex2exp::TeX("$\\rho = 2$"))
 levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "Linf" = latex2exp::TeX("$L_\\infty(\\Gamma\\times\\Gamma)$ error"))
 
-
 p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
   facet_grid(L ~ rho, labeller = label_parsed) +
   geom_line() +
-  scale_y_log10(n.breaks = 7) +
+  scale_y_log10(n.breaks = 5) +
   scale_x_continuous(n.breaks = 6) +
   theme_bw() +
-  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
-  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Circle graph")
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino"),
+        plot.title = element_text(size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "Covariance Error", color = "m") + ggtitle("Circle graph")
+```
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
 p
+ggsave(here("data_files/new_circle_upto1.5.png"), plot = p, dpi = 300)
 ```
 
 # Tadpole graph
@@ -1384,16 +1405,25 @@ dat$L = factor(dat$L, levels = c("L2", "Linf"))
 levels(dat$rho) = c("0.1" = latex2exp::TeX("$\\rho = 0.1$"), "0.5" = latex2exp::TeX("$\\rho = 0.5$"), "1" = latex2exp::TeX("$\\rho = 1$"), "2" = latex2exp::TeX("$\\rho = 2$"))
 levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "Linf" = latex2exp::TeX("$L_\\infty(\\Gamma\\times\\Gamma)$ error"))
 
-
 p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
   facet_grid(L ~ rho, labeller = label_parsed) +
   geom_line() +
-  scale_y_log10(n.breaks = 7) +
+  scale_y_log10(n.breaks = 5) +
   scale_x_continuous(n.breaks = 6) +
   theme_bw() +
-  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
-  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Tadpole graph")
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino"),
+        plot.title = element_text(size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "Covariance Error", color = "m") + ggtitle("Tadpole graph")
+```
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide"}
 p
+ggsave(here("data_files/new_tadpole_upto1.5.png"), plot = p, dpi = 300)
 ```
 
 # References

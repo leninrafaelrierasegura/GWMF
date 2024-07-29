@@ -126,6 +126,9 @@ logo_graph <- metric_graph$new(edges = edges) # Create a new graph object
 #logo_graph$prune_vertices()
 logo_graph$build_mesh(h = 0.05) # Build the mesh
 
+# Extract the mesh locations in Euclidean coordinates
+xypoints <- logo_graph$mesh$V
+
 # Plot graph with mesh
 logo_graph$plot(mesh = TRUE) + 
   ggtitle("Mesh") + 
@@ -153,11 +156,42 @@ We use the `matern` parameterization, where the parameters are $\nu$ (`nu`), $\s
 sigma <- 0.1 # Standard deviation
 range <- 10 # Range
 nu <- 1.5 # Smoothness parameter
-theta <- c(1, 1, -2.5, 2.5) # Log-regression coefficients
+theta <- c(1, 1, -0.5, 0.5) # Log-regression coefficients
 nu_ns <- 1.5 # Smoothness parameter for non-stationarity
 cor_threshold <- 0.1 # Define correlation threshold
 sigma.e <- 0.1 # Standard deviation of the error term
 ```
+
+```{r}
+op <- matern.operators(nu = 0.5, 
+                       sigma = sigma,
+                       range = range,  
+                       parameterization = "matern",
+                       graph = logo_graph)  
+
+est_cov_matrix <- op$covariance_mesh()
+# Precision matrix
+Q <- precision(op)
+rownumber = 289 # Choose a row number, any berween 1 and dim(est_cov_matrix)[1]
+rowfromcov = est_cov_matrix[rownumber, ]
+rowfromQ = solve(Q, replace(numeric(dim(Q)[1]), rownumber, 1)) # Another way to get a row from the covariance matrix
+aux_covf1 <- logo_graph$plot_function(X = rowfromcov, vertex_size = 1, plotly = TRUE, edge_color = "black", edge_width = 1, line_color = "blue", line_width = 2)
+
+op <- matern.operators(nu = 2.5, 
+                       sigma = sigma,
+                       range = range,  
+                       parameterization = "matern",
+                       graph = logo_graph)  
+
+est_cov_matrix <- op$covariance_mesh()
+# Precision matrix
+Q <- precision(op)
+rownumber = 289 # Choose a row number, any berween 1 and dim(est_cov_matrix)[1]
+rowfromcov = est_cov_matrix[rownumber, ]
+rowfromQ = solve(Q, replace(numeric(dim(Q)[1]), rownumber, 1)) # Another way to get a row from the covariance matrix
+aux_covf2 <- logo_graph$plot_function(X = rowfromcov, vertex_size = 1, plotly = TRUE, edge_color = "black", edge_width = 1, line_color = "red", line_width = 2, p = aux_covf1)
+```
+
 
 
 ```{r}
@@ -171,11 +205,26 @@ op <- matern.operators(nu = nu,
 # Simulate the field
 cov <- as.vector(simulate(op))
 
+est_cov_matrix <- op$covariance_mesh()
+# Precision matrix
+Q <- precision(op)
+rownumber = 289 # Choose a row number, any berween 1 and dim(est_cov_matrix)[1]
+rowfromcov = est_cov_matrix[rownumber, ]
+rowfromQ = solve(Q, replace(numeric(dim(Q)[1]), rownumber, 1)) # Another way to get a row from the covariance matrix
+```
+
+
+```{r}
 # Plot the field
 logo_graph$plot_function(X = cov, vertex_size = 0, plotly = FALSE) + 
   ggtitle("Simulated field") + 
   theme_minimal() + 
   theme(text = element_text(family = "Palatino"))
+```
+
+```{r}
+cfo <- logo_graph$plot_function(X = rowfromcov, vertex_size = 1, plotly = TRUE, edge_color = "black", edge_width = 1, line_color = "darkgreen", line_width = 2, p = aux_covf2)
+cfo
 ```
 
 # Build a non-stationary covariance function for a generalized Whittle–Matérn field
@@ -203,6 +252,25 @@ Take into account that `theta` $= (\theta_1, \theta_2, \theta_3, \theta_4)$.
 # Non-stationary parameters
 B.sigma = cbind(0, 1, 0, cov, 0)
 B.range = cbind(0, 0, 1, 0, cov)
+```
+
+
+```{r}
+# Construct the approximation 
+ns_op <- rSPDE::spde.matern.operators(graph = logo_graph,
+                                                parameterization = "matern",
+                                                B.sigma = B.sigma,
+                                                B.range = B.range,
+                                                theta = theta, 
+                                                #m = 20, type_rational_approximation = "brasil",
+                                                nu = 0.5)
+est_cov_matrix <- ns_op$covariance_mesh()
+# Precision matrix
+Q <- precision(ns_op)
+rownumber = 289 # Choose a row number, any berween 1 and dim(est_cov_matrix)[1]
+rowfromcov = est_cov_matrix[rownumber, ]
+rowfromQ = solve(Q, replace(numeric(dim(Q)[1]), rownumber, 1)) # Another way to get a row from the covariance matrix
+aux_covf1 <- logo_graph$plot_function(X = rowfromcov, vertex_size = 1, plotly = TRUE, edge_color = "black", edge_width = 3, line_color = "blue", line_width = 3)
 
 # Construct the approximation 
 ns_op <- rSPDE::spde.matern.operators(graph = logo_graph,
@@ -210,6 +278,26 @@ ns_op <- rSPDE::spde.matern.operators(graph = logo_graph,
                                                 B.sigma = B.sigma,
                                                 B.range = B.range,
                                                 theta = theta,
+                                                #m = 20, type_rational_approximation = "brasil",
+                                                nu = 2.5)
+est_cov_matrix <- ns_op$covariance_mesh()
+# Precision matrix
+Q <- precision(ns_op)
+rownumber = 289 # Choose a row number, any berween 1 and dim(est_cov_matrix)[1]
+rowfromcov = est_cov_matrix[rownumber, ]
+rowfromQ = solve(Q, replace(numeric(dim(Q)[1]), rownumber, 1)) # Another way to get a row from the covariance matrix
+aux_covf2 <- logo_graph$plot_function(X = rowfromcov, vertex_size = 1, plotly = TRUE, edge_color = "black", edge_width = 3, line_color = "red", line_width = 3, p = aux_covf1)
+```
+
+
+```{r}
+# Construct the approximation 
+ns_op <- rSPDE::spde.matern.operators(graph = logo_graph,
+                                                parameterization = "matern",
+                                                B.sigma = B.sigma,
+                                                B.range = B.range,
+                                                theta = theta,
+                                                #m = 20, type_rational_approximation = "brasil",
                                                 nu = nu_ns)
 
 # Covariance matrix
@@ -217,16 +305,15 @@ est_cov_matrix <- ns_op$covariance_mesh()
 
 # Precision matrix
 Q <- precision(ns_op)
-```
 
-## Plot the covariance between a point and all other points
-
-```{r}
-rownumber = 300 # Choose a row number, any berween 1 and dim(est_cov_matrix)[1]
+rownumber = 289 # Choose a row number, any berween 1 and dim(est_cov_matrix)[1]
 rowfromcov = est_cov_matrix[rownumber, ] # Get a row from the covariance matrix
 rowfromQ = solve(Q, replace(numeric(dim(Q)[1]), rownumber, 1)) # Another way to get a row from the covariance matrix
 sum(rowfromcov - rowfromQ) # Check they are the same
 ```
+
+
+## Plot the covariance between a point and all other points
 
 ```{r}
 # Plot the covariance between a point and all other points
@@ -234,6 +321,51 @@ logo_graph$plot_function(X = rowfromQ, vertex_size = 0) +
   ggtitle("Covariance between a point and all other points") + 
   theme_minimal() + 
   theme(text = element_text(family = "Palatino"))
+```
+
+```{r}
+cfo <- logo_graph$plot_function(X = rowfromcov, vertex_size = 1, plotly = TRUE, edge_color = "black", edge_width = 3, line_color = "darkgreen", line_width = 3, p = aux_covf2) %>% 
+  config(mathjax = 'cdn') %>% 
+  layout(font = list(family = "Palatino"),
+         showlegend = FALSE,
+         scene = list(
+           annotations = list(
+             list(
+               x = 3, y = 4, z = 8,
+               text = TeX("\\nu"),
+               textangle = 0, ax = 60, ay = 0,
+               font = list(color = "black", size = 16),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+             list(
+               x = 3, y = 4, z = 6.5,
+               text = TeX("\\bullet\\mbox{ 0.5}"),
+               textangle = 0, ax = 60, ay = 0,
+               font = list(color = "blue", size = 16),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+             list(
+               x = 3, y = 4, z = 7,
+               text = TeX("\\bullet\\mbox{ 1.5}"),
+               textangle = 0, ax = 60, ay = 0,
+               font = list(color = "darkgreen", size = 16),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+             list(
+               x = 3, y = 4, z = 7.5,
+               text = TeX("\\bullet\\mbox{ 2.5}"),
+               textangle = 0, ax = 60, ay = 0,
+               font = list(color = "red", size = 16),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+             list(
+               x = 3, y = 4, z = 0,
+               text = TeX("s_0"),
+               textangle = 0, ax = 0, ay = 15,
+               font = list(color = "black", size = 16),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1)))) %>% 
+  add_trace(x = xypoints[rownumber, 2], y = xypoints[rownumber, 1], z = 0, mode = "markers", type = "scatter3d", 
+            marker = list(size = 4, color = "black", symbol = 104))
+```
+
+```{r}
+cfo
 ```
 
 ## Compute the practical correlation range and the standard deviation
@@ -366,9 +498,6 @@ print(combined_plot)
 ```
 
 ```{r}
-# Extract the mesh locations in Euclidean coordinates
-xypoints <- logo_graph$mesh$V
-
 # Define data frames for plotting
 sigma_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = model_for_sigma, .group = 1)
 range_df <- data.frame(x = xypoints[,1], y = xypoints[,2], z = model_for_range, .group = 2)
@@ -437,6 +566,26 @@ plt_aux <- pl + nsp
 
 ```{r}
 ggsave(here("data_files/graph_and_sim.png"), plot = plt_aux, dpi = 300)
+```
+
+
+```{r}
+xy_points <- logo_graph$mesh$V
+df_just_to_plot <- data.frame(x = xy_points[,1], y = xy_points[,2], z = as.vector(u_non_stat))
+pbase <- ggplot() +
+  geom_point(data = df_just_to_plot, aes(x = x, y = y, color = z), size = 1) +
+  scale_color_gradient(name = "") +
+  labs(color = "") +
+  scale_color_viridis_c(option = "D") +
+  theme_minimal() +
+  theme(text = element_text(family = "Palatino")) +
+  ggtitle("Simulated non-stationary process")
+
+ppmss <- pl + pbase
+```
+
+```{r}
+ggsave(here("data_files/graph_and_sim_p.png"), plot = ppmss, dpi = 300)
 ```
 
 ## Simulate observations

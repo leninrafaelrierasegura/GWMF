@@ -218,10 +218,10 @@ h_label <- paste0("2^-", h_aux, "")
 h_label_latex <- sprintf("$2^{-%f}$", h_aux)
 
 # Beta values
-beta_aux <- c(4, 6, 6.5, 7, 7.5)
-beta_vector <- beta_aux/8
-beta_label <- paste0(beta_aux, "/8")
-theoretical_rate <- pmin(4*beta_vector-1/2,2)
+alpha_aux <- c(8, 12, 13, 14, 15)
+alpha_vector <- alpha_aux/8
+alpha_label <- paste0(alpha_aux, "/8")
+theoretical_rate <- pmin(2*alpha_vector-1/2,2)
 
 graph.ok <- graph$clone()
 # Build graph with overkill mesh
@@ -240,13 +240,12 @@ for(i in 1:length(h_vector)){
   A[[i]] <- graphs[[i]]$fem_basis(loc.ok)
 }
 
-cov.error.interval <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
+cov.error.interval <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 
 m_values <- c()
-for (j in 1:length(beta_vector)) {
-  beta <- beta_vector[j]
-  alpha <- 2*beta
-  fract2beta <- alpha - floor(alpha)
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j]
+  fract_alpha <- alpha - floor(alpha)
   nu <- alpha - 0.5
   kappa <- sqrt(8*nu)/rho
   tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
@@ -260,7 +259,7 @@ for (j in 1:length(beta_vector)) {
   
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    m <- min(20, ceiling((min(4*beta - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract2beta)))
+    m <- min(20, ceiling((min(2*alpha - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract_alpha)))
     m_values <- c(m_values, m)
     
     Sigma <- matern.operators(alpha = alpha,  
@@ -279,14 +278,14 @@ for (j in 1:length(beta_vector)) {
 
 print(m_values)
 
-slope_interval <- numeric(length(beta_vector))
+slope_interval <- numeric(length(alpha_vector))
 
-for (u in 1:length(beta_vector)) {
+for (u in 1:length(alpha_vector)) {
   slope_interval[u] <- coef(lm(log(cov.error.interval[,u]) ~ log(h_vector)))[2]
 }
 
-transposed_df <- data.frame(t(data.frame(beta = beta_label, theoretical_rate = theoretical_rate, slope = slope_interval)))
-rownames(transposed_df) <- c("beta", "Theoretical rates", "Interval graph")
+transposed_df <- data.frame(t(data.frame(alpha = alpha_label, theoretical_rate = theoretical_rate, slope = slope_interval)))
+rownames(transposed_df) <- c("alpha", "Theoretical rates", "Interval graph")
 colnames(transposed_df) <- NULL
 # Display the transposed data frame
 transposed_df |> paged_table()
@@ -299,8 +298,8 @@ loglog_line_equation <- function(x1, y1, slope) {
   }
 }
 
-guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
-for (j in 1:length(beta_vector)) {
+guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+for (j in 1:length(alpha_vector)) {
   guiding_lines_aux <- matrix(NA, nrow = length(h_vector), ncol = length(h_vector))
   for(k in 1:length(h_vector)){
     point_x1 <- h_vector[k]
@@ -311,6 +310,7 @@ for (j in 1:length(beta_vector)) {
   }
   guiding_lines[,j] <- apply(guiding_lines_aux, 1, mean)
 }
+guiding_lines1 <- guiding_lines
 
 # Generate default ggplot2 colors
 default_colors <- scales::hue_pal()(ncol(guiding_lines))
@@ -322,18 +322,19 @@ plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
 })
 
 df <- as.data.frame(cbind(h_vector, cov.error.interval))
-colnames(df) <- c("h_vector", beta_label)
+colnames(df) <- c("h_vector", alpha_label)
 df_melted <- melt(df, id.vars = "h_vector", variable.name = "column", value.name = "value")
+df_melted1 <- df_melted
 
 p.interval <- ggplot() +
   geom_line(data = df_melted, aes(x = h_vector, y = value, color = column)) +
   geom_point(data = df_melted, aes(x = h_vector, y = value, color = column)) +
   plot_lines +
   labs(title = "Interval graph",
-    x = TeX("$\\hat{h}$"),
+    x = "h",
        y = "Covariance Error",
-       color = expression(beta)) +
-  scale_x_log10(breaks = h_vector, labels = TeX(h_label_latex)) +
+       color = expression(alpha)) +
+  scale_x_log10(breaks = h_vector, labels = round(h_vector,3)) +
   scale_y_log10() +
   theme_minimal() +
   theme(text = element_text(family = "Palatino"))
@@ -426,10 +427,10 @@ h_label <- paste0("2^-", h_aux, "")
 h_label_latex <- sprintf("$2^{-%f}$", h_aux)
 
 # Beta values
-beta_aux <- c(4, 6, 6.5, 7, 7.5)
-beta_vector <- beta_aux/8
-beta_label <- paste0(beta_aux, "/8")
-theoretical_rate <- pmin(4*beta_vector-1/2,2)
+alpha_aux <- c(8, 12, 13, 14, 15)
+alpha_vector <- alpha_aux/8
+alpha_label <- paste0(alpha_aux, "/8")
+theoretical_rate <- pmin(2*alpha_vector-1/2,2)
 
 graph.ok <- graph$clone()
 # Build graph with overkill mesh
@@ -448,13 +449,12 @@ for(i in 1:length(h_vector)){
   A[[i]] <- graphs[[i]]$fem_basis(loc.ok)
 }
 
-cov.error.circle <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
+cov.error.circle <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 
 m_values <- c()
-for (j in 1:length(beta_vector)) {
-  beta <- beta_vector[j]
-  alpha <- 2*beta
-  fract2beta <- alpha - floor(alpha)
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j]
+  fract_alpha <- alpha - floor(alpha)
   nu <- alpha - 0.5
   kappa <- sqrt(8*nu)/rho
   tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
@@ -468,7 +468,7 @@ for (j in 1:length(beta_vector)) {
 
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    m <- min(20, ceiling((min(4*beta - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract2beta)))
+    m <- min(20, ceiling((min(2*alpha - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract_alpha)))
     m_values <- c(m_values, m)
 
     Sigma <- matern.operators(alpha = alpha,  
@@ -488,14 +488,14 @@ for (j in 1:length(beta_vector)) {
 
 print(m_values)
 
-slope_circle <- numeric(length(beta_vector))
+slope_circle <- numeric(length(alpha_vector))
 
-for (u in 1:length(beta_vector)) {
+for (u in 1:length(alpha_vector)) {
   slope_circle[u] <- coef(lm(log(cov.error.circle[,u]) ~ log(h_vector)))[2]
 }
 
-transposed_df <- data.frame(t(data.frame(beta = beta_label, theoretical_rate = theoretical_rate, slope = slope_circle)))
-rownames(transposed_df) <- c("beta", "Theoretical rates", "Circle graph")
+transposed_df <- data.frame(t(data.frame(alpha = alpha_label, theoretical_rate = theoretical_rate, slope = slope_circle)))
+rownames(transposed_df) <- c("alpha", "Theoretical rates", "Circle graph")
 colnames(transposed_df) <- NULL
 # Display the transposed data frame
 transposed_df |> paged_table()
@@ -508,8 +508,8 @@ loglog_line_equation <- function(x1, y1, slope) {
   }
 }
 
-guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
-for (j in 1:length(beta_vector)) {
+guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+for (j in 1:length(alpha_vector)) {
   guiding_lines_aux <- matrix(NA, nrow = length(h_vector), ncol = length(h_vector))
   for(k in 1:length(h_vector)){
     point_x1 <- h_vector[k]
@@ -520,6 +520,7 @@ for (j in 1:length(beta_vector)) {
   }
   guiding_lines[,j] <- apply(guiding_lines_aux, 1, mean)
 }
+guiding_lines2 <- guiding_lines
 
 # Generate default ggplot2 colors
 default_colors <- scales::hue_pal()(ncol(guiding_lines))
@@ -531,18 +532,19 @@ plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
 })
 
 df <- as.data.frame(cbind(h_vector, cov.error.circle))
-colnames(df) <- c("h_vector", beta_label)
+colnames(df) <- c("h_vector", alpha_label)
 df_melted <- melt(df, id.vars = "h_vector", variable.name = "column", value.name = "value")
+df_melted2 <- df_melted
 
 p.circle <- ggplot() +
   geom_line(data = df_melted, aes(x = h_vector, y = value, color = column)) +
   geom_point(data = df_melted, aes(x = h_vector, y = value, color = column)) +
   plot_lines +
   labs(title = "Circle graph",
-    x = TeX("$\\hat{h}$"),
+    x = "h",
        y = "Covariance Error",
-       color = expression(beta)) +
-  scale_x_log10(breaks = h_vector, labels = TeX(h_label_latex)) +
+       color = expression(alpha)) +
+  scale_x_log10(breaks = h_vector, labels = round(h_vector,3)) +
   scale_y_log10() +
   theme_minimal() +
   theme(text = element_text(family = "Palatino"))
@@ -628,10 +630,10 @@ h_label <- paste0("2^-", h_aux, "")
 h_label_latex <- sprintf("$2^{-%f}$", h_aux)
 
 # Beta values
-beta_aux <- c(4, 6, 6.5, 7, 7.5)
-beta_vector <- beta_aux/8
-beta_label <- paste0(beta_aux, "/8")
-theoretical_rate <- pmin(4*beta_vector-1/2,2)
+alpha_aux <- c(8, 12, 13, 14, 15)
+alpha_vector <- alpha_aux/8
+alpha_label <- paste0(alpha_aux, "/8")
+theoretical_rate <- pmin(2*alpha_vector-1/2,2)
 
 graph.ok <- graph$clone()
 # Build graph with overkill mesh
@@ -650,13 +652,12 @@ for(i in 1:length(h_vector)){
   A[[i]] <- graphs[[i]]$fem_basis(loc.ok)
 }
 
-cov.error.tadpole <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
+cov.error.tadpole <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 
 m_values <- c()
-for (j in 1:length(beta_vector)) {
-  beta <- beta_vector[j]
-  alpha <- 2*beta
-  fract2beta <- alpha - floor(alpha)
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j]
+  fract_alpha <- alpha - floor(alpha)
   nu <- alpha - 0.5
   kappa <- sqrt(8*nu)/rho
   tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
@@ -669,7 +670,7 @@ for (j in 1:length(beta_vector)) {
 
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    m <- min(20, ceiling((min(4*beta - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract2beta)))
+    m <- min(20, ceiling((min(2*alpha - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract_alpha)))
     m_values <- c(m_values, m)
 
     Sigma <- matern.operators(alpha = alpha,
@@ -688,14 +689,14 @@ for (j in 1:length(beta_vector)) {
 
 print(m_values)
 
-slope_tadpole <- numeric(length(beta_vector))
+slope_tadpole <- numeric(length(alpha_vector))
 
-for (u in 1:length(beta_vector)) {
+for (u in 1:length(alpha_vector)) {
   slope_tadpole[u] <- round(coef(lm(log(cov.error.tadpole[,u]) ~ log(h_vector)))[2], 7)
 }
 
-transposed_df <- data.frame(t(data.frame(beta = beta_label, theoretical_rate = theoretical_rate, slope = slope_tadpole)))
-rownames(transposed_df) <- c("beta", "Theoretical rates", "Tadpole graph")
+transposed_df <- data.frame(t(data.frame(alpha = alpha_label, theoretical_rate = theoretical_rate, slope = slope_tadpole)))
+rownames(transposed_df) <- c("alpha", "Theoretical rates", "Tadpole graph")
 colnames(transposed_df) <- NULL
 # Display the transposed data frame
 transposed_df |> paged_table()
@@ -708,8 +709,8 @@ loglog_line_equation <- function(x1, y1, slope) {
   }
 }
 
-guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
-for (j in 1:length(beta_vector)) {
+guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+for (j in 1:length(alpha_vector)) {
   guiding_lines_aux <- matrix(NA, nrow = length(h_vector), ncol = length(h_vector))
   for(k in 1:length(h_vector)){
     point_x1 <- h_vector[k]
@@ -720,6 +721,7 @@ for (j in 1:length(beta_vector)) {
   }
   guiding_lines[,j] <- apply(guiding_lines_aux, 1, mean)
 }
+guiding_lines3 <- guiding_lines
 
 # Generate default ggplot2 colors
 default_colors <- scales::hue_pal()(ncol(guiding_lines))
@@ -731,18 +733,19 @@ plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
 })
 
 df <- as.data.frame(cbind(h_vector, cov.error.tadpole))
-colnames(df) <- c("h_vector", beta_label)
+colnames(df) <- c("h_vector", alpha_label)
 df_melted <- melt(df, id.vars = "h_vector", variable.name = "column", value.name = "value")
+df_melted3 <- df_melted
 
 p.tadpole <- ggplot() +
   geom_line(data = df_melted, aes(x = h_vector, y = value, color = column)) +
   geom_point(data = df_melted, aes(x = h_vector, y = value, color = column)) +
   plot_lines +
   labs(title = "Tadpole graph",
-    x = TeX("$\\hat{h}$"),
+    x = "h",
        y = "Covariance Error",
-       color = expression(beta)) +
-  scale_x_log10(breaks = h_vector, labels = TeX(h_label_latex)) +
+       color = expression(alpha)) +
+  scale_x_log10(breaks = h_vector, labels = round(h_vector,3)) +
   scale_y_log10() +
   theme_minimal() +
   theme(text = element_text(family = "Palatino"))
@@ -757,12 +760,12 @@ p.tadpole
 
 
 ```{r}
-transposed_df <- data.frame(t(data.frame(beta = beta_label, 
+transposed_df <- data.frame(t(data.frame(alpha = alpha_label, 
                                          theoretical_rate = theoretical_rate, 
                                          slope_interval = slope_interval,
                                          slope_circle = slope_circle,
                                          slope_tadpole = slope_tadpole)))
-rownames(transposed_df) <- c("beta", "Theoretical rates", "Interval graph", "Circle graph", "Tadpole graph")
+rownames(transposed_df) <- c("alpha", "Theoretical rates", "Interval graph", "Circle graph", "Tadpole graph")
 colnames(transposed_df) <- NULL
 # Display the transposed data frame
 transposed_df |> paged_table()
@@ -777,9 +780,49 @@ combined_plot <- p.interval + p.circle + p.tadpole +
 
 combined_plot
 ```
-
 ```{r}
 ggsave(here("data_files/convergence_rates_inte_circ_tadp.png"), plot = combined_plot, dpi = 300)
+```
+
+
+
+```{r, fig.dim = c(12,4)}
+ff_data <- rbind(mutate(df_melted1, graph = "Intervalgraph"),
+                 mutate(df_melted2, graph = "Circlegraph"),
+                 mutate(df_melted3, graph = "Tadpolegraph"))
+
+ff_data$graph <- factor(ff_data$graph, levels = c("Intervalgraph", "Circlegraph", "Tadpolegraph"))
+
+glines <- c(as.vector(guiding_lines1), as.vector(guiding_lines2), as.vector(guiding_lines3))
+gg_data <- ff_data %>% 
+  mutate(value = glines)
+
+graph_labels <- c("Intervalgraph" = "Interval graph", 
+                  "Circlegraph" = "Circle graph", 
+                  "Tadpolegraph" = "Tadpole graph")
+
+last_plot <- ggplot() + 
+  geom_line(data = ff_data, aes(h_vector, value, colour = as.factor(column)), linewidth = 0.7) +
+  geom_line(data = gg_data, aes(h_vector, value, colour = as.factor(column)), linetype = "dashed", linewidth = 0.3) +
+  geom_point(data = ff_data, aes(h_vector, value, colour = as.factor(column))) +
+  facet_grid(~ graph, labeller = as_labeller(graph_labels)) +
+  scale_y_log10() +
+  scale_x_log10(breaks = h_vector, labels = round(h_vector, 3)) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.4, "cm"), 
+        text = element_text(family = "Palatino"),
+        strip.text = element_text(size = 16),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = "h", y = "Covariance Error", color = bquote(alpha)) 
+
+last_plot
+```
+
+```{r}
+ggsave(here("data_files/conv_rates_new.png"), plot = last_plot, dpi = 300)
 ```
 
 # References
