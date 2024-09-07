@@ -2,8 +2,8 @@
 title: "Computationally efficient inference for non-stationary Gaussian fields with general smoothness on  metric graphs"
 ---
 
-This website is a companion to the paper "Computationally efficient inference for non-stationary Gaussian fields with general smoothness on  metric graphs" by Lenin Rafael Riera Segura, David Bolin, and Alexandre B. Simas. The paper is available on [arXiv](https://arxiv.org/abs/0000.00000).
+This website is a companion to the paper "Computationally efficient inference for non-stationary Gaussian fields with general smoothness on  metric graphs" by Lenin Rafael Riera Segura, David Bolin, and Alexandre B. Simas.
 
-This [GitHub](https://github.com/leninrafaelrierasegura/GWMF) repository contains all the necessary files to reproduce the results presented in this website and paper.
+Visit this [GitHub](https://github.com/leninrafaelrierasegura/GWMF) repository for all the necessary files to reproduce the results presented in this website and paper.
 
 Go to the [About](about.html) page for the description of the content of this website.
