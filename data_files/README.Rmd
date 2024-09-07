@@ -10,90 +10,38 @@ output:
 
 Here is a short description of the files and folders in the [`data_files`](https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files) directory.
 
-1. **`path_to_initial_data`** 
-
-This is not a file itself but it is included in this list because of the role it plays. Here is how it was created and used. 
-
-  - Go to this [webpage](https://data.sfgov.org/Transportation/SFMTA-Transit-Vehicle-Location-History-Current-Yea/x344-v6h6/explore/query/SELECT%0A%20%20%60vehicle_position_date_time%60%2C%0A%20%20%60vehicle_id%60%2C%0A%20%20%60loc_x%60%2C%0A%20%20%60loc_y%60%2C%0A%20%20%60heading%60%2C%0A%20%20%60average_speed%60%0AWHERE%0A%20%20%60vehicle_position_date_time%60%0A%20%20%20%20BETWEEN%20%222021-01-01T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0A%20%20%20%20AND%20%222021-01-31T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0AORDER%20BY%20%60vehicle_position_date_time%60%20DESC%20NULL%20FIRST/page/filter).
-  - Press the Export button at the top-right corner and then press the Download button in the pop-up window.
-  - Save the downloaded file (around 2 GB) in some directory and set the path to this directory in the `path_to_initial_data` variable as in the [`pp1.html`](../preprocessing/pp1.html) vignette.
-  - Run the code in [`pp1.html`](../preprocessing/pp1.html) to create the `january.RData` file.
-
-2. **`january.RData`**
-
-This file was created in [`pp1.html`](../preprocessing/pp1.html) using the initial data stored in `path_to_initial_data`. It does not appear in the repository because it is too large (around 352.9 MB). The previous item explains how to create it. 
-
-
-3. [**`day7142128hour13noconsecutivezeroes.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/day7142128hour13noconsecutivezeroes.RData)
-
-This file was created in [`pp2.html`](../preprocessing/pp2.html) using the data stored in `january.RData`.
-
-4. [**`San_Francisco_data_from_TomTom.zip`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/San_Francisco_data_from_TomTom.zip) and [**`San_Francisco_data_from_TomTom.json`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/San_Francisco_data_from_TomTom.json)
-
-These two files were downloaded using a free trial of [TomTom MOVE](https://www.tomtom.com/products/tomtom-move/) geolocation services and contain the street network data for San Francisco.
-
-5. [**`San_Francisco_data_from_TomTom/`**](https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files/San_Francisco_data_from_TomTom)
-
-This folder contains the unzipped contents of `San_Francisco_data_from_TomTom.zip`.
-
-6. [**`tomtom.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/tomtom.RData)
-
-This file was created in [`pp3.html`](../preprocessing/pp3.html) using the data stored in `San_Francisco_data_from_TomTom.json` and `San_Francisco_data_from_TomTom/network.shp`
-
-
-7. [**`graph_construction_on_27JUN2024_FRC013456.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/graph_construction_on_27JUN2024_FRC013456.RData)
-
-This file was created in [`pp4.html`](../preprocessing/pp4.html) using the data stored in `tomtom.RData`.
-
-8. [**`data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData)
-
-This file was created in [`pp5.html`](../preprocessing/pp5.html) using the data stored in `day7142128hour13noconsecutivezeroes.RData` and `graph_construction_on_27JUN2024_FRC013456.RData`.
-
-9. [**`GROUPS.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/GROUPS.RData)
-
-This file was created in [`pp6.html`](../preprocessing/pp6.html) using the data stored in `data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData` and `graph_construction_on_27JUN2024_FRC013456.RData`.
-
-10. [**`before_modeling.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/before_modeling.RData)
-
-This file was created in [`pp6.html`](../preprocessing/pp6.html) using the data stored in `data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData` and `graph_construction_on_27JUN2024_FRC013456.RData`.
-
-11. [**`Error_interval_DEF.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_interval_DEF.RData)
+1. [**`Error_interval_DEF.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_interval_DEF.RData)
 
 This file was created in [`numerical_error.html`](../numerical_error.html).
 
-12. [**`Error_circle_DEF.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_circle_DEF.RData)
+2. [**`Error_circle_DEF.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_circle_DEF.RData)
 
 This file was created in [`numerical_error.html`](../numerical_error.html).
 
-13. [**`Error_tadpole_DEF_rho0.1.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho0.1.RData)
+3. [**`Error_tadpole_DEF_rho0.1.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho0.1.RData)
 
 This file was created in [`numerical_error.html`](../numerical_error.html).
 
-14. [**`Error_tadpole_DEF_rho0.5.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho0.5.RData)
+4. [**`Error_tadpole_DEF_rho0.5.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho0.5.RData)
 
 This file was created in [`numerical_error.html`](../numerical_error.html).
 
-15. [**`Error_tadpole_DEF_rho1.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho1.RData)
+5. [**`Error_tadpole_DEF_rho1.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho1.RData)
 
 This file was created in [`numerical_error.html`](../numerical_error.html).
 
-16. [**`Error_tadpole_DEF_rho2.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho2.RData)
+6. [**`Error_tadpole_DEF_rho2.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho2.RData)
 
 This file was created in [`numerical_error.html`](../numerical_error.html).
 
 
-17. [**`crossvalidation.RData`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/crossvalidation.RData)
-
-This file was created in [`modeling.html`](../modeling.html).
-
-18.[**`convergence_rates_inte_circ_tadp.png`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/convergence_rates_inte_circ_tadp.png)
+7. [**`conv_rates_new.png`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/conv_rates_new.png)
 
 This file was created in [`convergence_rates.html`](../convergence_rates.html).
 
-19. [**`stand_and_range.png`**](https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/stand_and_range.png)
 
-This file was created in [`non_stationarity.html`](../non_stationarity.html).
+8. [**`data.pems/`**](https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files/data.pems)
 
-20. [**`data.pems/`**](https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files/data.pems)
+This folder was downloaded from this [GitHub repository](https://github.com/davidbolin/MetricGraph/tree/7f4c90171c40b9bf7ea29e9b048c93d88477c5d1/examples/data.pems) and contains the data used in the [`pems_repl1.html`](../pems_repl1.html) vignette.  
 
-This folder was downloaded from this [GitHub repository](https://github.com/davidbolin/MetricGraph/tree/7f4c90171c40b9bf7ea29e9b048c93d88477c5d1/examples/data.pems) and contains the data used in the [`pems.html`](../pems.html) vignette.  
+

@@ -12,8 +12,9 @@ output:
     toc_float:
       collapsed: true
       smooth_scroll: true
-    number_sections: true
+    number_sections: false
     fig_caption: true
+    code_download: true
 always_allow_html: true
 bibliography: 
   - references.bib
@@ -27,17 +28,6 @@ header-includes:
   - \newcommand{\Ecal}{\mathcal{E}}
 ---
 
-```{r, eval = FALSE, echo = FALSE}
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-```
 
 ```{r xaringanExtra-clipboard, echo = FALSE}
 htmltools::tagList(
@@ -69,6 +59,11 @@ code.r{
 pre {
   font-size: 14px
 }
+.caption {
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px; /* Spacing below the box */
+}
 ```
 
 
@@ -78,21 +73,38 @@ Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
 knitr::opts_chunk$set(
-  message = FALSE,    # Disable messages printed by R code chunks
-  warning = FALSE,    # Disable warnings printed by R code chunks
-  echo = TRUE,        # Show R code within code chunks in output
-  include = TRUE,     # Include both R code and its results in output
-  eval = TRUE,       # Evaluate R code chunks
-  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
   fig.align = "center",
-  out.width = "100%",
+  # Enable retina display for high-resolution figures
   retina = 2,
+  # Show errors in the output instead of stopping rendering
   error = TRUE,
+  # Do not collapse code and output into a single block
   collapse = FALSE
 )
-rm(list = ls())
-set.seed(1982)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
 ```
 
 # Import libraries
@@ -105,9 +117,6 @@ library(plotly)
 library(here)
 library(rmarkdown)
 library(grateful) # to cite
-
-rm(list = ls()) # Clear the workspace
-set.seed(1982) # Set seed for reproducibility
 ```
 
 
@@ -163,7 +172,7 @@ where $x_v^e$ is either $x_0^e$ or $x_{n_e}^e$ depending on the edge direction a
 ********
 </div>
 
-```{r, fig.height = 8, class.source = "fold-hide", fig.cap = "Figure 3. Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ (solid gray lines) on the graph $\\Gamma= (\\Vcal,\\Ecal)$, where $\\Ecal= \\llav{e_1,\\dots,e_8}$ and $\\Vcal =  \\llav{v_1,\\dots,v_7}$. Note that for all $e_i\\in\\Ecal$, $n_{e_i} = 3$ and $h_{e_i} = 1/3$. In particular, for edge $e_7$, observe that the three regular segments are delimited by the nodes $v_6 = x_0^{e_7}, x_1^{e_7}, x_2^{e_7}, x_3^{e_7} = v_7$. Corresponding to node $x_1^{e_7}$, we have plotted the basis function $\\varphi_1^{e_7}$ in blue. Notice also that the set $\\Ncal_{v_2}$ is depicted in green and its corresponding basis function $\\phi_{v_2}$ is shown in red."}
+```{r, fig.height = 8, out.width = "100%", class.source = "fold-hide", fig.cap = captioner("Illustration of the system of basis functions $\\{\\varphi_j^e, \\phi_v\\}$ (solid gray lines) on the graph $\\Gamma= (\\Vcal,\\Ecal)$, where $\\Ecal= \\llav{e_1,\\dots,e_8}$ and $\\Vcal =  \\llav{v_1,\\dots,v_7}$. Note that for all $e_i\\in\\Ecal$, $n_{e_i} = 3$ and $h_{e_i} = 1/3$. In particular, for edge $e_7$, observe that the three regular segments are delimited by the nodes $v_6 = x_0^{e_7}, x_1^{e_7}, x_2^{e_7}, x_3^{e_7} = v_7$. Corresponding to node $x_1^{e_7}$, we have plotted the basis function $\\varphi_1^{e_7}$ in blue. Notice also that the set $\\Ncal_{v_2}$ is depicted in green and its corresponding basis function $\\phi_{v_2}$ is shown in red.")}
 # star set
 d49 = data.frame(y = c(1/3,0), x = c(0,0), z = c(0,0))
 d50 = data.frame(y = c(0,0), x = c(1/3,0), z = c(0,0))

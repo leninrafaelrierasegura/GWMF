@@ -12,8 +12,9 @@ output:
     toc_float:
       collapsed: true
       smooth_scroll: true
-    number_sections: true
+    number_sections: false
     fig_caption: true
+    code_download: true
 always_allow_html: true
 bibliography: 
   - references.bib
@@ -25,19 +26,9 @@ header-includes:
   - \newcommand{\Ncal}{\mathcal{N}}
   - \newcommand{\Vcal}{\mathcal{V}}
   - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
-```{r, eval = FALSE, echo = FALSE}
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-```
 
 ```{r xaringanExtra-clipboard, echo = FALSE}
 htmltools::tagList(
@@ -69,6 +60,19 @@ code.r{
 pre {
   font-size: 14px
 }
+.custom-box {
+  background-color: #f5f7fa; /* Light grey-blue background */
+  border-color: #e1e8ed; /* Light border color */
+  color: #2c3e50; /* Dark text color */
+  padding: 15px; /* Padding inside the box */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 20px; /* Spacing below the box */
+}
+.caption {
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px; /* Spacing below the box */
+}
 ```
 
 
@@ -78,37 +82,43 @@ Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
 knitr::opts_chunk$set(
-  message = FALSE,    # Disable messages printed by R code chunks
-  warning = FALSE,    # Disable warnings printed by R code chunks
-  echo = TRUE,        # Show R code within code chunks in output
-  include = TRUE,     # Include both R code and its results in output
-  eval = TRUE,       # Evaluate R code chunks
-  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
   fig.align = "center",
-  #out.width = "100%",
+  # Enable retina display for high-resolution figures
   retina = 2,
+  # Show errors in the output instead of stopping rendering
   error = TRUE,
+  # Do not collapse code and output into a single block
   collapse = FALSE
 )
-rm(list = ls())
-set.seed(1982)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
 ```
 
 # Import libraries
 
 ```{r}
-# Install R-INLA package
-# install.packages("INLA",repos = c(getOption("repos"),INLA ="https://inla.r-inla-download.org/R/testing"), dep = TRUE)
-# Update R-INLA package
-# inla.upgrade(testing = TRUE)
-# Install inlabru package
-# remotes::install_github("inlabru-org/inlabru", ref = "devel")
-# Install rSPDE package
-# remotes::install_github("davidbolin/rspde", ref = "devel")
-# Install MetricGraph package
-# remotes::install_github("davidbolin/metricgraph", ref = "devel")
-
 library(INLA)
 library(inlabru)
 library(rSPDE)
@@ -131,9 +141,6 @@ library(grateful) # Cite all loaded packages
 
 library(latex2exp)
 library(plotrix)
-
-rm(list = ls()) # Clear the workspace
-set.seed(1982) # Set seed for reproducibility
 ```
 
 
@@ -141,7 +148,7 @@ set.seed(1982) # Set seed for reproducibility
 
 Follow this [link](convergence_rates/convergence_rates_interval.html) for more details.
 
-```{r, fig.dim = c(5,4), class.source = "fold-hide"}
+```{r, class.source = "fold-hide"}
 # Matern covariance function
 matern.covariance <- function(h, kappa, nu, sigma) {
   if (nu == 1 / 2) {
@@ -217,7 +224,7 @@ h_vector <- 2^-h_aux
 h_label <- paste0("2^-", h_aux, "")
 h_label_latex <- sprintf("$2^{-%f}$", h_aux)
 
-# Beta values
+# Alpha values
 alpha_aux <- c(8, 12, 13, 14, 15)
 alpha_vector <- alpha_aux/8
 alpha_label <- paste0(alpha_aux, "/8")
@@ -341,7 +348,7 @@ p.interval <- ggplot() +
 ```
 
 
-```{r}
+```{r, fig.dim = c(5,4), fig.cap = captioner("Convergence rates for the interval graph.")}
 p.interval
 ```
 
@@ -350,7 +357,7 @@ p.interval
 
 Follow this [link](convergence_rates/convergence_rates_circle.html) for more details.
 
-```{r, fig.dim = c(5,4), class.source = "fold-hide"}
+```{r, class.source = "fold-hide"}
 # Matern covariance function
 matern.covariance <- function(h, kappa, nu, sigma) {
   if (nu == 1 / 2) {
@@ -551,7 +558,7 @@ p.circle <- ggplot() +
 ```
 
 
-```{r}
+```{r, fig.dim = c(5,4), fig.cap = captioner("Convergence rates for the circle graph.")}
 p.circle
 ```
 
@@ -559,7 +566,7 @@ p.circle
 
 Follow this [link](convergence_rates/convergence_rates_tadpole.html) for more details.
 
-```{r, fig.dim = c(5,4), class.source = "fold-hide"}
+```{r, class.source = "fold-hide"}
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -752,7 +759,7 @@ p.tadpole <- ggplot() +
 ```
 
 
-```{r}
+```{r, fig.dim = c(5,4), fig.cap = captioner("Convergence rates for the tadpole graph.")}
 p.tadpole
 ```
 
@@ -772,21 +779,9 @@ transposed_df |> paged_table()
 ```
 
 
-```{r, fig.dim = c(12,4)}
-combined_plot <- p.interval + p.circle + p.tadpole + 
-  plot_layout(guides = 'collect') & 
-  theme(legend.position = 'right') & 
-  guides(color = guide_legend(ncol = 1), linetype = guide_legend(nrow = 1))
-
-combined_plot
-```
-```{r}
-ggsave(here("data_files/convergence_rates_inte_circ_tadp.png"), plot = combined_plot, dpi = 300)
-```
 
 
-
-```{r, fig.dim = c(12,4)}
+```{r, fig.dim = c(12,4), fig.cap = captioner("Observed covariance error for different values of $\\alpha$ as functions of the mesh size $h$.")}
 ff_data <- rbind(mutate(df_melted1, graph = "Intervalgraph"),
                  mutate(df_melted2, graph = "Circlegraph"),
                  mutate(df_melted3, graph = "Tadpolegraph"))
@@ -822,7 +817,7 @@ last_plot
 ```
 
 ```{r}
-ggsave(here("data_files/conv_rates_new.png"), plot = last_plot, dpi = 300)
+ggsave(here("data_files/conv_rates_new.png"), width = 12, height = 4, plot = last_plot, dpi = 300)
 ```
 
 # References

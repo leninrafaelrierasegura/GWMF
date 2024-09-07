@@ -12,11 +12,12 @@ output:
     toc_float:
       collapsed: true
       smooth_scroll: true
-    number_sections: true
+    number_sections: false
     fig_caption: true
+    code_download: true
 always_allow_html: true
 bibliography: 
-  - ../references.bib
+  - references.bib
   - grateful-refs.bib
 header-includes:
   - \newcommand{\ar}{\mathbb{R}}
@@ -25,19 +26,8 @@ header-includes:
   - \newcommand{\Ncal}{\mathcal{N}}
   - \newcommand{\Vcal}{\mathcal{V}}
   - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
 ---
-
-```{r, eval = FALSE, echo = FALSE}
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-```
 
 ```{r xaringanExtra-clipboard, echo = FALSE}
 htmltools::tagList(
@@ -69,6 +59,19 @@ code.r{
 pre {
   font-size: 14px
 }
+.custom-box {
+  background-color: #f5f7fa; /* Light grey-blue background */
+  border-color: #e1e8ed; /* Light border color */
+  color: #2c3e50; /* Dark text color */
+  padding: 15px; /* Padding inside the box */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 20px; /* Spacing below the box */
+}
+.caption {
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px; /* Spacing below the box */
+}
 ```
 
 
@@ -78,39 +81,43 @@ Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
 knitr::opts_chunk$set(
-  message = FALSE,    # Disable messages printed by R code chunks
-  warning = FALSE,    # Disable warnings printed by R code chunks
-  echo = TRUE,        # Show R code within code chunks in output
-  include = TRUE,     # Include both R code and its results in output
-  eval = TRUE,       # Evaluate R code chunks
-  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
   fig.align = "center",
-  #out.width = "100%",
+  # Enable retina display for high-resolution figures
   retina = 2,
+  # Show errors in the output instead of stopping rendering
   error = TRUE,
+  # Do not collapse code and output into a single block
   collapse = FALSE
 )
-rm(list = ls())
-set.seed(1982)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
 ```
 
 # Import libraries
 
 ```{r}
-# Install R-INLA package
-# install.packages("INLA",repos = c(getOption("repos"),INLA ="https://inla.r-inla-download.org/R/testing"), dep = TRUE)
-# Update R-INLA package
-# inla.upgrade(testing = TRUE)
-# Install inlabru package
-# remotes::install_github("inlabru-org/inlabru", ref = "devel")
-# Install rSPDE package
-# remotes::install_github("davidbolin/rspde", ref = "devel")
-# Install MetricGraph package
-# remotes::install_github("davidbolin/metricgraph", ref = "devel")
-
-library(INLA)
-library(inlabru)
 library(rSPDE)
 library(MetricGraph)
 library(Matrix)
@@ -131,9 +138,6 @@ library(grateful) # Cite all loaded packages
 
 library(latex2exp)
 library(plotrix)
-
-rm(list = ls()) # Clear the workspace
-set.seed(1982) # Set seed for reproducibility
 ```
 
 
@@ -141,7 +145,7 @@ set.seed(1982) # Set seed for reproducibility
 
 ## Define utility functions
 
-```{r}
+```{r, class.source = "fold-hide"}
 # Matern covariance function
 matern.covariance <- function(h, kappa, nu, sigma) {
   if (nu == 1 / 2) {
@@ -197,7 +201,7 @@ gets_true_cov_mat = function(graph, kappa, nu, sigma, N, boundary){
 
 ## Define the graph
 
-```{r, out.width= "50%"}
+```{r, out.width= "50%", fig.cap = captioner("Circle graph.")}
 r <- 1/(pi)
 theta <- seq(from = -pi, to = pi, length.out = 100)
 edge <- cbind(1+r+r*cos(theta), r*sin(theta))
@@ -229,16 +233,16 @@ h_vector <- 2^-h_aux
 h_label <- paste0("2^-", h_aux, "")
 h_label_latex <- sprintf("$2^{-%f}$", h_aux)
 
-# Beta values
-beta_aux <- c(4, 6, 6.5, 7, 7.5)
-beta_vector <- beta_aux/8
-beta_label <- paste0(beta_aux, "/8")
-theoretical_rate <- pmin(4*beta_vector-1/2,2)
+# Alpha values
+alpha_aux <- c(8, 12, 13, 14, 15)
+alpha_vector <- alpha_aux/8
+alpha_label <- paste0(alpha_aux, "/8")
+theoretical_rate <- pmin(2*alpha_vector-1/2,2)
 ```
 
 ## Build the graph with overkill mesh
 
-```{r, out.width= "50%"}
+```{r, out.width= "50%", fig.cap = captioner("Circle graph with overkill mesh.")}
 graph.ok <- graph$clone()
 # Build graph with overkill mesh
 graph.ok$build_mesh(h = h.ok)
@@ -275,20 +279,19 @@ print(lapply(A, dim))
 
 ## Compute the covariance error
 
-```{r, fig.dim = c(16, 20)}
-cov.error.ok.mesh <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
-cov.error.folded <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
+```{r, fig.dim = c(16, 20), fig.cap = captioner("Covariance error for the circle graph.")}
+cov.error.ok.mesh <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+cov.error.folded <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
 
 par(family = "Palatino")
-layout(matrix(1:(length(beta_vector)*length(h_vector)),
-              nrow = length(beta_vector),
+layout(matrix(1:(length(alpha_vector)*length(h_vector)),
+              nrow = length(alpha_vector),
               byrow = TRUE))
 
 m_values <- c()
-for (j in 1:length(beta_vector)) {
-  beta <- beta_vector[j]
-  alpha <- 2*beta
-  fract2beta <- alpha - floor(alpha)
+for (j in 1:length(alpha_vector)) {
+  alpha <- alpha_vector[j]
+  fract_alpha <- alpha - floor(alpha)
   nu <- alpha - 0.5
   kappa <- sqrt(8*nu)/rho
   tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
@@ -302,7 +305,7 @@ for (j in 1:length(beta_vector)) {
 
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    m <- min(20, ceiling((min(4*beta - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract2beta)))
+    m <- min(20, ceiling((min(2*alpha - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract_alpha)))
     m_values <- c(m_values, m)
 
     Sigma.ok.mesh <- matern.operators(alpha = alpha, # using overkill mesh
@@ -331,7 +334,7 @@ for (j in 1:length(beta_vector)) {
     reordering <- c(1,3:aux,2)
     auxhalf <- reordering[length(reordering) %/% 2 + 1]
 
-    plot(Sigma.folded[auxhalf, reordering], col = "black", type = "l", main = bquote(beta == .(beta_label[j]) ~ "," ~ h == .(h_label[i])), xlab = "", ylab = "", lwd = 2, lty = 1)
+    plot(Sigma.folded[auxhalf, reordering], col = "black", type = "l", main = bquote(alpha == .(alpha_label[j]) ~ "," ~ h == .(h_label[i])), xlab = "", ylab = "", lwd = 2, lty = 1)
     lines(Sigma.ok.mesh[auxhalf, reordering], col = "red", lty = 2, lwd = 2)
     lines(Sigma.approx[auxhalf, reordering], col = "blue", lty = 3, lwd = 2)
     legend("topleft", lwd = 2, col = c("black", "red", "blue"), legend = c("true", "ok.mesh", "approx"), lty = c(1,2,3))
@@ -342,12 +345,23 @@ print(m_values)
 
 
 ```{r}
-# theoretical
-theoretical_rate
+slope_circle_folded <- numeric(length(alpha_vector))
+slope_circle_ok_mesh <- numeric(length(alpha_vector))
+
 # folded
-for (u in 1:length(beta_vector)) {print(coef(lm(log(cov.error.folded[,u]) ~ log(h_vector))))}
+for (u in 1:length(alpha_vector)) {
+  slope_circle_folded[u] <- coef(lm(log(cov.error.folded[,u]) ~ log(h_vector)))[2]
+  }
 # ok.mesh
-for (u in 1:length(beta_vector)) {print(coef(lm(log(cov.error.ok.mesh[,u]) ~ log(h_vector))))}
+for (u in 1:length(alpha_vector)) {
+  slope_circle_ok_mesh[u] <- coef(lm(log(cov.error.ok.mesh[,u]) ~ log(h_vector)))[2]
+  }
+
+transposed_df <- data.frame(t(data.frame(alpha = alpha_label, theoretical_rate = theoretical_rate, slope1 = slope_circle_folded, slope2 = slope_circle_ok_mesh)))
+rownames(transposed_df) <- c("alpha", "Theoretical rates", "Folded", "Overkill mesh")
+colnames(transposed_df) <- NULL
+# Display the transposed data frame
+transposed_df |> paged_table()
 ```
 
 
@@ -367,8 +381,8 @@ loglog_line_equation <- function(x1, y1, slope) {
   }
 }
 
-guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
-for (j in 1:length(beta_vector)) {
+guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+for (j in 1:length(alpha_vector)) {
   guiding_lines_aux <- matrix(NA, nrow = length(h_vector), ncol = length(h_vector))
   for(k in 1:length(h_vector)){
     point_x1 <- h_vector[k]
@@ -390,7 +404,7 @@ plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
 })
 
 df <- as.data.frame(cbind(h_vector, cov.error.ok.mesh))
-colnames(df) <- c("h_vector", beta_label)
+colnames(df) <- c("h_vector", alpha_label)
 df_melted <- melt(df, id.vars = "h_vector", variable.name = "column", value.name = "value")
 
 p <- ggplot() +
@@ -398,10 +412,10 @@ p <- ggplot() +
   geom_point(data = df_melted, aes(x = h_vector, y = value, color = column)) +
   plot_lines +
   labs(title = "Covariance error using overkill mesh",
-    x = TeX("$\\hat{h}$"),
+    x = "h",
        y = "Covariance Error",
-       color = expression(beta)) +
-  scale_x_log10(breaks = h_vector, labels = TeX(h_label_latex)) +
+       color = expression(alpha)) +
+  scale_x_log10(breaks = h_vector, labels = round(h_vector,3)) +
   scale_y_log10() +
   theme_minimal() +
   theme(text = element_text(family = "Palatino"))
@@ -416,8 +430,8 @@ p <- ggplot() +
 </div>
 
 ```{r, class.source = "fold-hide"}
-guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(beta_vector))
-for (j in 1:length(beta_vector)) {
+guiding_lines <- matrix(NA, nrow = length(h_vector), ncol = length(alpha_vector))
+for (j in 1:length(alpha_vector)) {
   guiding_lines_aux <- matrix(NA, nrow = length(h_vector), ncol = length(h_vector))
   for(k in 1:length(h_vector)){
     point_x1 <- h_vector[k]
@@ -439,7 +453,7 @@ plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
 })
 
 df <- as.data.frame(cbind(h_vector, cov.error.folded))
-colnames(df) <- c("h_vector", beta_label)
+colnames(df) <- c("h_vector", alpha_label)
 df_melted <- melt(df, id.vars = "h_vector", variable.name = "column", value.name = "value")
 
 q <- ggplot() +
@@ -447,16 +461,16 @@ q <- ggplot() +
   geom_point(data = df_melted, aes(x = h_vector, y = value, color = column)) +
   plot_lines +
   labs(title = "Covariance error using folded",
-    x = TeX("$\\hat{h}$"),
+    x = "h",
        y = "Covariance Error",
-       color = expression(beta)) +
-  scale_x_log10(breaks = h_vector, labels = TeX(h_label_latex)) +
+       color = expression(alpha)) +
+  scale_x_log10(breaks = h_vector, labels = round(h_vector,3)) +
   scale_y_log10() +
   theme_minimal() +
   theme(text = element_text(family = "Palatino"))
 ```
 
-```{r, fig.dim = c(12, 5)}
+```{r, fig.dim = c(12, 5), fig.cap = captioner("Covariance error for the circle graph, using overkill mesh and folded.")}
 p + q
 ```
 

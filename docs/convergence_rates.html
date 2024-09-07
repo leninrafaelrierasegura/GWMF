@@ -13,7 +13,7 @@
 
 <title>Convergence Rates</title>
 
-<script src="site_libs/header-attrs-2.27/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
@@ -34,6 +34,7 @@
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
 <script src="site_libs/clipboard-2.0.6/clipboard.min.js"></script>
 <link href="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
 <script src="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
@@ -167,6 +168,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </script>
 
 
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
 
 <style type="text/css">
 /* for pandoc --citeproc since 2.11 */
@@ -459,20 +465,38 @@ div.tocify {
 <li>
   <a href="about.html">About</a>
 </li>
-<li>
-  <a href="pems3.html">PeMS</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    PeMS
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="pems_repl1.html">PeMS 1</a>
+    </li>
+    <li>
+      <a href="pems_repl2.html">PeMS 2</a>
+    </li>
+    <li>
+      <a href="pems_repl3.html">PeMS 3</a>
+    </li>
+  </ul>
 </li>
-<li>
-  <a href="preprocessing.html">Preprocessing</a>
-</li>
-<li>
-  <a href="modeling.html">Modeling</a>
-</li>
-<li>
-  <a href="non_stationarity.html">Non-stationarity</a>
-</li>
-<li>
-  <a href="simulation.html">Simulation</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Model Properties
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="model_properties1.html">Model Properties 1</a>
+    </li>
+    <li>
+      <a href="model_properties2.html">Model Properties 2</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="basis_functions.html">Basis Functions</a>
@@ -481,7 +505,7 @@ div.tocify {
   <a href="approximation.html">Approximation</a>
 </li>
 <li>
-  <a href="numerical_error2.html">Numerical Error</a>
+  <a href="numerical_error.html">Numerical Error</a>
 </li>
 <li>
   <a href="convergence_rates.html">Convergence Rates</a>
@@ -489,7 +513,7 @@ div.tocify {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/leninrafaelrierasegura/">
+  <a href="https://github.com/leninrafaelrierasegura/GWMF">
     <span class="fa fa-github"></span>
      
   </a>
@@ -506,13 +530,15 @@ div.tocify {
 <ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
 <li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
 <li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
 </ul>
 </div>
 
 
 
 <h1 class="title toc-ignore">Convergence Rates</h1>
-<h4 class="date">Created: 05-07-2024. Last modified: 28-07-2024.</h4>
+<h4 class="date">Created: 05-07-2024. Last modified: 06-09-2024.</h4>
 
 </div>
 
@@ -535,66 +561,82 @@ code.r{
 pre {
   font-size: 14px
 }
+.custom-box {
+  background-color: #f5f7fa; /* Light grey-blue background */
+  border-color: #e1e8ed; /* Light border color */
+  color: #2c3e50; /* Dark text color */
+  padding: 15px; /* Padding inside the box */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 20px; /* Spacing below the box */
+}
+.caption {
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px; /* Spacing below the box */
+}
 </style>
 <p>Go back to the <a href="about.html">About page</a>.</p>
 <p>Let us set some global options for all code chunks in this
 document.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">FALSE</span>,    <span class="co"># Disable messages printed by R code chunks</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">FALSE</span>,    <span class="co"># Disable warnings printed by R code chunks</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        <span class="co"># Show R code within code chunks in output</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     <span class="co"># Include both R code and its results in output</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       <span class="co"># Evaluate R code chunks</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,       <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="co">#out.width = &quot;100%&quot;,</span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>)</span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>)</span></code></pre></div>
-<div id="import-libraries" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Import libraries</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Install R-INLA package</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># install.packages(&quot;INLA&quot;,repos = c(getOption(&quot;repos&quot;),INLA =&quot;https://inla.r-inla-download.org/R/testing&quot;), dep = TRUE)</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Update R-INLA package</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># inla.upgrade(testing = TRUE)</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Install inlabru package</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;inlabru-org/inlabru&quot;, ref = &quot;devel&quot;)</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># Install rSPDE package</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/rspde&quot;, ref = &quot;devel&quot;)</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># Install MetricGraph package</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/metricgraph&quot;, ref = &quot;devel&quot;)</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">library</span>(INLA)</span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="fu">library</span>(inlabru)</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="fu">library</span>(rSPDE)</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="fu">library</span>(Matrix)</span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="fu">library</span>(here)</span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="fu">library</span>(rmarkdown)</span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="fu">library</span>(grateful) <span class="co"># Cite all loaded packages</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="fu">library</span>(plotrix)</span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>()) <span class="co"># Clear the workspace</span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) <span class="co"># Set seed for reproducibility</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) </span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Set global options for all code chunks</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="co"># Disable messages printed by R code chunks</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">FALSE</span>,    </span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="co"># Disable warnings printed by R code chunks</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">FALSE</span>,    </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="co"># Show R code within code chunks in output</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        </span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="co"># Enable retina display for high-resolution figures</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  <span class="co"># Show errors in the output instead of stopping rendering</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="co"># Do not collapse code and output into a single block</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>)</span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co"># Start the figure counter</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>fig_count <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co"># Define the captioner function</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>captioner <span class="ot">&lt;-</span> <span class="cf">function</span>(caption) {</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>  fig_count <span class="ot">&lt;&lt;-</span> fig_count <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Figure &quot;</span>, fig_count, <span class="st">&quot;: &quot;</span>, caption)</span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>}</span></code></pre></div>
+<div id="import-libraries" class="section level1">
+<h1>Import libraries</h1>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(INLA)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(inlabru)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">library</span>(rSPDE)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">library</span>(Matrix)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">library</span>(rmarkdown)</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">library</span>(grateful) <span class="co"># Cite all loaded packages</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="fu">library</span>(latex2exp)</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="fu">library</span>(plotrix)</span></code></pre></div>
 </div>
-<div id="interval-graph" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Interval graph</h1>
+<div id="interval-graph" class="section level1">
+<h1>Interval graph</h1>
 <p>Follow this <a
 href="convergence_rates/convergence_rates_interval.html">link</a> for
 more details.</p>
@@ -674,7 +716,7 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb3-1"><a hr
 <span id="cb3-73"><a href="#cb3-73" tabindex="-1"></a>h_label <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;2^-&quot;</span>, h_aux, <span class="st">&quot;&quot;</span>)</span>
 <span id="cb3-74"><a href="#cb3-74" tabindex="-1"></a>h_label_latex <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">&quot;$2^{-%f}$&quot;</span>, h_aux)</span>
 <span id="cb3-75"><a href="#cb3-75" tabindex="-1"></a></span>
-<span id="cb3-76"><a href="#cb3-76" tabindex="-1"></a><span class="co"># Beta values</span></span>
+<span id="cb3-76"><a href="#cb3-76" tabindex="-1"></a><span class="co"># Alpha values</span></span>
 <span id="cb3-77"><a href="#cb3-77" tabindex="-1"></a>alpha_aux <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">15</span>)</span>
 <span id="cb3-78"><a href="#cb3-78" tabindex="-1"></a>alpha_vector <span class="ot">&lt;-</span> alpha_aux<span class="sc">/</span><span class="dv">8</span></span>
 <span id="cb3-79"><a href="#cb3-79" tabindex="-1"></a>alpha_label <span class="ot">&lt;-</span> <span class="fu">paste0</span>(alpha_aux, <span class="st">&quot;/8&quot;</span>)</span>
@@ -802,10 +844,15 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb6-1"><a hr
 <span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>))</span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>p.interval</span></code></pre></div>
-<p><img src="convergence_rates_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="convergence_rates_files/figure-html/unnamed-chunk-5-1.png" alt="Figure 1: Convergence rates for the interval graph." width="480" />
+<p class="caption">
+Figure 1: Convergence rates for the interval graph.
+</p>
 </div>
-<div id="circle-graph" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Circle graph</h1>
+</div>
+<div id="circle-graph" class="section level1">
+<h1>Circle graph</h1>
 <p>Follow this <a
 href="convergence_rates/convergence_rates_circle.html">link</a> for more
 details.</p>
@@ -1014,10 +1061,15 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb11-1"><a h
 <span id="cb11-47"><a href="#cb11-47" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb11-48"><a href="#cb11-48" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>))</span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>p.circle</span></code></pre></div>
-<p><img src="convergence_rates_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="convergence_rates_files/figure-html/unnamed-chunk-7-1.png" alt="Figure 2: Convergence rates for the circle graph." width="480" />
+<p class="caption">
+Figure 2: Convergence rates for the circle graph.
+</p>
 </div>
-<div id="tadpole-graph" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Tadpole graph</h1>
+</div>
+<div id="tadpole-graph" class="section level1">
+<h1>Tadpole graph</h1>
 <p>Follow this <a
 href="convergence_rates/convergence_rates_tadpole.html">link</a> for
 more details.</p>
@@ -1218,10 +1270,15 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb16-1"><a h
 <span id="cb16-47"><a href="#cb16-47" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb16-48"><a href="#cb16-48" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>))</span></code></pre></div>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>p.tadpole</span></code></pre></div>
-<p><img src="convergence_rates_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="convergence_rates_files/figure-html/unnamed-chunk-9-1.png" alt="Figure 3: Convergence rates for the tadpole graph." width="480" />
+<p class="caption">
+Figure 3: Convergence rates for the tadpole graph.
+</p>
 </div>
-<div id="alltogether" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Alltogether</h1>
+</div>
+<div id="alltogether" class="section level1">
+<h1>Alltogether</h1>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>transposed_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">t</span>(<span class="fu">data.frame</span>(<span class="at">alpha =</span> alpha_label, </span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>                                         <span class="at">theoretical_rate =</span> theoretical_rate, </span>
 <span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>                                         <span class="at">slope_interval =</span> slope_interval,</span>
@@ -1236,82 +1293,84 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb16-1"><a h
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":[""],"name":[1],"type":["chr"],"align":["left"]},{"label":[""],"name":[2],"type":["chr"],"align":["left"]},{"label":[""],"name":[3],"type":["chr"],"align":["left"]},{"label":[""],"name":[4],"type":["chr"],"align":["left"]},{"label":[""],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"8/8","2":"12/8","3":"13/8","4":"14/8","5":"15/8","_rn_":"alpha"},{"1":"1.5","2":"2.0","3":"2.0","4":"2.0","5":"2.0","_rn_":"Theoretical rates"},{"1":"1.468428","2":"1.998132","3":"2.051759","4":"2.034492","5":"2.032837","_rn_":"Interval graph"},{"1":"1.461367","2":"1.943489","3":"1.962890","4":"1.950812","5":"1.948444","_rn_":"Circle graph"},{"1":"1.468178","2":"1.948940","3":"1.964918","4":"1.957682","5":"1.955464","_rn_":"Tadpole graph"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>combined_plot <span class="ot">&lt;-</span> p.interval <span class="sc">+</span> p.circle <span class="sc">+</span> p.tadpole <span class="sc">+</span> </span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">&#39;collect&#39;</span>) <span class="sc">&amp;</span> </span>
-<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&#39;right&#39;</span>) <span class="sc">&amp;</span> </span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color =</span> <span class="fu">guide_legend</span>(<span class="at">ncol =</span> <span class="dv">1</span>), <span class="at">linetype =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">1</span>))</span>
-<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>combined_plot</span></code></pre></div>
-<p><img src="convergence_rates_files/figure-html/unnamed-chunk-12-1.png" width="1152" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">here</span>(<span class="st">&quot;data_files/convergence_rates_inte_circ_tadp.png&quot;</span>), <span class="at">plot =</span> combined_plot, <span class="at">dpi =</span> <span class="dv">300</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>ff_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">mutate</span>(df_melted1, <span class="at">graph =</span> <span class="st">&quot;Intervalgraph&quot;</span>),</span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>                 <span class="fu">mutate</span>(df_melted2, <span class="at">graph =</span> <span class="st">&quot;Circlegraph&quot;</span>),</span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>                 <span class="fu">mutate</span>(df_melted3, <span class="at">graph =</span> <span class="st">&quot;Tadpolegraph&quot;</span>))</span>
-<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a></span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>ff_data<span class="sc">$</span>graph <span class="ot">&lt;-</span> <span class="fu">factor</span>(ff_data<span class="sc">$</span>graph, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Intervalgraph&quot;</span>, <span class="st">&quot;Circlegraph&quot;</span>, <span class="st">&quot;Tadpolegraph&quot;</span>))</span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a></span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>glines <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">as.vector</span>(guiding_lines1), <span class="fu">as.vector</span>(guiding_lines2), <span class="fu">as.vector</span>(guiding_lines3))</span>
-<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a>gg_data <span class="ot">&lt;-</span> ff_data <span class="sc">%&gt;%</span> </span>
-<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> glines)</span>
-<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a></span>
-<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a>graph_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Intervalgraph&quot;</span> <span class="ot">=</span> <span class="st">&quot;Interval graph&quot;</span>, </span>
-<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a>                  <span class="st">&quot;Circlegraph&quot;</span> <span class="ot">=</span> <span class="st">&quot;Circle graph&quot;</span>, </span>
-<span id="cb21-13"><a href="#cb21-13" tabindex="-1"></a>                  <span class="st">&quot;Tadpolegraph&quot;</span> <span class="ot">=</span> <span class="st">&quot;Tadpole graph&quot;</span>)</span>
-<span id="cb21-14"><a href="#cb21-14" tabindex="-1"></a></span>
-<span id="cb21-15"><a href="#cb21-15" tabindex="-1"></a>last_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb21-16"><a href="#cb21-16" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> ff_data, <span class="fu">aes</span>(h_vector, value, <span class="at">colour =</span> <span class="fu">as.factor</span>(column)), <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb21-17"><a href="#cb21-17" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> gg_data, <span class="fu">aes</span>(h_vector, value, <span class="at">colour =</span> <span class="fu">as.factor</span>(column)), <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">linewidth =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb21-18"><a href="#cb21-18" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> ff_data, <span class="fu">aes</span>(h_vector, value, <span class="at">colour =</span> <span class="fu">as.factor</span>(column))) <span class="sc">+</span></span>
-<span id="cb21-19"><a href="#cb21-19" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="sc">~</span> graph, <span class="at">labeller =</span> <span class="fu">as_labeller</span>(graph_labels)) <span class="sc">+</span></span>
-<span id="cb21-20"><a href="#cb21-20" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>() <span class="sc">+</span></span>
-<span id="cb21-21"><a href="#cb21-21" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>(<span class="at">breaks =</span> h_vector, <span class="at">labels =</span> <span class="fu">round</span>(h_vector, <span class="dv">3</span>)) <span class="sc">+</span></span>
-<span id="cb21-22"><a href="#cb21-22" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb21-23"><a href="#cb21-23" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.spacing =</span> <span class="fu">unit</span>(<span class="fl">0.4</span>, <span class="st">&quot;cm&quot;</span>), </span>
-<span id="cb21-24"><a href="#cb21-24" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>),</span>
-<span id="cb21-25"><a href="#cb21-25" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">16</span>),        <span class="co"># Panel titles</span></span>
-<span id="cb21-26"><a href="#cb21-26" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),        <span class="co"># Axis titles</span></span>
-<span id="cb21-27"><a href="#cb21-27" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),         <span class="co"># Axis text</span></span>
-<span id="cb21-28"><a href="#cb21-28" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),      <span class="co"># Legend title</span></span>
-<span id="cb21-29"><a href="#cb21-29" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
-<span id="cb21-30"><a href="#cb21-30" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;h&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Covariance Error&quot;</span>, <span class="at">color =</span> <span class="fu">bquote</span>(alpha)) </span>
-<span id="cb21-31"><a href="#cb21-31" tabindex="-1"></a></span>
-<span id="cb21-32"><a href="#cb21-32" tabindex="-1"></a>last_plot</span></code></pre></div>
-<p><img src="convergence_rates_files/figure-html/unnamed-chunk-14-1.png" width="1152" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">here</span>(<span class="st">&quot;data_files/conv_rates_new.png&quot;</span>), <span class="at">plot =</span> last_plot, <span class="at">dpi =</span> <span class="dv">300</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>ff_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">mutate</span>(df_melted1, <span class="at">graph =</span> <span class="st">&quot;Intervalgraph&quot;</span>),</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>                 <span class="fu">mutate</span>(df_melted2, <span class="at">graph =</span> <span class="st">&quot;Circlegraph&quot;</span>),</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>                 <span class="fu">mutate</span>(df_melted3, <span class="at">graph =</span> <span class="st">&quot;Tadpolegraph&quot;</span>))</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>ff_data<span class="sc">$</span>graph <span class="ot">&lt;-</span> <span class="fu">factor</span>(ff_data<span class="sc">$</span>graph, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Intervalgraph&quot;</span>, <span class="st">&quot;Circlegraph&quot;</span>, <span class="st">&quot;Tadpolegraph&quot;</span>))</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>glines <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">as.vector</span>(guiding_lines1), <span class="fu">as.vector</span>(guiding_lines2), <span class="fu">as.vector</span>(guiding_lines3))</span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>gg_data <span class="ot">&lt;-</span> ff_data <span class="sc">%&gt;%</span> </span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> glines)</span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a>graph_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Intervalgraph&quot;</span> <span class="ot">=</span> <span class="st">&quot;Interval graph&quot;</span>, </span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a>                  <span class="st">&quot;Circlegraph&quot;</span> <span class="ot">=</span> <span class="st">&quot;Circle graph&quot;</span>, </span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a>                  <span class="st">&quot;Tadpolegraph&quot;</span> <span class="ot">=</span> <span class="st">&quot;Tadpole graph&quot;</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a>last_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb19-16"><a href="#cb19-16" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> ff_data, <span class="fu">aes</span>(h_vector, value, <span class="at">colour =</span> <span class="fu">as.factor</span>(column)), <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb19-17"><a href="#cb19-17" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> gg_data, <span class="fu">aes</span>(h_vector, value, <span class="at">colour =</span> <span class="fu">as.factor</span>(column)), <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">linewidth =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb19-18"><a href="#cb19-18" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> ff_data, <span class="fu">aes</span>(h_vector, value, <span class="at">colour =</span> <span class="fu">as.factor</span>(column))) <span class="sc">+</span></span>
+<span id="cb19-19"><a href="#cb19-19" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="sc">~</span> graph, <span class="at">labeller =</span> <span class="fu">as_labeller</span>(graph_labels)) <span class="sc">+</span></span>
+<span id="cb19-20"><a href="#cb19-20" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>() <span class="sc">+</span></span>
+<span id="cb19-21"><a href="#cb19-21" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>(<span class="at">breaks =</span> h_vector, <span class="at">labels =</span> <span class="fu">round</span>(h_vector, <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb19-22"><a href="#cb19-22" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb19-23"><a href="#cb19-23" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.spacing =</span> <span class="fu">unit</span>(<span class="fl">0.4</span>, <span class="st">&quot;cm&quot;</span>), </span>
+<span id="cb19-24"><a href="#cb19-24" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>),</span>
+<span id="cb19-25"><a href="#cb19-25" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">16</span>),        <span class="co"># Panel titles</span></span>
+<span id="cb19-26"><a href="#cb19-26" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),        <span class="co"># Axis titles</span></span>
+<span id="cb19-27"><a href="#cb19-27" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),         <span class="co"># Axis text</span></span>
+<span id="cb19-28"><a href="#cb19-28" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),      <span class="co"># Legend title</span></span>
+<span id="cb19-29"><a href="#cb19-29" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb19-30"><a href="#cb19-30" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;h&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Covariance Error&quot;</span>, <span class="at">color =</span> <span class="fu">bquote</span>(alpha)) </span>
+<span id="cb19-31"><a href="#cb19-31" tabindex="-1"></a></span>
+<span id="cb19-32"><a href="#cb19-32" tabindex="-1"></a>last_plot</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="convergence_rates_files/figure-html/unnamed-chunk-11-1.png" alt="Figure 4: Observed covariance error for different values of $\alpha$ as functions of the mesh size $h$." width="1152" />
+<p class="caption">
+Figure 4: Observed covariance error for different values of <span
+class="math inline">\(\alpha\)</span> as functions of the mesh size
+<span class="math inline">\(h\)</span>.
+</p>
 </div>
-<div id="references" class="section level1" number="6">
-<h1><span class="header-section-number">6</span> References</h1>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">here</span>(<span class="st">&quot;data_files/conv_rates_new.png&quot;</span>), <span class="at">width =</span> <span class="dv">12</span>, <span class="at">height =</span> <span class="dv">4</span>, <span class="at">plot =</span> last_plot, <span class="at">dpi =</span> <span class="dv">300</span>)</span></code></pre></div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
 <p>We used R version 4.4.0 <span class="citation">(R Core Team
-2024)</span> and the following R packages: ggtext v. 0.1.2 <span
-class="citation">(Wilke and Wiernik 2022)</span>, gridExtra v. 2.3 <span
-class="citation">(Auguie 2017)</span>, here v. 1.0.1 <span
+2024a)</span> and the following R packages: cowplot v. 1.1.3 <span
+class="citation">(Wilke 2024)</span>, ggmap v. 4.0.0.900 <span
+class="citation">(Kahle and Wickham 2013)</span>, ggpubr v. 0.6.0 <span
+class="citation">(Kassambara 2023)</span>, ggtext v. 0.1.2 <span
+class="citation">(Wilke and Wiernik 2022)</span>, grid v. 4.4.0 <span
+class="citation">(R Core Team 2024b)</span>, here v. 1.0.1 <span
 class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
 class="citation">(Cheng et al. 2024)</span>, INLA v. 24.6.27 <span
 class="citation">(Rue, Martino, and Chopin 2009; Lindgren, Rue, and
 Lindström 2011; Martins et al. 2013; Lindgren and Rue 2015; De Coninck
 et al. 2016; Rue et al. 2017; Verbosio et al. 2017; Bakka et al. 2018;
-Kourounis, Fuchs, and Schenk 2018)</span>, inlabru v. 2.11.1.9001 <span
+Kourounis, Fuchs, and Schenk 2018)</span>, inlabru v. 2.11.1.9004 <span
 class="citation">(Yuan et al. 2017; Bachl et al. 2019)</span>, knitr v.
-1.47 <span class="citation">(Xie 2014, 2015, 2024)</span>, latex2exp v.
-0.9.6 <span class="citation">(Meschiari 2022)</span>, listviewer v.
-4.0.0 <span class="citation">(de Jong, Gainer, and Russell 2023)</span>,
-mapview v. 2.11.2 <span class="citation">(Appelhans et al. 2023)</span>,
-Matrix v. 1.6.5 <span class="citation">(Bates, Maechler, and Jagan
-2024)</span>, MetricGraph v. 1.3.0.9000 <span class="citation">(Bolin,
-Simas, and Wallin 2023b, 2023a, 2023c, 2024; Bolin et al. 2023)</span>,
-patchwork v. 1.2.0 <span class="citation">(Pedersen 2024)</span>, plotly
-v. 4.10.4 <span class="citation">(Sievert 2020)</span>, plotrix v. 3.8.4
-<span class="citation">(J 2006)</span>, reshape2 v. 1.4.4 <span
-class="citation">(Wickham 2007)</span>, rmarkdown v. 2.27 <span
+1.48 <span class="citation">(Xie 2014, 2015, 2024)</span>, latex2exp v.
+0.9.6 <span class="citation">(Meschiari 2022)</span>, Matrix v. 1.6.5
+<span class="citation">(Bates, Maechler, and Jagan 2024)</span>,
+MetricGraph v. 1.3.0.9000 <span class="citation">(Bolin, Simas, and
+Wallin 2023b, 2023a, 2023c, 2024; Bolin et al. 2024)</span>,
+OpenStreetMap v. 0.4.0 <span class="citation">(Fellows and JMapViewer
+library by Jan Peter Stotz 2023)</span>, patchwork v. 1.2.0 <span
+class="citation">(Pedersen 2024)</span>, plotly v. 4.10.4 <span
+class="citation">(Sievert 2020)</span>, plotrix v. 3.8.4 <span
+class="citation">(J 2006)</span>, reshape2 v. 1.4.4 <span
+class="citation">(Wickham 2007)</span>, rmarkdown v. 2.28 <span
 class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
 Riederer 2020; Allaire et al. 2024)</span>, rSPDE v. 2.3.3.9000 <span
 class="citation">(Bolin and Kirchner 2020; Bolin and Simas 2023; Bolin,
-Simas, and Xiong 2023)</span>, scales v. 1.3.0 <span
+Simas, and Xiong 2024)</span>, scales v. 1.3.0 <span
 class="citation">(Wickham, Pedersen, and Seidel 2023)</span>, sf v.
 1.0.16 <span class="citation">(Pebesma 2018; Pebesma and Bivand
 2023)</span>, tidyverse v. 2.0.0 <span class="citation">(Wickham et al.
-2019)</span>, TSstudio v. 0.1.7 <span class="citation">(Krispin
+2019)</span>, viridis v. 0.6.4 <span class="citation">(Garnier et al.
 2023)</span>, xaringanExtra v. 0.8.0 <span class="citation">(Aden-Buie
 and Warkentin 2024)</span>.</p>
 <div id="refs" class="references csl-bib-body hanging-indent"
@@ -1327,18 +1386,6 @@ Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
 Luraschi, Kevin Ushey, Aron Atkins, et al. 2024. <em><span
 class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a
 href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
-</div>
-<div id="ref-mapview" class="csl-entry">
-Appelhans, Tim, Florian Detsch, Christoph Reudenbach, and Stefan
-Woellauer. 2023. <em><span class="nocase">mapview</span>: Interactive
-Viewing of Spatial Data in r</em>. <a
-href="https://CRAN.R-project.org/package=mapview">https://CRAN.R-project.org/package=mapview</a>.
-</div>
-<div id="ref-gridExtra" class="csl-entry">
-Auguie, Baptiste. 2017. <em><span class="nocase">gridExtra</span>:
-Miscellaneous Functions for <span>“<span>Grid</span>”</span>
-Graphics</em>. <a
-href="https://CRAN.R-project.org/package=gridExtra">https://CRAN.R-project.org/package=gridExtra</a>.
 </div>
 <div id="ref-inlabru2019" class="csl-entry">
 Bachl, Fabian E., Finn Lindgren, David L. Borchers, and Janine B.
@@ -1362,21 +1409,21 @@ Bates, Douglas, Martin Maechler, and Mikael Jagan. 2024.
 Methods</em>. <a
 href="https://CRAN.R-project.org/package=Matrix">https://CRAN.R-project.org/package=Matrix</a>.
 </div>
-<div id="ref-rSPDE2020c" class="csl-entry">
+<div id="ref-rSPDE2020" class="csl-entry">
 Bolin, David, and Kristin Kirchner. 2020. <span>“The Rational
 <span>SPDE</span> Approach for <span>Gaussian</span> Random Fields with
 General Smoothness.”</span> <em>Journal of Computational and Graphical
 Statistics</em> 29 (2): 274–85. <a
 href="https://doi.org/10.1080/10618600.2019.1665537">https://doi.org/10.1080/10618600.2019.1665537</a>.
 </div>
-<div id="ref-MetricGraph2023c" class="csl-entry">
-Bolin, David, Mihály Kovács, Vivek Kumar, and Alexandre B. Simas. 2023.
+<div id="ref-MetricGraph2024c" class="csl-entry">
+Bolin, David, Mihály Kovács, Vivek Kumar, and Alexandre B. Simas. 2024.
 <span>“Regularity and Numerical Approximation of Fractional Elliptic
 Differential Equations on Compact Metric Graphs.”</span> <em>Mathematics
-of Computation</em>. <a
+of Computation</em> 93 (349): 2439–72. <a
 href="https://doi.org/10.1090/mcom/3929">https://doi.org/10.1090/mcom/3929</a>.
 </div>
-<div id="ref-rSPDE2023a" class="csl-entry">
+<div id="ref-rSPDE2023" class="csl-entry">
 Bolin, David, and Alexandre B. Simas. 2023. <em><span
 class="nocase">rSPDE</span>: Rational Approximations of Fractional
 Stochastic Partial Differential Equations</em>. <a
@@ -1404,11 +1451,11 @@ href="https://doi.org/10.48550/arXiv.2304.10372">https://doi.org/10.48550/arXiv.
 Graphs.”</span> <em>Bernoulli</em> 30 (2): 1611–39. <a
 href="https://doi.org/10.3150/23-BEJ1647">https://doi.org/10.3150/23-BEJ1647</a>.
 </div>
-<div id="ref-rSPDE2023b" class="csl-entry">
-Bolin, David, Alexandre B. Simas, and Zhen Xiong. 2023.
+<div id="ref-rSPDE2024" class="csl-entry">
+Bolin, David, Alexandre B. Simas, and Zhen Xiong. 2024.
 <span>“Covariance-Based Rational Approximations of Fractional SPDEs for
 Computationally Efficient Bayesian Inference.”</span> <em>Journal of
-Computational and Graphical Statistics</em>. <a
+Computational and Graphical Statistics</em> 33 (1): 64–74. <a
 href="https://doi.org/10.1080/10618600.2023.2231051">https://doi.org/10.1080/10618600.2023.2231051</a>.
 </div>
 <div id="ref-htmltools" class="csl-entry">
@@ -1425,27 +1472,39 @@ Marker-by-Environment Interaction.”</span> <em>Genetics</em> 203 (1):
 543–55. <a
 href="https://doi.org/10.1534/genetics.115.179887">https://doi.org/10.1534/genetics.115.179887</a>.
 </div>
-<div id="ref-listviewer" class="csl-entry">
-de Jong, Jos, Mac Gainer, and Kent Russell. 2023. <em><span
-class="nocase">listviewer</span>: <span>“<span
-class="nocase">htmlwidget</span>”</span> for Interactive Views of r
-Lists</em>. <a
-href="https://CRAN.R-project.org/package=listviewer">https://CRAN.R-project.org/package=listviewer</a>.
+<div id="ref-OpenStreetMap" class="csl-entry">
+Fellows, Ian, and using the JMapViewer library by Jan Peter Stotz. 2023.
+<em><span>OpenStreetMap</span>: Access to Open Street Map Raster
+Images</em>. <a
+href="https://CRAN.R-project.org/package=OpenStreetMap">https://CRAN.R-project.org/package=OpenStreetMap</a>.
+</div>
+<div id="ref-viridis" class="csl-entry">
+Garnier, Simon, Ross, Noam, Rudis, Robert, Camargo, et al. 2023.
+<em><span class="nocase">viridis(Lite)</span> - Colorblind-Friendly
+Color Maps for r</em>. <a
+href="https://doi.org/10.5281/zenodo.4679423">https://doi.org/10.5281/zenodo.4679423</a>.
 </div>
 <div id="ref-plotrix" class="csl-entry">
 J, Lemon. 2006. <span>“<span>Plotrix</span>: A Package in the Red Light
 District of r.”</span> <em>R-News</em> 6 (4): 8–12.
+</div>
+<div id="ref-ggmap" class="csl-entry">
+Kahle, David, and Hadley Wickham. 2013. <span>“<span
+class="nocase">ggmap</span>: Spatial Visualization with Ggplot2.”</span>
+<em>The R Journal</em> 5 (1): 144–61. <a
+href="https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf">https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf</a>.
+</div>
+<div id="ref-ggpubr" class="csl-entry">
+Kassambara, Alboukadel. 2023. <em><span class="nocase">ggpubr</span>:
+<span>“<span class="nocase">ggplot2</span>”</span> Based Publication
+Ready Plots</em>. <a
+href="https://CRAN.R-project.org/package=ggpubr">https://CRAN.R-project.org/package=ggpubr</a>.
 </div>
 <div id="ref-INLA2018i" class="csl-entry">
 Kourounis, D., A. Fuchs, and O. Schenk. 2018. <span>“Towards the Next
 Generation of Multiperiod Optimal Power Flow Solvers.”</span> <em>IEEE
 Transactions on Power Systems</em> PP (99): 1–10. <a
 href="https://doi.org/10.1109/TPWRS.2017.2789187">https://doi.org/10.1109/TPWRS.2017.2789187</a>.
-</div>
-<div id="ref-TSstudio" class="csl-entry">
-Krispin, Rami. 2023. <em><span>TSstudio</span>: Functions for Time
-Series Analysis and Forecasting</em>. <a
-href="https://CRAN.R-project.org/package=TSstudio">https://CRAN.R-project.org/package=TSstudio</a>.
 </div>
 <div id="ref-INLA2015d" class="csl-entry">
 Lindgren, Finn, and Håvard Rue. 2015. <span>“Bayesian Spatial Modelling
@@ -1494,7 +1553,13 @@ The Composer of Plots</em>. <a
 href="https://CRAN.R-project.org/package=patchwork">https://CRAN.R-project.org/package=patchwork</a>.
 </div>
 <div id="ref-base" class="csl-entry">
-R Core Team. 2024. <em><span>R</span>: A Language and Environment for
+R Core Team. 2024a. <em><span>R</span>: A Language and Environment for
+Statistical Computing</em>. Vienna, Austria: R Foundation for
+Statistical Computing. <a
+href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-grid" class="csl-entry">
+———. 2024b. <em><span>R</span>: A Language and Environment for
 Statistical Computing</em>. Vienna, Austria: R Foundation for
 Statistical Computing. <a
 href="https://www.R-project.org/">https://www.R-project.org/</a>.
@@ -1543,6 +1608,12 @@ Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2023. <em><span
 class="nocase">scales</span>: Scale Functions for Visualization</em>. <a
 href="https://CRAN.R-project.org/package=scales">https://CRAN.R-project.org/package=scales</a>.
 </div>
+<div id="ref-cowplot" class="csl-entry">
+Wilke, Claus O. 2024. <em><span class="nocase">cowplot</span>:
+Streamlined Plot Theme and Plot Annotations for <span>“<span
+class="nocase">ggplot2</span>”</span></em>. <a
+href="https://CRAN.R-project.org/package=cowplot">https://CRAN.R-project.org/package=cowplot</a>.
+</div>
 <div id="ref-ggtext" class="csl-entry">
 Wilke, Claus O., and Brenton M. Wiernik. 2022. <em><span
 class="nocase">ggtext</span>: Improved Text Rendering Support for
@@ -1586,6 +1657,7 @@ href="https://doi.org/10.1214/17-AOAS1078">https://doi.org/10.1214/17-AOAS1078</
 </div>
 </div>
 
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ29udmVyZ2VuY2UgUmF0ZXMiCmRhdGU6ICJDcmVhdGVkOiAwNS0wNy0yMDI0LiBMYXN0IG1vZGlmaWVkOiBgciBmb3JtYXQoU3lzLnRpbWUoKSwgJyVkLSVtLSVZLicpYCIKb3V0cHV0OgogIGh0bWxfZG9jdW1lbnQ6CiAgICBtYXRoamF4OiAiaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9tYXRoamF4QDMvZXM1L3RleC1tbWwtY2h0bWwuanMiCiAgICBoaWdobGlnaHQ6IHB5Z21lbnRzCiAgICB0aGVtZTogZmxhdGx5CiAgICBjb2RlX2ZvbGRpbmc6IHNob3cgIyBjbGFzcy5zb3VyY2UgPSAiZm9sZC1oaWRlIiB0byBoaWRlIGNvZGUgYW5kIGFkZCBhIGJ1dHRvbiB0byBzaG93IGl0CiAgICAjIGRmX3ByaW50OiBwYWdlZAogICAgdG9jOiB0cnVlCiAgICB0b2NfZmxvYXQ6CiAgICAgIGNvbGxhcHNlZDogdHJ1ZQogICAgICBzbW9vdGhfc2Nyb2xsOiB0cnVlCiAgICBudW1iZXJfc2VjdGlvbnM6IGZhbHNlCiAgICBmaWdfY2FwdGlvbjogdHJ1ZQogICAgY29kZV9kb3dubG9hZDogdHJ1ZQphbHdheXNfYWxsb3dfaHRtbDogdHJ1ZQpiaWJsaW9ncmFwaHk6IAogIC0gcmVmZXJlbmNlcy5iaWIKICAtIGdyYXRlZnVsLXJlZnMuYmliCmhlYWRlci1pbmNsdWRlczoKICAtIFxuZXdjb21tYW5ke1xhcn17XG1hdGhiYntSfX0KICAtIFxuZXdjb21tYW5ke1xsbGF2fVsxXXtcbGVmdFx7IzFccmlnaHRcfX0KICAtIFxuZXdjb21tYW5ke1xwYXJlfVsxXXtcbGVmdCgjMVxyaWdodCl9CiAgLSBcbmV3Y29tbWFuZHtcTmNhbH17XG1hdGhjYWx7Tn19CiAgLSBcbmV3Y29tbWFuZHtcVmNhbH17XG1hdGhjYWx7Vn19CiAgLSBcbmV3Y29tbWFuZHtcRWNhbH17XG1hdGhjYWx7RX19CiAgLSBcbmV3Y29tbWFuZHtcV2NhbH17XG1hdGhjYWx7V319Ci0tLQoKCmBgYHtyIHhhcmluZ2FuRXh0cmEtY2xpcGJvYXJkLCBlY2hvID0gRkFMU0V9Cmh0bWx0b29sczo6dGFnTGlzdCgKICB4YXJpbmdhbkV4dHJhOjp1c2VfY2xpcGJvYXJkKAogICAgYnV0dG9uX3RleHQgPSAiPGkgY2xhc3M9XCJmYS1zb2xpZCBmYS1jbGlwYm9hcmRcIiBzdHlsZT1cImNvbG9yOiAjMDAwMDhCXCI+PC9pPiIsCiAgICBzdWNjZXNzX3RleHQgPSAiPGkgY2xhc3M9XCJmYSBmYS1jaGVja1wiIHN0eWxlPVwiY29sb3I6ICM5MEJFNkRcIj48L2k+IiwKICAgIGVycm9yX3RleHQgPSAiPGkgY2xhc3M9XCJmYSBmYS10aW1lcy1jaXJjbGVcIiBzdHlsZT1cImNvbG9yOiAjRjk0MTQ0XCI+PC9pPiIKICApLAogIHJtYXJrZG93bjo6aHRtbF9kZXBlbmRlbmN5X2ZvbnRfYXdlc29tZSgpCikKYGBgCgoKYGBge2NzcywgZWNobyA9IEZBTFNFfQpib2R5IC5tYWluLWNvbnRhaW5lciB7CiAgbWF4LXdpZHRoOiAxMDAlICFpbXBvcnRhbnQ7CiAgd2lkdGg6IDEwMCUgIWltcG9ydGFudDsKfQpib2R5IHsKICBtYXgtd2lkdGg6IDEwMCUgIWltcG9ydGFudDsKfQoKYm9keSwgdGQgewogICBmb250LXNpemU6IDE2cHg7Cn0KY29kZS5yewogIGZvbnQtc2l6ZTogMTRweDsKfQpwcmUgewogIGZvbnQtc2l6ZTogMTRweAp9Ci5jdXN0b20tYm94IHsKICBiYWNrZ3JvdW5kLWNvbG9yOiAjZjVmN2ZhOyAvKiBMaWdodCBncmV5LWJsdWUgYmFja2dyb3VuZCAqLwogIGJvcmRlci1jb2xvcjogI2UxZThlZDsgLyogTGlnaHQgYm9yZGVyIGNvbG9yICovCiAgY29sb3I6ICMyYzNlNTA7IC8qIERhcmsgdGV4dCBjb2xvciAqLwogIHBhZGRpbmc6IDE1cHg7IC8qIFBhZGRpbmcgaW5zaWRlIHRoZSBib3ggKi8KICBib3JkZXItcmFkaXVzOiA1cHg7IC8qIFJvdW5kZWQgY29ybmVycyAqLwogIG1hcmdpbi1ib3R0b206IDIwcHg7IC8qIFNwYWNpbmcgYmVsb3cgdGhlIGJveCAqLwp9Ci5jYXB0aW9uIHsKICBtYXJnaW46IGF1dG87CiAgdGV4dC1hbGlnbjogY2VudGVyOwogIG1hcmdpbi1ib3R0b206IDIwcHg7IC8qIFNwYWNpbmcgYmVsb3cgdGhlIGJveCAqLwp9CmBgYAoKCkdvIGJhY2sgdG8gdGhlIFtBYm91dCBwYWdlXShhYm91dC5odG1sKS4KCkxldCB1cyBzZXQgc29tZSBnbG9iYWwgb3B0aW9ucyBmb3IgYWxsIGNvZGUgY2h1bmtzIGluIHRoaXMgZG9jdW1lbnQuCgoKYGBge3J9CiMgU2V0IHNlZWQgZm9yIHJlcHJvZHVjaWJpbGl0eQpzZXQuc2VlZCgxOTgyKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBGQUxTRSwgICAgCiAgIyBEaXNhYmxlIHdhcm5pbmdzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIHdhcm5pbmcgPSBGQUxTRSwgICAgCiAgIyBTaG93IFIgY29kZSB3aXRoaW4gY29kZSBjaHVua3MgaW4gb3V0cHV0CiAgZWNobyA9IFRSVUUsICAgICAgICAKICAjIEluY2x1ZGUgYm90aCBSIGNvZGUgYW5kIGl0cyByZXN1bHRzIGluIG91dHB1dAogIGluY2x1ZGUgPSBUUlVFLCAgICAgCiAgIyBFdmFsdWF0ZSBSIGNvZGUgY2h1bmtzCiAgZXZhbCA9IFRSVUUsICAgICAgIAogICMgRW5hYmxlIGNhY2hpbmcgb2YgUiBjb2RlIGNodW5rcyBmb3IgZmFzdGVyIHJlbmRlcmluZwogIGNhY2hlID0gRkFMU0UsICAgICAgCiAgIyBBbGlnbiBmaWd1cmVzIGluIHRoZSBjZW50ZXIgb2YgdGhlIG91dHB1dAogIGZpZy5hbGlnbiA9ICJjZW50ZXIiLAogICMgRW5hYmxlIHJldGluYSBkaXNwbGF5IGZvciBoaWdoLXJlc29sdXRpb24gZmlndXJlcwogIHJldGluYSA9IDIsCiAgIyBTaG93IGVycm9ycyBpbiB0aGUgb3V0cHV0IGluc3RlYWQgb2Ygc3RvcHBpbmcgcmVuZGVyaW5nCiAgZXJyb3IgPSBUUlVFLAogICMgRG8gbm90IGNvbGxhcHNlIGNvZGUgYW5kIG91dHB1dCBpbnRvIGEgc2luZ2xlIGJsb2NrCiAgY29sbGFwc2UgPSBGQUxTRQopCiMgU3RhcnQgdGhlIGZpZ3VyZSBjb3VudGVyCmZpZ19jb3VudCA8LSAwCiMgRGVmaW5lIHRoZSBjYXB0aW9uZXIgZnVuY3Rpb24KY2FwdGlvbmVyIDwtIGZ1bmN0aW9uKGNhcHRpb24pIHsKICBmaWdfY291bnQgPDwtIGZpZ19jb3VudCArIDEKICBwYXN0ZTAoIkZpZ3VyZSAiLCBmaWdfY291bnQsICI6ICIsIGNhcHRpb24pCn0KYGBgCgojIEltcG9ydCBsaWJyYXJpZXMKCmBgYHtyfQpsaWJyYXJ5KElOTEEpCmxpYnJhcnkoaW5sYWJydSkKbGlicmFyeShyU1BERSkKbGlicmFyeShNZXRyaWNHcmFwaCkKbGlicmFyeShNYXRyaXgpCgpsaWJyYXJ5KGRwbHlyKQpsaWJyYXJ5KHBsb3RseSkKbGlicmFyeShzY2FsZXMpCmxpYnJhcnkocGF0Y2h3b3JrKQpsaWJyYXJ5KHRpZHlyKQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkoc2YpCgpsaWJyYXJ5KGhlcmUpCmxpYnJhcnkocm1hcmtkb3duKQpsaWJyYXJ5KGtuaXRyKQpsaWJyYXJ5KGdyYXRlZnVsKSAjIENpdGUgYWxsIGxvYWRlZCBwYWNrYWdlcwoKbGlicmFyeShsYXRleDJleHApCmxpYnJhcnkocGxvdHJpeCkKYGBgCgoKIyBJbnRlcnZhbCBncmFwaAoKRm9sbG93IHRoaXMgW2xpbmtdKGNvbnZlcmdlbmNlX3JhdGVzL2NvbnZlcmdlbmNlX3JhdGVzX2ludGVydmFsLmh0bWwpIGZvciBtb3JlIGRldGFpbHMuCgpgYGB7ciwgY2xhc3Muc291cmNlID0gImZvbGQtaGlkZSJ9CiMgTWF0ZXJuIGNvdmFyaWFuY2UgZnVuY3Rpb24KbWF0ZXJuLmNvdmFyaWFuY2UgPC0gZnVuY3Rpb24oaCwga2FwcGEsIG51LCBzaWdtYSkgewogIGlmIChudSA9PSAxIC8gMikgewogICAgQyA8LSBzaWdtYV4yICogZXhwKC1rYXBwYSAqIGFicyhoKSkKICB9IGVsc2UgewogICAgQyA8LSAoc2lnbWFeMiAvICgyXihudSAtIDEpICogZ2FtbWEobnUpKSkgKgogICAgICAoKGthcHBhICogYWJzKGgpKV5udSkgKiBiZXNzZWxLKGthcHBhICogYWJzKGgpLCBudSkKICB9CiAgQ1toID09IDBdIDwtIHNpZ21hXjIKICByZXR1cm4oYXMubWF0cml4KEMpKQp9CgojIEZvbGRlZC5tYXRlcm4uY292YXJpYW5jZS4xZApmb2xkZWQubWF0ZXJuLmNvdmFyaWFuY2UuMWQubG9jYWwgPC0gZnVuY3Rpb24oeCwga2FwcGEsIG51LCBzaWdtYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEwgPSAxLCBOID0gMTAsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBib3VuZGFyeSA9IGMoIm5ldW1hbm4iLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJkaXJpY2hsZXQiLCAicGVyaW9kaWMiKSkgewogIGJvdW5kYXJ5IDwtIHRvbG93ZXIoYm91bmRhcnlbMV0pCiAgaWYgKCEoYm91bmRhcnkgJWluJSBjKCJuZXVtYW5uIiwgImRpcmljaGxldCIsICJwZXJpb2RpYyIpKSkgewogICAgc3RvcCgiVGhlIHBvc3NpYmxlIGJvdW5kYXJ5IGNvbmRpdGlvbnMgYXJlICduZXVtYW5uJywKICAgICdkaXJpY2hsZXQnIG9yICdwZXJpb2RpYychIikKICB9CiAgYWRkaSA8LSB0KG91dGVyKHgsIHgsICIrIikpCiAgZGlmZiA8LSB0KG91dGVyKHgsIHgsICItIikpCiAgczEgPC0gc2FwcGx5KC1OOk4sIGZ1bmN0aW9uKGopIHsgCiAgICBkaWZmICsgMiAqIGogKiBMCiAgfSkKICBzMiA8LSBzYXBwbHkoLU46TiwgZnVuY3Rpb24oaikgewogICAgYWRkaSArIDIgKiBqICogTAogIH0pCiAgaWYgKGJvdW5kYXJ5ID09ICJuZXVtYW5uIikgewogICAgQyA8LSByb3dTdW1zKG1hdGVybi5jb3ZhcmlhbmNlKGggPSBzMSwga2FwcGEgPSBrYXBwYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBudSA9IG51LCBzaWdtYSA9IHNpZ21hKSArCiAgICAgICAgICAgICAgICAgICBtYXRlcm4uY292YXJpYW5jZShoID0gczIsIGthcHBhID0ga2FwcGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBudSA9IG51LCBzaWdtYSA9IHNpZ21hKSkKICB9IGVsc2UgaWYgKGJvdW5kYXJ5ID09ICJkaXJpY2hsZXQiKSB7CiAgICBDIDwtIHJvd1N1bXMobWF0ZXJuLmNvdmFyaWFuY2UoaCA9IHMxLCBrYXBwYSA9IGthcHBhLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG51ID0gbnUsIHNpZ21hID0gc2lnbWEpIC0KICAgICAgICAgICAgICAgICAgIG1hdGVybi5jb3ZhcmlhbmNlKGggPSBzMiwga2FwcGEgPSBrYXBwYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG51ID0gbnUsIHNpZ21hID0gc2lnbWEpKQogIH0gZWxzZSB7CiAgICBDIDwtIHJvd1N1bXMobWF0ZXJuLmNvdmFyaWFuY2UoaCA9IHMxLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGthcHBhID0ga2FwcGEsIG51ID0gbnUsIHNpZ21hID0gc2lnbWEpKQogIH0KICByZXR1cm4obWF0cml4KEMsIG5yb3cgPSBsZW5ndGgoeCkpKQp9CgojIEZ1bmN0aW9uIHRvIGdldCB0aGUgdHJ1ZSBjb3ZhcmlhbmNlIG1hdHJpeApnZXRzX3RydWVfY292X21hdCA9IGZ1bmN0aW9uKGdyYXBoLCBrYXBwYSwgbnUsIHNpZ21hLCBOLCBib3VuZGFyeSl7CiAgaCA8LSBncmFwaCRtZXNoJFZbLDFdCiAgdHJ1ZV9jb3ZfbWF0IDwtIGZvbGRlZC5tYXRlcm4uY292YXJpYW5jZS4xZC5sb2NhbCh4ID0gaCwga2FwcGEgPSBrYXBwYSwgbnUgPSBudSwgc2lnbWEgPSBzaWdtYSwgTiA9IE4sIGJvdW5kYXJ5ID0gYm91bmRhcnkpCiAgcmV0dXJuKHRydWVfY292X21hdCkKfQoKIyBEZWZpbmUgdGhlIGdyYXBoCmVkZ2UgPC0gcmJpbmQoYygwLDApLGMoMSwwKSkKZWRnZXMgPC0gbGlzdChlZGdlKQpncmFwaCA8LSBtZXRyaWNfZ3JhcGgkbmV3KGVkZ2VzID0gZWRnZXMpCgojIHBhcmFtZXRlcnMKaC5vayA8LSAyXi0xMAp0eXBlIDwtICJjb3ZhcmlhbmNlIgp0eXBlX3JhdGlvbmFsX2FwcHJveGltYXRpb24gPSAiYnJhc2lsIgpyaG8gPC0gMC41CiNtID0gNApzaWdtYSA8LSAxCk4uZm9sZGVkIDwtIDEwCmJvdW5kYXJ5IDwtICJuZXVtYW5uIiAjIGRvIG5vdCBjaGFuZ2UgdGhpcwoKIyBNZXNoIHNpemVzCmhfYXV4IDwtIHNlcSg1LjUsIDQsIGJ5ID0gLTEvMikKaF92ZWN0b3IgPC0gMl4taF9hdXgKaF9sYWJlbCA8LSBwYXN0ZTAoIjJeLSIsIGhfYXV4LCAiIikKaF9sYWJlbF9sYXRleCA8LSBzcHJpbnRmKCIkMl57LSVmfSQiLCBoX2F1eCkKCiMgQWxwaGEgdmFsdWVzCmFscGhhX2F1eCA8LSBjKDgsIDEyLCAxMywgMTQsIDE1KQphbHBoYV92ZWN0b3IgPC0gYWxwaGFfYXV4LzgKYWxwaGFfbGFiZWwgPC0gcGFzdGUwKGFscGhhX2F1eCwgIi84IikKdGhlb3JldGljYWxfcmF0ZSA8LSBwbWluKDIqYWxwaGFfdmVjdG9yLTEvMiwyKQoKZ3JhcGgub2sgPC0gZ3JhcGgkY2xvbmUoKQojIEJ1aWxkIGdyYXBoIHdpdGggb3ZlcmtpbGwgbWVzaApncmFwaC5vayRidWlsZF9tZXNoKGggPSBoLm9rKQpncmFwaC5vayRjb21wdXRlX2ZlbSgpCgojIEdldCB0aGUgb3ZlcmtpbGwgbWVzaCBsb2NhdGlvbnMKbG9jLm9rIDwtIGdyYXBoLm9rJG1lc2gkVnRFICMgb3IgZ3JhcGgub2skZ2V0X21lc2hfbG9jYXRpb25zKCkKCiMgSW5pdGlhbGl6ZSB0aGUgbGlzdCBvZiBncmFwaHMgYW5kIHRoZSBsaXN0IG9mIHByb2plY3Rpb24gbWF0cmljZXMKZ3JhcGhzIDwtIGxpc3QoKQpBIDwtIGxpc3QoKQpmb3IoaSBpbiAxOmxlbmd0aChoX3ZlY3RvcikpewogIGdyYXBoc1tbaV1dIDwtIGdyYXBoJGNsb25lKCkKICBncmFwaHNbW2ldXSRidWlsZF9tZXNoKGggPSBoX3ZlY3RvcltpXSkKICBBW1tpXV0gPC0gZ3JhcGhzW1tpXV0kZmVtX2Jhc2lzKGxvYy5vaykKfQoKY292LmVycm9yLmludGVydmFsIDwtIG1hdHJpeChOQSwgbnJvdyA9IGxlbmd0aChoX3ZlY3RvciksIG5jb2wgPSBsZW5ndGgoYWxwaGFfdmVjdG9yKSkKCm1fdmFsdWVzIDwtIGMoKQpmb3IgKGogaW4gMTpsZW5ndGgoYWxwaGFfdmVjdG9yKSkgewogIGFscGhhIDwtIGFscGhhX3ZlY3RvcltqXQogIGZyYWN0X2FscGhhIDwtIGFscGhhIC0gZmxvb3IoYWxwaGEpCiAgbnUgPC0gYWxwaGEgLSAwLjUKICBrYXBwYSA8LSBzcXJ0KDgqbnUpL3JobwogIHRhdSA8LSBzcXJ0KGdhbW1hKG51KSAvIChzaWdtYV4yICoga2FwcGFeKDIqbnUpICogKDQqcGkpXigxLzIpICogZ2FtbWEobnUgKyAxLzIpKSkgICNzaWdtYSA9IDEsIGQgPSAxCiAgCiAgU2lnbWEudHJ1ZS5pbnRlcnZhbCA8LSBnZXRzX3RydWVfY292X21hdChncmFwaCA9IGdyYXBoLm9rLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGthcHBhID0ga2FwcGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBudSA9IG51LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSBzaWdtYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE4gPSBOLmZvbGRlZCwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJvdW5kYXJ5ID0gYm91bmRhcnkpCiAgCiAgZm9yIChpIGluIDE6bGVuZ3RoKGhfdmVjdG9yKSkgewogICAgaCA8LSBoX3ZlY3RvcltpXQogICAgbSA8LSBtaW4oMjAsIGNlaWxpbmcoKG1pbigyKmFscGhhIC0gMS8yLDIpICsgMS8yKV4yKmxvZyhoKV4yLyg0KnBpXjIqZnJhY3RfYWxwaGEpKSkKICAgIG1fdmFsdWVzIDwtIGMobV92YWx1ZXMsIG0pCiAgICAKICAgIFNpZ21hIDwtIG1hdGVybi5vcGVyYXRvcnMoYWxwaGEgPSBhbHBoYSwgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIGthcHBhID0ga2FwcGEsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRhdSA9IHRhdSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtID0gbSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ3JhcGggPSBncmFwaHNbW2ldXSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0eXBlID0gdHlwZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0eXBlX3JhdGlvbmFsX2FwcHJveGltYXRpb24gPSB0eXBlX3JhdGlvbmFsX2FwcHJveGltYXRpb24pJGNvdmFyaWFuY2VfbWVzaCgpCiAgICAKICAgIFNpZ21hLmFwcHJveC5pbnRlcnZhbCA8LSBBW1tpXV0lKiVTaWdtYSUqJXQoQVtbaV1dKQogICAgCiAgICBjb3YuZXJyb3IuaW50ZXJ2YWxbaSxqXSA8LSBzcXJ0KGFzLmRvdWJsZSh0KGdyYXBoLm9rJG1lc2gkd2VpZ2h0cyklKiUoU2lnbWEudHJ1ZS5pbnRlcnZhbCAtIFNpZ21hLmFwcHJveC5pbnRlcnZhbCleMiUqJWdyYXBoLm9rJG1lc2gkd2VpZ2h0cykpCiAgfQp9CgpwcmludChtX3ZhbHVlcykKCnNsb3BlX2ludGVydmFsIDwtIG51bWVyaWMobGVuZ3RoKGFscGhhX3ZlY3RvcikpCgpmb3IgKHUgaW4gMTpsZW5ndGgoYWxwaGFfdmVjdG9yKSkgewogIHNsb3BlX2ludGVydmFsW3VdIDwtIGNvZWYobG0obG9nKGNvdi5lcnJvci5pbnRlcnZhbFssdV0pIH4gbG9nKGhfdmVjdG9yKSkpWzJdCn0KCnRyYW5zcG9zZWRfZGYgPC0gZGF0YS5mcmFtZSh0KGRhdGEuZnJhbWUoYWxwaGEgPSBhbHBoYV9sYWJlbCwgdGhlb3JldGljYWxfcmF0ZSA9IHRoZW9yZXRpY2FsX3JhdGUsIHNsb3BlID0gc2xvcGVfaW50ZXJ2YWwpKSkKcm93bmFtZXModHJhbnNwb3NlZF9kZikgPC0gYygiYWxwaGEiLCAiVGhlb3JldGljYWwgcmF0ZXMiLCAiSW50ZXJ2YWwgZ3JhcGgiKQpjb2xuYW1lcyh0cmFuc3Bvc2VkX2RmKSA8LSBOVUxMCiMgRGlzcGxheSB0aGUgdHJhbnNwb3NlZCBkYXRhIGZyYW1lCnRyYW5zcG9zZWRfZGYgfD4gcGFnZWRfdGFibGUoKQoKbG9nbG9nX2xpbmVfZXF1YXRpb24gPC0gZnVuY3Rpb24oeDEsIHkxLCBzbG9wZSkgewogIGIgPC0gbG9nMTAoeTEgLyAoeDEgXiBzbG9wZSkpCiAgCiAgZnVuY3Rpb24oeCkgewogICAgKHggXiBzbG9wZSkgKiAoMTAgXiBiKQogIH0KfQoKZ3VpZGluZ19saW5lcyA8LSBtYXRyaXgoTkEsIG5yb3cgPSBsZW5ndGgoaF92ZWN0b3IpLCBuY29sID0gbGVuZ3RoKGFscGhhX3ZlY3RvcikpCmZvciAoaiBpbiAxOmxlbmd0aChhbHBoYV92ZWN0b3IpKSB7CiAgZ3VpZGluZ19saW5lc19hdXggPC0gbWF0cml4KE5BLCBucm93ID0gbGVuZ3RoKGhfdmVjdG9yKSwgbmNvbCA9IGxlbmd0aChoX3ZlY3RvcikpCiAgZm9yKGsgaW4gMTpsZW5ndGgoaF92ZWN0b3IpKXsKICAgIHBvaW50X3gxIDwtIGhfdmVjdG9yW2tdCiAgICBwb2ludF95MSA8LSBjb3YuZXJyb3IuaW50ZXJ2YWxbaywgal0KICAgIHNsb3BlIDwtIHRoZW9yZXRpY2FsX3JhdGVbal0KICAgIGxpbmUgPC0gbG9nbG9nX2xpbmVfZXF1YXRpb24oeDEgPSBwb2ludF94MSwgeTEgPSBwb2ludF95MSwgc2xvcGUgPSBzbG9wZSkKICAgIGd1aWRpbmdfbGluZXNfYXV4WyxrXSA8LSBsaW5lKGhfdmVjdG9yKQogIH0KICBndWlkaW5nX2xpbmVzWyxqXSA8LSBhcHBseShndWlkaW5nX2xpbmVzX2F1eCwgMSwgbWVhbikKfQpndWlkaW5nX2xpbmVzMSA8LSBndWlkaW5nX2xpbmVzCgojIEdlbmVyYXRlIGRlZmF1bHQgZ2dwbG90MiBjb2xvcnMKZGVmYXVsdF9jb2xvcnMgPC0gc2NhbGVzOjpodWVfcGFsKCkobmNvbChndWlkaW5nX2xpbmVzKSkKCiMgQ3JlYXRlIHRoZSBwbG90X2xpbmVzIGxpc3Qgd2l0aCBkaWZmZXJlbnQgY29sb3JzIGZvciBlYWNoIGxpbmUKcGxvdF9saW5lcyA8LSBsYXBwbHkoMTpuY29sKGd1aWRpbmdfbGluZXMpLCBmdW5jdGlvbihpKSB7CiAgZ2VvbV9saW5lKGRhdGEgPSBkYXRhLmZyYW1lKHggPSBoX3ZlY3RvciwgeSA9IGd1aWRpbmdfbGluZXNbLCBpXSksCiAgICAgICAgICAgIGFlcyh4ID0geCwgeSA9IHkpLCBjb2xvciA9IGRlZmF1bHRfY29sb3JzW2ldLCBsaW5ldHlwZSA9ICJkYXNoZWQiLCBzaG93LmxlZ2VuZCA9IEZBTFNFKQp9KQoKZGYgPC0gYXMuZGF0YS5mcmFtZShjYmluZChoX3ZlY3RvciwgY292LmVycm9yLmludGVydmFsKSkKY29sbmFtZXMoZGYpIDwtIGMoImhfdmVjdG9yIiwgYWxwaGFfbGFiZWwpCmRmX21lbHRlZCA8LSBtZWx0KGRmLCBpZC52YXJzID0gImhfdmVjdG9yIiwgdmFyaWFibGUubmFtZSA9ICJjb2x1bW4iLCB2YWx1ZS5uYW1lID0gInZhbHVlIikKZGZfbWVsdGVkMSA8LSBkZl9tZWx0ZWQKCnAuaW50ZXJ2YWwgPC0gZ2dwbG90KCkgKwogIGdlb21fbGluZShkYXRhID0gZGZfbWVsdGVkLCBhZXMoeCA9IGhfdmVjdG9yLCB5ID0gdmFsdWUsIGNvbG9yID0gY29sdW1uKSkgKwogIGdlb21fcG9pbnQoZGF0YSA9IGRmX21lbHRlZCwgYWVzKHggPSBoX3ZlY3RvciwgeSA9IHZhbHVlLCBjb2xvciA9IGNvbHVtbikpICsKICBwbG90X2xpbmVzICsKICBsYWJzKHRpdGxlID0gIkludGVydmFsIGdyYXBoIiwKICAgIHggPSAiaCIsCiAgICAgICB5ID0gIkNvdmFyaWFuY2UgRXJyb3IiLAogICAgICAgY29sb3IgPSBleHByZXNzaW9uKGFscGhhKSkgKwogIHNjYWxlX3hfbG9nMTAoYnJlYWtzID0gaF92ZWN0b3IsIGxhYmVscyA9IHJvdW5kKGhfdmVjdG9yLDMpKSArCiAgc2NhbGVfeV9sb2cxMCgpICsKICB0aGVtZV9taW5pbWFsKCkgKwogIHRoZW1lKHRleHQgPSBlbGVtZW50X3RleHQoZmFtaWx5ID0gIlBhbGF0aW5vIikpCmBgYAoKCmBgYHtyLCBmaWcuZGltID0gYyg1LDQpLCBmaWcuY2FwID0gY2FwdGlvbmVyKCJDb252ZXJnZW5jZSByYXRlcyBmb3IgdGhlIGludGVydmFsIGdyYXBoLiIpfQpwLmludGVydmFsCmBgYAoKCiMgQ2lyY2xlIGdyYXBoCgpGb2xsb3cgdGhpcyBbbGlua10oY29udmVyZ2VuY2VfcmF0ZXMvY29udmVyZ2VuY2VfcmF0ZXNfY2lyY2xlLmh0bWwpIGZvciBtb3JlIGRldGFpbHMuCgpgYGB7ciwgY2xhc3Muc291cmNlID0gImZvbGQtaGlkZSJ9CiMgTWF0ZXJuIGNvdmFyaWFuY2UgZnVuY3Rpb24KbWF0ZXJuLmNvdmFyaWFuY2UgPC0gZnVuY3Rpb24oaCwga2FwcGEsIG51LCBzaWdtYSkgewogIGlmIChudSA9PSAxIC8gMikgewogICAgQyA8LSBzaWdtYV4yICogZXhwKC1rYXBwYSAqIGFicyhoKSkKICB9IGVsc2UgewogICAgQyA8LSAoc2lnbWFeMiAvICgyXihudSAtIDEpICogZ2FtbWEobnUpKSkgKgogICAgICAoKGthcHBhICogYWJzKGgpKV5udSkgKiBiZXNzZWxLKGthcHBhICogYWJzKGgpLCBudSkKICB9CiAgQ1toID09IDBdIDwtIHNpZ21hXjIKICByZXR1cm4oYXMubWF0cml4KEMpKQp9CgojIEZvbGRlZC5tYXRlcm4uY292YXJpYW5jZS4xZApmb2xkZWQubWF0ZXJuLmNvdmFyaWFuY2UuMWQubG9jYWwgPC0gZnVuY3Rpb24oeCwga2FwcGEsIG51LCBzaWdtYSwgTCA9IDEsIE4gPSAxMCwgYm91bmRhcnkgPSBjKCJuZXVtYW5uIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiZGlyaWNobGV0IiwgInBlcmlvZGljIikpIHsKICBib3VuZGFyeSA8LSB0b2xvd2VyKGJvdW5kYXJ5WzFdKQogIGlmICghKGJvdW5kYXJ5ICVpbiUgYygibmV1bWFubiIsICJkaXJpY2hsZXQiLCAicGVyaW9kaWMiKSkpIHsKICAgIHN0b3AoIlRoZSBwb3NzaWJsZSBib3VuZGFyeSBjb25kaXRpb25zIGFyZSAnbmV1bWFubicsCiAgICAnZGlyaWNobGV0JyBvciAncGVyaW9kaWMnISIpCiAgfQogIGFkZGkgPSB0KG91dGVyKHgsIHgsICIrIikpCiAgZGlmZiA9IHQob3V0ZXIoeCwgeCwgIi0iKSkKICBzMSA8LSBzYXBwbHkoLU46TiwgZnVuY3Rpb24oaikgeyAjIHMxIGlzIGEgbWF0cml4IG9mIHNpemUgbGVuZ3RoKGgpeCgyTisxKQogICAgZGlmZiArIDIgKiBqICogTAogIH0pCiAgczIgPC0gc2FwcGx5KC1OOk4sIGZ1bmN0aW9uKGopIHsKICAgIGFkZGkgKyAyICogaiAqIEwKICB9KQogIGlmIChib3VuZGFyeSA9PSAibmV1bWFubiIpIHsKICAgIEMgPC0gcm93U3VtcyhtYXRlcm4uY292YXJpYW5jZShoID0gczEsIGthcHBhID0ga2FwcGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbnUgPSBudSwgc2lnbWEgPSBzaWdtYSkgKwogICAgICAgICAgICAgICAgICAgbWF0ZXJuLmNvdmFyaWFuY2UoaCA9IHMyLCBrYXBwYSA9IGthcHBhLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbnUgPSBudSwgc2lnbWEgPSBzaWdtYSkpCiAgfSBlbHNlIGlmIChib3VuZGFyeSA9PSAiZGlyaWNobGV0IikgewogICAgQyA8LSByb3dTdW1zKG1hdGVybi5jb3ZhcmlhbmNlKGggPSBzMSwga2FwcGEgPSBrYXBwYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBudSA9IG51LCBzaWdtYSA9IHNpZ21hKSAtCiAgICAgICAgICAgICAgICAgICBtYXRlcm4uY292YXJpYW5jZShoID0gczIsIGthcHBhID0ga2FwcGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBudSA9IG51LCBzaWdtYSA9IHNpZ21hKSkKICB9IGVsc2UgewogICAgQyA8LSByb3dTdW1zKG1hdGVybi5jb3ZhcmlhbmNlKGggPSBzMSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBrYXBwYSA9IGthcHBhLCBudSA9IG51LCBzaWdtYSA9IHNpZ21hKSkKICB9CiAgcmV0dXJuKG1hdHJpeChDLCBucm93ID0gbGVuZ3RoKHgpKSkKfQoKIyBGdW5jdGlvbiB0byBnZXQgdGhlIHRydWUgY292YXJpYW5jZSBtYXRyaXgKZ2V0c190cnVlX2Nvdl9tYXQgPSBmdW5jdGlvbihncmFwaCwga2FwcGEsIG51LCBzaWdtYSwgTiwgYm91bmRhcnkpewogIGggPSBjKDAsZ3JhcGgkZ2V0X2VkZ2VfbGVuZ3RocygpWzFdKmdyYXBoJG1lc2gkUHRFWywyXSkKICB0cnVlX2Nvdl9tYXQgPSBmb2xkZWQubWF0ZXJuLmNvdmFyaWFuY2UuMWQubG9jYWwoeCA9IGgsIGthcHBhID0ga2FwcGEsIG51ID0gbnUsIHNpZ21hID0gc2lnbWEsIE4gPSBOLCBib3VuZGFyeSA9IGJvdW5kYXJ5KQogIHJldHVybih0cnVlX2Nvdl9tYXQpCn0KCiMgRGVmaW5lIHRoZSBncmFwaApyIDwtIDEvKHBpKQp0aGV0YSA8LSBzZXEoZnJvbSA9IC1waSwgdG8gPSBwaSwgbGVuZ3RoLm91dCA9IDEwMCkKZWRnZSA8LSBjYmluZCgxK3Ircipjb3ModGhldGEpLCByKnNpbih0aGV0YSkpCmVkZ2VzIDwtIGxpc3QoZWRnZSkKZ3JhcGggPC0gbWV0cmljX2dyYXBoJG5ldyhlZGdlcyA9IGVkZ2VzKQoKIyBwYXJhbWV0ZXJzCmgub2sgPC0gMl4tMTAKdHlwZSA8LSAiY292YXJpYW5jZSIKdHlwZV9yYXRpb25hbF9hcHByb3hpbWF0aW9uID0gImJyYXNpbCIKcmhvIDwtIDAuNQojbSA9IDQKc2lnbWEgPC0gMQpOLmZvbGRlZCA8LSAxMApib3VuZGFyeSA8LSAicGVyaW9kaWMiICMgRG8gbm90IGNoYW5nZSB0aGlzCgojIE1lc2ggc2l6ZXMKaF9hdXggPC0gc2VxKDUuNSwgNCwgYnkgPSAtMS8yKQpoX3ZlY3RvciA8LSAyXi1oX2F1eApoX2xhYmVsIDwtIHBhc3RlMCgiMl4tIiwgaF9hdXgsICIiKQpoX2xhYmVsX2xhdGV4IDwtIHNwcmludGYoIiQyXnstJWZ9JCIsIGhfYXV4KQoKIyBCZXRhIHZhbHVlcwphbHBoYV9hdXggPC0gYyg4LCAxMiwgMTMsIDE0LCAxNSkKYWxwaGFfdmVjdG9yIDwtIGFscGhhX2F1eC84CmFscGhhX2xhYmVsIDwtIHBhc3RlMChhbHBoYV9hdXgsICIvOCIpCnRoZW9yZXRpY2FsX3JhdGUgPC0gcG1pbigyKmFscGhhX3ZlY3Rvci0xLzIsMikKCmdyYXBoLm9rIDwtIGdyYXBoJGNsb25lKCkKIyBCdWlsZCBncmFwaCB3aXRoIG92ZXJraWxsIG1lc2gKZ3JhcGgub2skYnVpbGRfbWVzaChoID0gaC5vaykKZ3JhcGgub2skY29tcHV0ZV9mZW0oKQoKIyBHZXQgdGhlIG92ZXJraWxsIG1lc2ggbG9jYXRpb25zCmxvYy5vayA8LSBncmFwaC5vayRtZXNoJFZ0RSAjIG9yIGdyYXBoLm9rJGdldF9tZXNoX2xvY2F0aW9ucygpCgojIEluaXRpYWxpemUgdGhlIGxpc3Qgb2YgZ3JhcGhzIGFuZCB0aGUgbGlzdCBvZiBwcm9qZWN0aW9uIG1hdHJpY2VzCmdyYXBocyA8LSBsaXN0KCkKQSA8LSBsaXN0KCkKZm9yKGkgaW4gMTpsZW5ndGgoaF92ZWN0b3IpKXsKICBncmFwaHNbW2ldXSA8LSBncmFwaCRjbG9uZSgpCiAgZ3JhcGhzW1tpXV0kYnVpbGRfbWVzaChoID0gaF92ZWN0b3JbaV0pCiAgQVtbaV1dIDwtIGdyYXBoc1tbaV1dJGZlbV9iYXNpcyhsb2Mub2spCn0KCmNvdi5lcnJvci5jaXJjbGUgPC0gbWF0cml4KE5BLCBucm93ID0gbGVuZ3RoKGhfdmVjdG9yKSwgbmNvbCA9IGxlbmd0aChhbHBoYV92ZWN0b3IpKQoKbV92YWx1ZXMgPC0gYygpCmZvciAoaiBpbiAxOmxlbmd0aChhbHBoYV92ZWN0b3IpKSB7CiAgYWxwaGEgPC0gYWxwaGFfdmVjdG9yW2pdCiAgZnJhY3RfYWxwaGEgPC0gYWxwaGEgLSBmbG9vcihhbHBoYSkKICBudSA8LSBhbHBoYSAtIDAuNQogIGthcHBhIDwtIHNxcnQoOCpudSkvcmhvCiAgdGF1IDwtIHNxcnQoZ2FtbWEobnUpIC8gKHNpZ21hXjIgKiBrYXBwYV4oMipudSkgKiAoNCpwaSleKDEvMikgKiBnYW1tYShudSArIDEvMikpKSAgI3NpZ21hID0gMSwgZCA9IDEKCiAgU2lnbWEudHJ1ZS5jaXJjbGUgPC0gZ2V0c190cnVlX2Nvdl9tYXQoZ3JhcGggPSBncmFwaC5vaywgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBrYXBwYSA9IGthcHBhLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbnUgPSBudSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNpZ21hID0gc2lnbWEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBOID0gTi5mb2xkZWQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBib3VuZGFyeSA9IGJvdW5kYXJ5KQoKICBmb3IgKGkgaW4gMTpsZW5ndGgoaF92ZWN0b3IpKSB7CiAgICBoIDwtIGhfdmVjdG9yW2ldCiAgICBtIDwtIG1pbigyMCwgY2VpbGluZygobWluKDIqYWxwaGEgLSAxLzIsMikgKyAxLzIpXjIqbG9nKGgpXjIvKDQqcGleMipmcmFjdF9hbHBoYSkpKQogICAgbV92YWx1ZXMgPC0gYyhtX3ZhbHVlcywgbSkKCiAgICBTaWdtYSA8LSBtYXRlcm4ub3BlcmF0b3JzKGFscGhhID0gYWxwaGEsICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICBrYXBwYSA9IGthcHBhLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRhdSA9IHRhdSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtID0gbSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICBncmFwaCA9IGdyYXBoc1tbaV1dLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIHR5cGUgPSB0eXBlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIHR5cGVfcmF0aW9uYWxfYXBwcm94aW1hdGlvbiA9IHR5cGVfcmF0aW9uYWxfYXBwcm94aW1hdGlvbikkY292YXJpYW5jZV9tZXNoKCkKCiAgICBTaWdtYS5hcHByb3guY2lyY2xlIDwtIEFbW2ldXSUqJVNpZ21hJSoldChBW1tpXV0pCgogICAgY292LmVycm9yLmNpcmNsZVtpLGpdIDwtIHNxcnQoYXMuZG91YmxlKHQoZ3JhcGgub2skbWVzaCR3ZWlnaHRzKSUqJShTaWdtYS50cnVlLmNpcmNsZSAtIFNpZ21hLmFwcHJveC5jaXJjbGUpXjIlKiVncmFwaC5vayRtZXNoJHdlaWdodHMpKQogIH0KfQoKCnByaW50KG1fdmFsdWVzKQoKc2xvcGVfY2lyY2xlIDwtIG51bWVyaWMobGVuZ3RoKGFscGhhX3ZlY3RvcikpCgpmb3IgKHUgaW4gMTpsZW5ndGgoYWxwaGFfdmVjdG9yKSkgewogIHNsb3BlX2NpcmNsZVt1XSA8LSBjb2VmKGxtKGxvZyhjb3YuZXJyb3IuY2lyY2xlWyx1XSkgfiBsb2coaF92ZWN0b3IpKSlbMl0KfQoKdHJhbnNwb3NlZF9kZiA8LSBkYXRhLmZyYW1lKHQoZGF0YS5mcmFtZShhbHBoYSA9IGFscGhhX2xhYmVsLCB0aGVvcmV0aWNhbF9yYXRlID0gdGhlb3JldGljYWxfcmF0ZSwgc2xvcGUgPSBzbG9wZV9jaXJjbGUpKSkKcm93bmFtZXModHJhbnNwb3NlZF9kZikgPC0gYygiYWxwaGEiLCAiVGhlb3JldGljYWwgcmF0ZXMiLCAiQ2lyY2xlIGdyYXBoIikKY29sbmFtZXModHJhbnNwb3NlZF9kZikgPC0gTlVMTAojIERpc3BsYXkgdGhlIHRyYW5zcG9zZWQgZGF0YSBmcmFtZQp0cmFuc3Bvc2VkX2RmIHw+IHBhZ2VkX3RhYmxlKCkKCmxvZ2xvZ19saW5lX2VxdWF0aW9uIDwtIGZ1bmN0aW9uKHgxLCB5MSwgc2xvcGUpIHsKICBiIDwtIGxvZzEwKHkxIC8gKHgxIF4gc2xvcGUpKQoKICBmdW5jdGlvbih4KSB7CiAgICAoeCBeIHNsb3BlKSAqICgxMCBeIGIpCiAgfQp9CgpndWlkaW5nX2xpbmVzIDwtIG1hdHJpeChOQSwgbnJvdyA9IGxlbmd0aChoX3ZlY3RvciksIG5jb2wgPSBsZW5ndGgoYWxwaGFfdmVjdG9yKSkKZm9yIChqIGluIDE6bGVuZ3RoKGFscGhhX3ZlY3RvcikpIHsKICBndWlkaW5nX2xpbmVzX2F1eCA8LSBtYXRyaXgoTkEsIG5yb3cgPSBsZW5ndGgoaF92ZWN0b3IpLCBuY29sID0gbGVuZ3RoKGhfdmVjdG9yKSkKICBmb3IoayBpbiAxOmxlbmd0aChoX3ZlY3RvcikpewogICAgcG9pbnRfeDEgPC0gaF92ZWN0b3Jba10KICAgIHBvaW50X3kxIDwtIGNvdi5lcnJvci5jaXJjbGVbaywgal0KICAgIHNsb3BlIDwtIHRoZW9yZXRpY2FsX3JhdGVbal0KICAgIGxpbmUgPC0gbG9nbG9nX2xpbmVfZXF1YXRpb24oeDEgPSBwb2ludF94MSwgeTEgPSBwb2ludF95MSwgc2xvcGUgPSBzbG9wZSkKICAgIGd1aWRpbmdfbGluZXNfYXV4WyxrXSA8LSBsaW5lKGhfdmVjdG9yKQogIH0KICBndWlkaW5nX2xpbmVzWyxqXSA8LSBhcHBseShndWlkaW5nX2xpbmVzX2F1eCwgMSwgbWVhbikKfQpndWlkaW5nX2xpbmVzMiA8LSBndWlkaW5nX2xpbmVzCgojIEdlbmVyYXRlIGRlZmF1bHQgZ2dwbG90MiBjb2xvcnMKZGVmYXVsdF9jb2xvcnMgPC0gc2NhbGVzOjpodWVfcGFsKCkobmNvbChndWlkaW5nX2xpbmVzKSkKCiMgQ3JlYXRlIHRoZSBwbG90X2xpbmVzIGxpc3Qgd2l0aCBkaWZmZXJlbnQgY29sb3JzIGZvciBlYWNoIGxpbmUKcGxvdF9saW5lcyA8LSBsYXBwbHkoMTpuY29sKGd1aWRpbmdfbGluZXMpLCBmdW5jdGlvbihpKSB7CiAgZ2VvbV9saW5lKGRhdGEgPSBkYXRhLmZyYW1lKHggPSBoX3ZlY3RvciwgeSA9IGd1aWRpbmdfbGluZXNbLCBpXSksCiAgICAgICAgICAgIGFlcyh4ID0geCwgeSA9IHkpLCBjb2xvciA9IGRlZmF1bHRfY29sb3JzW2ldLCBsaW5ldHlwZSA9ICJkYXNoZWQiLCBzaG93LmxlZ2VuZCA9IEZBTFNFKQp9KQoKZGYgPC0gYXMuZGF0YS5mcmFtZShjYmluZChoX3ZlY3RvciwgY292LmVycm9yLmNpcmNsZSkpCmNvbG5hbWVzKGRmKSA8LSBjKCJoX3ZlY3RvciIsIGFscGhhX2xhYmVsKQpkZl9tZWx0ZWQgPC0gbWVsdChkZiwgaWQudmFycyA9ICJoX3ZlY3RvciIsIHZhcmlhYmxlLm5hbWUgPSAiY29sdW1uIiwgdmFsdWUubmFtZSA9ICJ2YWx1ZSIpCmRmX21lbHRlZDIgPC0gZGZfbWVsdGVkCgpwLmNpcmNsZSA8LSBnZ3Bsb3QoKSArCiAgZ2VvbV9saW5lKGRhdGEgPSBkZl9tZWx0ZWQsIGFlcyh4ID0gaF92ZWN0b3IsIHkgPSB2YWx1ZSwgY29sb3IgPSBjb2x1bW4pKSArCiAgZ2VvbV9wb2ludChkYXRhID0gZGZfbWVsdGVkLCBhZXMoeCA9IGhfdmVjdG9yLCB5ID0gdmFsdWUsIGNvbG9yID0gY29sdW1uKSkgKwogIHBsb3RfbGluZXMgKwogIGxhYnModGl0bGUgPSAiQ2lyY2xlIGdyYXBoIiwKICAgIHggPSAiaCIsCiAgICAgICB5ID0gIkNvdmFyaWFuY2UgRXJyb3IiLAogICAgICAgY29sb3IgPSBleHByZXNzaW9uKGFscGhhKSkgKwogIHNjYWxlX3hfbG9nMTAoYnJlYWtzID0gaF92ZWN0b3IsIGxhYmVscyA9IHJvdW5kKGhfdmVjdG9yLDMpKSArCiAgc2NhbGVfeV9sb2cxMCgpICsKICB0aGVtZV9taW5pbWFsKCkgKwogIHRoZW1lKHRleHQgPSBlbGVtZW50X3RleHQoZmFtaWx5ID0gIlBhbGF0aW5vIikpCmBgYAoKCmBgYHtyLCBmaWcuZGltID0gYyg1LDQpLCBmaWcuY2FwID0gY2FwdGlvbmVyKCJDb252ZXJnZW5jZSByYXRlcyBmb3IgdGhlIGNpcmNsZSBncmFwaC4iKX0KcC5jaXJjbGUKYGBgCgojIFRhZHBvbGUgZ3JhcGgKCkZvbGxvdyB0aGlzIFtsaW5rXShjb252ZXJnZW5jZV9yYXRlcy9jb252ZXJnZW5jZV9yYXRlc190YWRwb2xlLmh0bWwpIGZvciBtb3JlIGRldGFpbHMuCgpgYGB7ciwgY2xhc3Muc291cmNlID0gImZvbGQtaGlkZSJ9CiMgRWlnZW5mdW5jdGlvbnMgZm9yIHRoZSB0YWRwb2xlIGdyYXBoCnRhZHBvbGUuZWlnIDwtIGZ1bmN0aW9uKGssZ3JhcGgpewogIHgxIDwtIGMoMCxncmFwaCRnZXRfZWRnZV9sZW5ndGhzKClbMV0qZ3JhcGgkbWVzaCRQdEVbZ3JhcGgkbWVzaCRQdEVbLDFdPT0xLDJdKSAKICB4MiA8LSBjKDAsZ3JhcGgkZ2V0X2VkZ2VfbGVuZ3RocygpWzJdKmdyYXBoJG1lc2gkUHRFW2dyYXBoJG1lc2gkUHRFWywxXT09MiwyXSkgCiAgCiAgaWYoaz09MCl7IAogICAgZi5lMSA8LSByZXAoMSxsZW5ndGgoeDEpKSAKICAgIGYuZTIgPC0gcmVwKDEsbGVuZ3RoKHgyKSkgCiAgICBmMSA9IGMoZi5lMVsxXSxmLmUyWzFdLGYuZTFbLTFdLCBmLmUyWy0xXSkgCiAgICBmID0gbGlzdChwaGk9ZjEvc3FydCgzKSkgCiAgICAKICB9IGVsc2UgewogICAgZi5lMSA8LSAtMipzaW4ocGkqayoxLzIpKmNvcyhwaSprKngxLzIpIAogICAgZi5lMiA8LSBzaW4ocGkqayp4Mi8yKSAgICAgICAgICAgICAgICAgIAogICAgCiAgICBmMSA9IGMoZi5lMVsxXSxmLmUyWzFdLGYuZTFbLTFdLCBmLmUyWy0xXSkgCiAgICAKICAgIGlmKChrICUlIDIpPT0xKXsgCiAgICAgIGYgPSBsaXN0KHBoaT1mMS9zcXJ0KDMpKSAKICAgIH0gZWxzZSB7IAogICAgICBmLmUxIDwtICgtMSlee2svMn0qY29zKHBpKmsqeDEvMikKICAgICAgZi5lMiA8LSBjb3MocGkqayp4Mi8yKQogICAgICBmMiA9IGMoZi5lMVsxXSxmLmUyWzFdLGYuZTFbLTFdLGYuZTJbLTFdKSAKICAgICAgZiA8LSBsaXN0KHBoaT1mMSxwc2k9ZjIvc3FydCgzLzIpKQogICAgfQogIH0KICAKICByZXR1cm4oZikKfQoKCiMgRnVuY3Rpb24gdG8gY29tcHV0ZSB0aGUgdHJ1ZSBjb3ZhcmlhbmNlIG1hdHJpeApnZXRzX3RydWVfY292X21hdCA8LSBmdW5jdGlvbihncmFwaCwga2FwcGEsIHRhdSwgYWxwaGEsIG4ub3ZlcmtpbGwpewogIFNpZ21hLmtsIDwtIG1hdHJpeCgwLG5yb3cgPSBkaW0oZ3JhcGgkbWVzaCRWKVsxXSxuY29sID0gZGltKGdyYXBoJG1lc2gkVilbMV0pCiAgZm9yKGkgaW4gMDpuLm92ZXJraWxsKXsKICAgIHBoaSA8LSB0YWRwb2xlLmVpZyhpLGdyYXBoKSRwaGkKICAgIFNpZ21hLmtsIDwtIFNpZ21hLmtsICsgKDEvKGthcHBhXjIgKyAoaSpwaS8yKV4yKV4oYWxwaGEpKSpwaGklKiV0KHBoaSkKICAgIGlmKGk+MCAmJiAoaSAlJSAyKT09MCl7IAogICAgICBwc2kgPC0gdGFkcG9sZS5laWcoaSxncmFwaCkkcHNpCiAgICAgIFNpZ21hLmtsIDwtIFNpZ21hLmtsICsgKDEvKGthcHBhXjIgKyAoaSpwaS8yKV4yKV4oYWxwaGEpKSpwc2klKiV0KHBzaSkKICAgIH0KICAgIAogIH0KICBTaWdtYS5rbCA8LSBTaWdtYS5rbC90YXVeMgogIHJldHVybihTaWdtYS5rbCkKfQoKIyBEZWZpbmUgdGhlIGdyYXBoCmVkZ2UxIDwtIHJiaW5kKGMoMCwwKSwgYygxLDApKQp0aGV0YSA8LSBzZXEoZnJvbSA9IC1waSwgdG8gPSBwaSxsZW5ndGgub3V0ID0gMTAwKQplZGdlMiA8LSBjYmluZCgxKzEvcGkrY29zKHRoZXRhKS9waSwgc2luKHRoZXRhKS9waSkKZWRnZXMgPC0gbGlzdChlZGdlMSwgZWRnZTIpCmdyYXBoIDwtIG1ldHJpY19ncmFwaCRuZXcoZWRnZXMgPSBlZGdlcykKCiMgcGFyYW1ldGVycwpoLm9rIDwtIDJeLTEwCnR5cGUgPC0gImNvdmFyaWFuY2UiCnR5cGVfcmF0aW9uYWxfYXBwcm94aW1hdGlvbiA9ICJicmFzaWwiCnJobyA8LSAwLjUKI20gPSA0CnNpZ21hIDwtIDEKbi5vdmVya2lsbCA9IDEwMDAKCiMgTWVzaCBzaXplcwpoX2F1eCA8LSBzZXEoNS41LCA0LCBieSA9IC0xLzIpCmhfdmVjdG9yIDwtIDJeLWhfYXV4CmhfbGFiZWwgPC0gcGFzdGUwKCIyXi0iLCBoX2F1eCwgIiIpCmhfbGFiZWxfbGF0ZXggPC0gc3ByaW50ZigiJDJeey0lZn0kIiwgaF9hdXgpCgojIEJldGEgdmFsdWVzCmFscGhhX2F1eCA8LSBjKDgsIDEyLCAxMywgMTQsIDE1KQphbHBoYV92ZWN0b3IgPC0gYWxwaGFfYXV4LzgKYWxwaGFfbGFiZWwgPC0gcGFzdGUwKGFscGhhX2F1eCwgIi84IikKdGhlb3JldGljYWxfcmF0ZSA8LSBwbWluKDIqYWxwaGFfdmVjdG9yLTEvMiwyKQoKZ3JhcGgub2sgPC0gZ3JhcGgkY2xvbmUoKQojIEJ1aWxkIGdyYXBoIHdpdGggb3ZlcmtpbGwgbWVzaApncmFwaC5vayRidWlsZF9tZXNoKGggPSBoLm9rKQpncmFwaC5vayRjb21wdXRlX2ZlbSgpCgojIEdldCB0aGUgb3ZlcmtpbGwgbWVzaCBsb2NhdGlvbnMKbG9jLm9rIDwtIGdyYXBoLm9rJG1lc2gkVnRFICMgb3IgZ3JhcGgub2skZ2V0X21lc2hfbG9jYXRpb25zKCkKCiMgSW5pdGlhbGl6ZSB0aGUgbGlzdCBvZiBncmFwaHMgYW5kIHRoZSBsaXN0IG9mIHByb2plY3Rpb24gbWF0cmljZXMKZ3JhcGhzIDwtIGxpc3QoKQpBIDwtIGxpc3QoKQpmb3IoaSBpbiAxOmxlbmd0aChoX3ZlY3RvcikpewogIGdyYXBoc1tbaV1dIDwtIGdyYXBoJGNsb25lKCkKICBncmFwaHNbW2ldXSRidWlsZF9tZXNoKGggPSBoX3ZlY3RvcltpXSkKICBBW1tpXV0gPC0gZ3JhcGhzW1tpXV0kZmVtX2Jhc2lzKGxvYy5vaykKfQoKY292LmVycm9yLnRhZHBvbGUgPC0gbWF0cml4KE5BLCBucm93ID0gbGVuZ3RoKGhfdmVjdG9yKSwgbmNvbCA9IGxlbmd0aChhbHBoYV92ZWN0b3IpKQoKbV92YWx1ZXMgPC0gYygpCmZvciAoaiBpbiAxOmxlbmd0aChhbHBoYV92ZWN0b3IpKSB7CiAgYWxwaGEgPC0gYWxwaGFfdmVjdG9yW2pdCiAgZnJhY3RfYWxwaGEgPC0gYWxwaGEgLSBmbG9vcihhbHBoYSkKICBudSA8LSBhbHBoYSAtIDAuNQogIGthcHBhIDwtIHNxcnQoOCpudSkvcmhvCiAgdGF1IDwtIHNxcnQoZ2FtbWEobnUpIC8gKHNpZ21hXjIgKiBrYXBwYV4oMipudSkgKiAoNCpwaSleKDEvMikgKiBnYW1tYShudSArIDEvMikpKSAgI3NpZ21hID0gMSwgZCA9IDEKCiAgU2lnbWEudHJ1ZS50YWRwb2xlIDwtIGdldHNfdHJ1ZV9jb3ZfbWF0KGdyYXBoID0gZ3JhcGgub2ssCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBrYXBwYSA9IGthcHBhLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdGF1ID0gdGF1LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWxwaGEgPSBhbHBoYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG4ub3ZlcmtpbGwgPSBuLm92ZXJraWxsKQoKICBmb3IgKGkgaW4gMTpsZW5ndGgoaF92ZWN0b3IpKSB7CiAgICBoIDwtIGhfdmVjdG9yW2ldCiAgICBtIDwtIG1pbigyMCwgY2VpbGluZygobWluKDIqYWxwaGEgLSAxLzIsMikgKyAxLzIpXjIqbG9nKGgpXjIvKDQqcGleMipmcmFjdF9hbHBoYSkpKQogICAgbV92YWx1ZXMgPC0gYyhtX3ZhbHVlcywgbSkKCiAgICBTaWdtYSA8LSBtYXRlcm4ub3BlcmF0b3JzKGFscGhhID0gYWxwaGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAga2FwcGEgPSBrYXBwYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0YXUgPSB0YXUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbSA9IG0sCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ3JhcGggPSBncmFwaHNbW2ldXSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0eXBlID0gdHlwZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0eXBlX3JhdGlvbmFsX2FwcHJveGltYXRpb24gPSB0eXBlX3JhdGlvbmFsX2FwcHJveGltYXRpb24pJGNvdmFyaWFuY2VfbWVzaCgpCgogICAgU2lnbWEuYXBwcm94LnRhZHBvbGUgPC0gQVtbaV1dJSolU2lnbWElKiV0KEFbW2ldXSkKCiAgICBjb3YuZXJyb3IudGFkcG9sZVtpLGpdIDwtIHNxcnQoYXMuZG91YmxlKHQoZ3JhcGgub2skbWVzaCR3ZWlnaHRzKSUqJShTaWdtYS50cnVlLnRhZHBvbGUgLSBTaWdtYS5hcHByb3gudGFkcG9sZSleMiUqJWdyYXBoLm9rJG1lc2gkd2VpZ2h0cykpCiAgfQp9CgpwcmludChtX3ZhbHVlcykKCnNsb3BlX3RhZHBvbGUgPC0gbnVtZXJpYyhsZW5ndGgoYWxwaGFfdmVjdG9yKSkKCmZvciAodSBpbiAxOmxlbmd0aChhbHBoYV92ZWN0b3IpKSB7CiAgc2xvcGVfdGFkcG9sZVt1XSA8LSByb3VuZChjb2VmKGxtKGxvZyhjb3YuZXJyb3IudGFkcG9sZVssdV0pIH4gbG9nKGhfdmVjdG9yKSkpWzJdLCA3KQp9Cgp0cmFuc3Bvc2VkX2RmIDwtIGRhdGEuZnJhbWUodChkYXRhLmZyYW1lKGFscGhhID0gYWxwaGFfbGFiZWwsIHRoZW9yZXRpY2FsX3JhdGUgPSB0aGVvcmV0aWNhbF9yYXRlLCBzbG9wZSA9IHNsb3BlX3RhZHBvbGUpKSkKcm93bmFtZXModHJhbnNwb3NlZF9kZikgPC0gYygiYWxwaGEiLCAiVGhlb3JldGljYWwgcmF0ZXMiLCAiVGFkcG9sZSBncmFwaCIpCmNvbG5hbWVzKHRyYW5zcG9zZWRfZGYpIDwtIE5VTEwKIyBEaXNwbGF5IHRoZSB0cmFuc3Bvc2VkIGRhdGEgZnJhbWUKdHJhbnNwb3NlZF9kZiB8PiBwYWdlZF90YWJsZSgpCgpsb2dsb2dfbGluZV9lcXVhdGlvbiA8LSBmdW5jdGlvbih4MSwgeTEsIHNsb3BlKSB7CiAgYiA8LSBsb2cxMCh5MSAvICh4MSBeIHNsb3BlKSkKCiAgZnVuY3Rpb24oeCkgewogICAgKHggXiBzbG9wZSkgKiAoMTAgXiBiKQogIH0KfQoKZ3VpZGluZ19saW5lcyA8LSBtYXRyaXgoTkEsIG5yb3cgPSBsZW5ndGgoaF92ZWN0b3IpLCBuY29sID0gbGVuZ3RoKGFscGhhX3ZlY3RvcikpCmZvciAoaiBpbiAxOmxlbmd0aChhbHBoYV92ZWN0b3IpKSB7CiAgZ3VpZGluZ19saW5lc19hdXggPC0gbWF0cml4KE5BLCBucm93ID0gbGVuZ3RoKGhfdmVjdG9yKSwgbmNvbCA9IGxlbmd0aChoX3ZlY3RvcikpCiAgZm9yKGsgaW4gMTpsZW5ndGgoaF92ZWN0b3IpKXsKICAgIHBvaW50X3gxIDwtIGhfdmVjdG9yW2tdCiAgICBwb2ludF95MSA8LSBjb3YuZXJyb3IudGFkcG9sZVtrLCBqXQogICAgc2xvcGUgPC0gdGhlb3JldGljYWxfcmF0ZVtqXQogICAgbGluZSA8LSBsb2dsb2dfbGluZV9lcXVhdGlvbih4MSA9IHBvaW50X3gxLCB5MSA9IHBvaW50X3kxLCBzbG9wZSA9IHNsb3BlKQogICAgZ3VpZGluZ19saW5lc19hdXhbLGtdIDwtIGxpbmUoaF92ZWN0b3IpCiAgfQogIGd1aWRpbmdfbGluZXNbLGpdIDwtIGFwcGx5KGd1aWRpbmdfbGluZXNfYXV4LCAxLCBtZWFuKQp9Cmd1aWRpbmdfbGluZXMzIDwtIGd1aWRpbmdfbGluZXMKCiMgR2VuZXJhdGUgZGVmYXVsdCBnZ3Bsb3QyIGNvbG9ycwpkZWZhdWx0X2NvbG9ycyA8LSBzY2FsZXM6Omh1ZV9wYWwoKShuY29sKGd1aWRpbmdfbGluZXMpKQoKIyBDcmVhdGUgdGhlIHBsb3RfbGluZXMgbGlzdCB3aXRoIGRpZmZlcmVudCBjb2xvcnMgZm9yIGVhY2ggbGluZQpwbG90X2xpbmVzIDwtIGxhcHBseSgxOm5jb2woZ3VpZGluZ19saW5lcyksIGZ1bmN0aW9uKGkpIHsKICBnZW9tX2xpbmUoZGF0YSA9IGRhdGEuZnJhbWUoeCA9IGhfdmVjdG9yLCB5ID0gZ3VpZGluZ19saW5lc1ssIGldKSwKICAgICAgICAgICAgYWVzKHggPSB4LCB5ID0geSksIGNvbG9yID0gZGVmYXVsdF9jb2xvcnNbaV0sIGxpbmV0eXBlID0gImRhc2hlZCIsIHNob3cubGVnZW5kID0gRkFMU0UpCn0pCgpkZiA8LSBhcy5kYXRhLmZyYW1lKGNiaW5kKGhfdmVjdG9yLCBjb3YuZXJyb3IudGFkcG9sZSkpCmNvbG5hbWVzKGRmKSA8LSBjKCJoX3ZlY3RvciIsIGFscGhhX2xhYmVsKQpkZl9tZWx0ZWQgPC0gbWVsdChkZiwgaWQudmFycyA9ICJoX3ZlY3RvciIsIHZhcmlhYmxlLm5hbWUgPSAiY29sdW1uIiwgdmFsdWUubmFtZSA9ICJ2YWx1ZSIpCmRmX21lbHRlZDMgPC0gZGZfbWVsdGVkCgpwLnRhZHBvbGUgPC0gZ2dwbG90KCkgKwogIGdlb21fbGluZShkYXRhID0gZGZfbWVsdGVkLCBhZXMoeCA9IGhfdmVjdG9yLCB5ID0gdmFsdWUsIGNvbG9yID0gY29sdW1uKSkgKwogIGdlb21fcG9pbnQoZGF0YSA9IGRmX21lbHRlZCwgYWVzKHggPSBoX3ZlY3RvciwgeSA9IHZhbHVlLCBjb2xvciA9IGNvbHVtbikpICsKICBwbG90X2xpbmVzICsKICBsYWJzKHRpdGxlID0gIlRhZHBvbGUgZ3JhcGgiLAogICAgeCA9ICJoIiwKICAgICAgIHkgPSAiQ292YXJpYW5jZSBFcnJvciIsCiAgICAgICBjb2xvciA9IGV4cHJlc3Npb24oYWxwaGEpKSArCiAgc2NhbGVfeF9sb2cxMChicmVha3MgPSBoX3ZlY3RvciwgbGFiZWxzID0gcm91bmQoaF92ZWN0b3IsMykpICsKICBzY2FsZV95X2xvZzEwKCkgKwogIHRoZW1lX21pbmltYWwoKSArCiAgdGhlbWUodGV4dCA9IGVsZW1lbnRfdGV4dChmYW1pbHkgPSAiUGFsYXRpbm8iKSkKYGBgCgoKYGBge3IsIGZpZy5kaW0gPSBjKDUsNCksIGZpZy5jYXAgPSBjYXB0aW9uZXIoIkNvbnZlcmdlbmNlIHJhdGVzIGZvciB0aGUgdGFkcG9sZSBncmFwaC4iKX0KcC50YWRwb2xlCmBgYAoKIyBBbGx0b2dldGhlcgoKCmBgYHtyfQp0cmFuc3Bvc2VkX2RmIDwtIGRhdGEuZnJhbWUodChkYXRhLmZyYW1lKGFscGhhID0gYWxwaGFfbGFiZWwsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRoZW9yZXRpY2FsX3JhdGUgPSB0aGVvcmV0aWNhbF9yYXRlLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzbG9wZV9pbnRlcnZhbCA9IHNsb3BlX2ludGVydmFsLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNsb3BlX2NpcmNsZSA9IHNsb3BlX2NpcmNsZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzbG9wZV90YWRwb2xlID0gc2xvcGVfdGFkcG9sZSkpKQpyb3duYW1lcyh0cmFuc3Bvc2VkX2RmKSA8LSBjKCJhbHBoYSIsICJUaGVvcmV0aWNhbCByYXRlcyIsICJJbnRlcnZhbCBncmFwaCIsICJDaXJjbGUgZ3JhcGgiLCAiVGFkcG9sZSBncmFwaCIpCmNvbG5hbWVzKHRyYW5zcG9zZWRfZGYpIDwtIE5VTEwKIyBEaXNwbGF5IHRoZSB0cmFuc3Bvc2VkIGRhdGEgZnJhbWUKdHJhbnNwb3NlZF9kZiB8PiBwYWdlZF90YWJsZSgpCmBgYAoKCgoKYGBge3IsIGZpZy5kaW0gPSBjKDEyLDQpLCBmaWcuY2FwID0gY2FwdGlvbmVyKCJPYnNlcnZlZCBjb3ZhcmlhbmNlIGVycm9yIGZvciBkaWZmZXJlbnQgdmFsdWVzIG9mICRcXGFscGhhJCBhcyBmdW5jdGlvbnMgb2YgdGhlIG1lc2ggc2l6ZSAkaCQuIil9CmZmX2RhdGEgPC0gcmJpbmQobXV0YXRlKGRmX21lbHRlZDEsIGdyYXBoID0gIkludGVydmFsZ3JhcGgiKSwKICAgICAgICAgICAgICAgICBtdXRhdGUoZGZfbWVsdGVkMiwgZ3JhcGggPSAiQ2lyY2xlZ3JhcGgiKSwKICAgICAgICAgICAgICAgICBtdXRhdGUoZGZfbWVsdGVkMywgZ3JhcGggPSAiVGFkcG9sZWdyYXBoIikpCgpmZl9kYXRhJGdyYXBoIDwtIGZhY3RvcihmZl9kYXRhJGdyYXBoLCBsZXZlbHMgPSBjKCJJbnRlcnZhbGdyYXBoIiwgIkNpcmNsZWdyYXBoIiwgIlRhZHBvbGVncmFwaCIpKQoKZ2xpbmVzIDwtIGMoYXMudmVjdG9yKGd1aWRpbmdfbGluZXMxKSwgYXMudmVjdG9yKGd1aWRpbmdfbGluZXMyKSwgYXMudmVjdG9yKGd1aWRpbmdfbGluZXMzKSkKZ2dfZGF0YSA8LSBmZl9kYXRhICU+JSAKICBtdXRhdGUodmFsdWUgPSBnbGluZXMpCgpncmFwaF9sYWJlbHMgPC0gYygiSW50ZXJ2YWxncmFwaCIgPSAiSW50ZXJ2YWwgZ3JhcGgiLCAKICAgICAgICAgICAgICAgICAgIkNpcmNsZWdyYXBoIiA9ICJDaXJjbGUgZ3JhcGgiLCAKICAgICAgICAgICAgICAgICAgIlRhZHBvbGVncmFwaCIgPSAiVGFkcG9sZSBncmFwaCIpCgpsYXN0X3Bsb3QgPC0gZ2dwbG90KCkgKyAKICBnZW9tX2xpbmUoZGF0YSA9IGZmX2RhdGEsIGFlcyhoX3ZlY3RvciwgdmFsdWUsIGNvbG91ciA9IGFzLmZhY3Rvcihjb2x1bW4pKSwgbGluZXdpZHRoID0gMC43KSArCiAgZ2VvbV9saW5lKGRhdGEgPSBnZ19kYXRhLCBhZXMoaF92ZWN0b3IsIHZhbHVlLCBjb2xvdXIgPSBhcy5mYWN0b3IoY29sdW1uKSksIGxpbmV0eXBlID0gImRhc2hlZCIsIGxpbmV3aWR0aCA9IDAuMykgKwogIGdlb21fcG9pbnQoZGF0YSA9IGZmX2RhdGEsIGFlcyhoX3ZlY3RvciwgdmFsdWUsIGNvbG91ciA9IGFzLmZhY3Rvcihjb2x1bW4pKSkgKwogIGZhY2V0X2dyaWQofiBncmFwaCwgbGFiZWxsZXIgPSBhc19sYWJlbGxlcihncmFwaF9sYWJlbHMpKSArCiAgc2NhbGVfeV9sb2cxMCgpICsKICBzY2FsZV94X2xvZzEwKGJyZWFrcyA9IGhfdmVjdG9yLCBsYWJlbHMgPSByb3VuZChoX3ZlY3RvciwgMykpICsKICB0aGVtZV9idygpICsKICB0aGVtZShwYW5lbC5zcGFjaW5nID0gdW5pdCgwLjQsICJjbSIpLCAKICAgICAgICB0ZXh0ID0gZWxlbWVudF90ZXh0KGZhbWlseSA9ICJQYWxhdGlubyIpLAogICAgICAgIHN0cmlwLnRleHQgPSBlbGVtZW50X3RleHQoc2l6ZSA9IDE2KSwgICAgICAgICMgUGFuZWwgdGl0bGVzCiAgICAgICAgYXhpcy50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gMTQpLCAgICAgICAgIyBBeGlzIHRpdGxlcwogICAgICAgIGF4aXMudGV4dCA9IGVsZW1lbnRfdGV4dChzaXplID0gMTIpLCAgICAgICAgICMgQXhpcyB0ZXh0CiAgICAgICAgbGVnZW5kLnRpdGxlID0gZWxlbWVudF90ZXh0KHNpemUgPSAxNCksICAgICAgIyBMZWdlbmQgdGl0bGUKICAgICAgICBsZWdlbmQudGV4dCA9IGVsZW1lbnRfdGV4dChzaXplID0gMTIpKSArCiAgbGFicyh4ID0gImgiLCB5ID0gIkNvdmFyaWFuY2UgRXJyb3IiLCBjb2xvciA9IGJxdW90ZShhbHBoYSkpIAoKbGFzdF9wbG90CmBgYAoKYGBge3J9Cmdnc2F2ZShoZXJlKCJkYXRhX2ZpbGVzL2NvbnZfcmF0ZXNfbmV3LnBuZyIpLCB3aWR0aCA9IDEyLCBoZWlnaHQgPSA0LCBwbG90ID0gbGFzdF9wbG90LCBkcGkgPSAzMDApCmBgYAoKIyBSZWZlcmVuY2VzCgpgYGB7cn0KY2l0ZV9wYWNrYWdlcyhvdXRwdXQgPSAicGFyYWdyYXBoIiwgb3V0LmRpciA9ICIuIikKYGBgCg==</div>
 
 
 </div>
@@ -1623,6 +1695,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
+  window.initializeSourceEmbed("convergence_rates.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

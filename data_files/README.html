@@ -407,115 +407,38 @@ display: none;
 <p>Here is a short description of the files and folders in the <a href="https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files"><code>data_files</code></a>
 directory.</p>
 <ol style="list-style-type: decimal">
-<li><strong><code>path_to_initial_data</code></strong></li>
-</ol>
-<p>This is not a file itself but it is included in this list because of
-the role it plays. Here is how it was created and used.</p>
-<ul>
-<li>Go to this <a href="https://data.sfgov.org/Transportation/SFMTA-Transit-Vehicle-Location-History-Current-Yea/x344-v6h6/explore/query/SELECT%0A%20%20%60vehicle_position_date_time%60%2C%0A%20%20%60vehicle_id%60%2C%0A%20%20%60loc_x%60%2C%0A%20%20%60loc_y%60%2C%0A%20%20%60heading%60%2C%0A%20%20%60average_speed%60%0AWHERE%0A%20%20%60vehicle_position_date_time%60%0A%20%20%20%20BETWEEN%20%222021-01-01T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0A%20%20%20%20AND%20%222021-01-31T15%3A18%3A52%22%20%3A%3A%20floating_timestamp%0AORDER%20BY%20%60vehicle_position_date_time%60%20DESC%20NULL%20FIRST/page/filter">webpage</a>.</li>
-<li>Press the Export button at the top-right corner and then press the
-Download button in the pop-up window.</li>
-<li>Save the downloaded file (around 2 GB) in some directory and set the
-path to this directory in the <code>path_to_initial_data</code> variable
-as in the <a href="../preprocessing/pp1.html"><code>pp1.html</code></a>
-vignette.</li>
-<li>Run the code in <a href="../preprocessing/pp1.html"><code>pp1.html</code></a> to create the
-<code>january.RData</code> file.</li>
-</ul>
-<ol start="2" style="list-style-type: decimal">
-<li><strong><code>january.RData</code></strong></li>
-</ol>
-<p>This file was created in <a href="../preprocessing/pp1.html"><code>pp1.html</code></a> using the
-initial data stored in <code>path_to_initial_data</code>. It does not
-appear in the repository because it is too large (around 352.9 MB). The
-previous item explains how to create it.</p>
-<ol start="3" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/day7142128hour13noconsecutivezeroes.RData"><strong><code>day7142128hour13noconsecutivezeroes.RData</code></strong></a></li>
-</ol>
-<p>This file was created in <a href="../preprocessing/pp2.html"><code>pp2.html</code></a> using the
-data stored in <code>january.RData</code>.</p>
-<ol start="4" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/San_Francisco_data_from_TomTom.zip"><strong><code>San_Francisco_data_from_TomTom.zip</code></strong></a>
-and <a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/San_Francisco_data_from_TomTom.json"><strong><code>San_Francisco_data_from_TomTom.json</code></strong></a></li>
-</ol>
-<p>These two files were downloaded using a free trial of <a href="https://www.tomtom.com/products/tomtom-move/">TomTom MOVE</a>
-geolocation services and contain the street network data for San
-Francisco.</p>
-<ol start="5" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files/San_Francisco_data_from_TomTom"><strong><code>San_Francisco_data_from_TomTom/</code></strong></a></li>
-</ol>
-<p>This folder contains the unzipped contents of
-<code>San_Francisco_data_from_TomTom.zip</code>.</p>
-<ol start="6" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/tomtom.RData"><strong><code>tomtom.RData</code></strong></a></li>
-</ol>
-<p>This file was created in <a href="../preprocessing/pp3.html"><code>pp3.html</code></a> using the
-data stored in <code>San_Francisco_data_from_TomTom.json</code> and
-<code>San_Francisco_data_from_TomTom/network.shp</code></p>
-<ol start="7" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/graph_construction_on_27JUN2024_FRC013456.RData"><strong><code>graph_construction_on_27JUN2024_FRC013456.RData</code></strong></a></li>
-</ol>
-<p>This file was created in <a href="../preprocessing/pp4.html"><code>pp4.html</code></a> using the
-data stored in <code>tomtom.RData</code>.</p>
-<ol start="8" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData"><strong><code>data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData</code></strong></a></li>
-</ol>
-<p>This file was created in <a href="../preprocessing/pp5.html"><code>pp5.html</code></a> using the
-data stored in <code>day7142128hour13noconsecutivezeroes.RData</code>
-and <code>graph_construction_on_27JUN2024_FRC013456.RData</code>.</p>
-<ol start="9" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/GROUPS.RData"><strong><code>GROUPS.RData</code></strong></a></li>
-</ol>
-<p>This file was created in <a href="../preprocessing/pp6.html"><code>pp6.html</code></a> using the
-data stored in
-<code>data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData</code>
-and <code>graph_construction_on_27JUN2024_FRC013456.RData</code>.</p>
-<ol start="10" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/before_modeling.RData"><strong><code>before_modeling.RData</code></strong></a></li>
-</ol>
-<p>This file was created in <a href="../preprocessing/pp6.html"><code>pp6.html</code></a> using the
-data stored in
-<code>data_day7142128_hour13_with_no_consecutive_zeros_27JUN2024_FRC013456_graph_processed.RData</code>
-and <code>graph_construction_on_27JUN2024_FRC013456.RData</code>.</p>
-<ol start="11" style="list-style-type: decimal">
 <li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_interval_DEF.RData"><strong><code>Error_interval_DEF.RData</code></strong></a></li>
 </ol>
 <p>This file was created in <a href="../numerical_error.html"><code>numerical_error.html</code></a>.</p>
-<ol start="12" style="list-style-type: decimal">
+<ol start="2" style="list-style-type: decimal">
 <li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_circle_DEF.RData"><strong><code>Error_circle_DEF.RData</code></strong></a></li>
 </ol>
 <p>This file was created in <a href="../numerical_error.html"><code>numerical_error.html</code></a>.</p>
-<ol start="13" style="list-style-type: decimal">
+<ol start="3" style="list-style-type: decimal">
 <li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho0.1.RData"><strong><code>Error_tadpole_DEF_rho0.1.RData</code></strong></a></li>
 </ol>
 <p>This file was created in <a href="../numerical_error.html"><code>numerical_error.html</code></a>.</p>
-<ol start="14" style="list-style-type: decimal">
+<ol start="4" style="list-style-type: decimal">
 <li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho0.5.RData"><strong><code>Error_tadpole_DEF_rho0.5.RData</code></strong></a></li>
 </ol>
 <p>This file was created in <a href="../numerical_error.html"><code>numerical_error.html</code></a>.</p>
-<ol start="15" style="list-style-type: decimal">
+<ol start="5" style="list-style-type: decimal">
 <li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho1.RData"><strong><code>Error_tadpole_DEF_rho1.RData</code></strong></a></li>
 </ol>
 <p>This file was created in <a href="../numerical_error.html"><code>numerical_error.html</code></a>.</p>
-<ol start="16" style="list-style-type: decimal">
+<ol start="6" style="list-style-type: decimal">
 <li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/Error_tadpole_DEF_rho2.RData"><strong><code>Error_tadpole_DEF_rho2.RData</code></strong></a></li>
 </ol>
 <p>This file was created in <a href="../numerical_error.html"><code>numerical_error.html</code></a>.</p>
-<ol start="17" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/crossvalidation.RData"><strong><code>crossvalidation.RData</code></strong></a></li>
+<ol start="7" style="list-style-type: decimal">
+<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/conv_rates_new.png"><strong><code>conv_rates_new.png</code></strong></a></li>
 </ol>
-<p>This file was created in <a href="../modeling.html"><code>modeling.html</code></a>.</p>
-<p>18.<a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/convergence_rates_inte_circ_tadp.png"><strong><code>convergence_rates_inte_circ_tadp.png</code></strong></a></p>
 <p>This file was created in <a href="../convergence_rates.html"><code>convergence_rates.html</code></a>.</p>
-<ol start="19" style="list-style-type: decimal">
-<li><a href="https://github.com/leninrafaelrierasegura/GWMF/blob/main/data_files/stand_and_range.png"><strong><code>stand_and_range.png</code></strong></a></li>
-</ol>
-<p>This file was created in <a href="../non_stationarity.html"><code>non_stationarity.html</code></a>.</p>
-<ol start="20" style="list-style-type: decimal">
+<ol start="8" style="list-style-type: decimal">
 <li><a href="https://github.com/leninrafaelrierasegura/GWMF/tree/main/data_files/data.pems"><strong><code>data.pems/</code></strong></a></li>
 </ol>
 <p>This folder was downloaded from this <a href="https://github.com/davidbolin/MetricGraph/tree/7f4c90171c40b9bf7ea29e9b048c93d88477c5d1/examples/data.pems">GitHub
-repository</a> and contains the data used in the <a href="../pems.html"><code>pems.html</code></a> vignette.</p>
+repository</a> and contains the data used in the <a href="../pems_repl1.html"><code>pems_repl1.html</code></a> vignette.</p>
 
 
 

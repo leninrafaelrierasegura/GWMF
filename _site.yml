@@ -8,26 +8,30 @@ navbar:
     - text: "About"
       href: about.html
     - text: "PeMS"
-      href: pems3.html
-    - text: "Preprocessing"
-      href: preprocessing.html
-    - text: "Modeling"
-      href: modeling.html
-    - text: "Non-stationarity"
-      href: non_stationarity.html
-    - text: "Simulation"
-      href: simulation.html
+      menu:
+        - text: "PeMS 1"
+          href: pems_repl1.html
+        - text: "PeMS 2"
+          href: pems_repl2.html
+        - text: "PeMS 3"
+          href: pems_repl3.html  
+    - text: "Model Properties"
+      menu:
+        - text: "Model Properties 1"
+          href: model_properties1.html
+        - text: "Model Properties 2"
+          href: model_properties2.html
     - text: "Basis Functions"
       href: basis_functions.html
     - text: "Approximation"
       href: approximation.html
     - text: "Numerical Error"
-      href: numerical_error2.html
+      href: numerical_error.html
     - text: "Convergence Rates"
       href: convergence_rates.html
   right:
     - icon: fa-github
-      href: https://github.com/leninrafaelrierasegura/
+      href: https://github.com/leninrafaelrierasegura/GWMF
 output:
   html_document:
     highlight: textmate

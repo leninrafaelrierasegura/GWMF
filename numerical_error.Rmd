@@ -12,8 +12,9 @@ output:
     toc_float:
       collapsed: true
       smooth_scroll: true
-    number_sections: true
+    number_sections: false
     fig_caption: true
+    code_download: true
 always_allow_html: true
 bibliography: 
   - references.bib
@@ -25,19 +26,9 @@ header-includes:
   - \newcommand{\Ncal}{\mathcal{N}}
   - \newcommand{\Vcal}{\mathcal{V}}
   - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
-```{r, eval = FALSE, echo = FALSE}
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-```
 
 ```{r xaringanExtra-clipboard, echo = FALSE}
 htmltools::tagList(
@@ -69,6 +60,19 @@ code.r{
 pre {
   font-size: 14px
 }
+.custom-box {
+  background-color: #f5f7fa; /* Light grey-blue background */
+  border-color: #e1e8ed; /* Light border color */
+  color: #2c3e50; /* Dark text color */
+  padding: 15px; /* Padding inside the box */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 20px; /* Spacing below the box */
+}
+.caption {
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px; /* Spacing below the box */
+}
 ```
 
 
@@ -78,21 +82,38 @@ Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
 knitr::opts_chunk$set(
-  message = FALSE,    # Disable messages printed by R code chunks
-  warning = FALSE,    # Disable warnings printed by R code chunks
-  echo = TRUE,        # Show R code within code chunks in output
-  include = TRUE,     # Include both R code and its results in output
-  eval = TRUE,       # Evaluate R code chunks
-  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
   fig.align = "center",
-  out.width = "120%",
+  # Enable retina display for high-resolution figures
   retina = 2,
+  # Show errors in the output instead of stopping rendering
   error = TRUE,
+  # Do not collapse code and output into a single block
   collapse = FALSE
 )
-rm(list = ls())
-set.seed(1982)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
 ```
 
 # Import libraries
@@ -111,9 +132,6 @@ library(ggtext)
 
 library(grateful) # Cite all loaded packages
 library(here) # here() starts from the home directory
-
-rm(list = ls()) # Clear the workspace
-set.seed(1982) # Set seed for reproducibility
 ```
 
 
@@ -280,7 +298,7 @@ save(Error_interval_DEF, file = here("data_files/Error_interval_DEF.RData"))
 
 ## Plotting the errors
 
-```{r, fig.dim = c(12,6), class.source = "fold-hide"}
+```{r, class.source = "fold-hide"}
 load(here("data_files/Error_interval_DEF.RData"))
 
 n_vector = c("998", "198", "98", "8") 
@@ -292,94 +310,86 @@ t = "chebfun"
 
 
 dat = rbind(
-data.frame(nu = rep(nu_vector,5), 
-           rho = rep(0.1, times = 5*29),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["0"]][1:29,1],
-                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(0.5, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["0"]][1:29,1],
-                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(1, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["0"]][1:29,1],
-                     Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(2, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["0"]][1:29,1],
-                     Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,1],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
 ## L2
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = rep(0.1, times = 5*29),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["0"]][1:29,2],
-                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(0.5, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["0"]][1:29,2],
-                     Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(1, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["0"]][1:29,2],
-                     Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(2, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["0"]][1:29,2],
-                     Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,2],
                      Error_interval_DEF[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 )
 )
 
@@ -390,15 +400,28 @@ levels(dat$rho) = c("0.1" = latex2exp::TeX("$\\rho = 0.1$"), "0.5" = latex2exp::
 levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "Linf" = latex2exp::TeX("$L_\\infty(\\Gamma\\times\\Gamma)$ error"))
 
 
-ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
+p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
   facet_grid(L ~ rho, labeller = label_parsed) +
   geom_line() +
-  scale_y_log10(n.breaks = 7) +
+  scale_y_log10(n.breaks = 5) +
   scale_x_continuous(n.breaks = 6) +
   theme_bw() +
-  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
-  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Interval graph")
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino"),
+        plot.title = element_text(size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "Covariance Error", color = "m") + ggtitle("Interval graph")
 ```
+
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide", fig.cap = captioner("Covariance error for the interval graph.")}
+p
+ggsave(here("data_files/new_interval_upto1.5.png"), width = 12, height = 6, plot = p, dpi = 300)
+```
+
 
 
 # Circle graph
@@ -564,7 +587,7 @@ save(Error_circle_DEF, file = here("data_files/Error_circle_DEF.RData"))
 
 ## Plotting the errors
 
-```{r, fig.dim = c(12,6), class.source = "fold-hide"}
+```{r, class.source = "fold-hide"}
 load(here("data_files/Error_circle_DEF.RData"))
 
 n_vector = c("1996", "396", "196", "16") 
@@ -576,94 +599,86 @@ t = "chebfun"
   
 
 dat = rbind(
-data.frame(nu = rep(nu_vector,5), 
-           rho = rep(0.1, times = 5*29),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["0"]][1:29,1],
-                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(0.5, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["0"]][1:29,1],
-                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(1, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["0"]][1:29,1],
-                     Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(2, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["0"]][1:29,1],
-                     Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,1],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
 ## L2
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = rep(0.1, times = 5*29),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["0"]][1:29,2],
-                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(0.5, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["0"]][1:29,2],
-                     Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(1, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["0"]][1:29,2],
-                     Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(2, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["0"]][1:29,2],
-                     Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,2],
                      Error_circle_DEF[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 )
 )
 
@@ -673,15 +688,25 @@ dat$L = factor(dat$L, levels = c("L2", "Linf"))
 levels(dat$rho) = c("0.1" = latex2exp::TeX("$\\rho = 0.1$"), "0.5" = latex2exp::TeX("$\\rho = 0.5$"), "1" = latex2exp::TeX("$\\rho = 1$"), "2" = latex2exp::TeX("$\\rho = 2$"))
 levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "Linf" = latex2exp::TeX("$L_\\infty(\\Gamma\\times\\Gamma)$ error"))
 
-
-ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
+p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
   facet_grid(L ~ rho, labeller = label_parsed) +
   geom_line() +
-  scale_y_log10(n.breaks = 7) +
+  scale_y_log10(n.breaks = 5) +
   scale_x_continuous(n.breaks = 6) +
   theme_bw() +
-  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
-  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Circle graph")
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino"),
+        plot.title = element_text(size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "Covariance Error", color = "m") + ggtitle("Circle graph")
+```
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide", fig.cap = captioner("Covariance error for the circle graph.")}
+p
+ggsave(here("data_files/new_circle_upto1.5.png"), width = 12, height = 6, plot = p, dpi = 300)
 ```
 
 # Tadpole graph
@@ -1294,7 +1319,7 @@ save(Error_tadpole_DEF_rho2, file = here("data_files/Error_tadpole_DEF_rho2.RDat
 
 ## Plotting the errors
 
-```{r, fig.dim = c(12,6), class.source = "fold-hide"}
+```{r, class.source = "fold-hide"}
 load(here("data_files/Error_tadpole_DEF_rho0.1.RData"))
 load(here("data_files/Error_tadpole_DEF_rho0.5.RData"))
 load(here("data_files/Error_tadpole_DEF_rho1.RData"))
@@ -1309,94 +1334,86 @@ t = "chebfun"
 
 
 dat = rbind(
-data.frame(nu = rep(nu_vector,5), 
-           rho = rep(0.1, times = 5*29),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["0"]][1:29,1],
-                     Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,1],
                      Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,1],
                      Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,1],
                      Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(0.5, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["0"]][1:29,1],
-                     Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,1],
                      Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,1],
                      Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,1],
                      Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(1, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["0"]][1:29,1],
-                     Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,1],
                      Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,1],
                      Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,1],
                      Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(2, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["0"]][1:29,1],
-                     Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,1],
                      Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,1],
                      Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,1],
                      Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,1]),
-           L = rep("Linf", times = 5*29)
+           L = rep("Linf", times = 4*29)
 ),
 
 ## L2
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = rep(0.1, times = 5*29),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["0"]][1:29,2],
-                     Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = rep(0.1, times = 4*29),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["1"]][1:29,2],
                      Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["2"]][1:29,2],
                      Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["3"]][1:29,2],
                      Error_tadpole_DEF_rho0.1[[n]][["covariance"]][[t]][["0.1"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(0.5, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["0"]][1:29,2],
-                     Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(0.5, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["1"]][1:29,2],
                      Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["2"]][1:29,2],
                      Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["3"]][1:29,2],
                      Error_tadpole_DEF_rho0.5[[n]][["covariance"]][[t]][["0.5"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(1, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["0"]][1:29,2],
-                     Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(1, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["1"]][1:29,2],
                      Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["2"]][1:29,2],
                      Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["3"]][1:29,2],
                      Error_tadpole_DEF_rho1[[n]][["covariance"]][[t]][["1"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 ),
 
-data.frame(nu = rep(nu_vector,5), 
-           rho = c(rep(2, times = 5*29)),
-           m = c(rep(0, 29), rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
-           error = c(Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["0"]][1:29,2],
-                     Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
+data.frame(nu = rep(nu_vector,4), 
+           rho = c(rep(2, times = 4*29)),
+           m = c(rep(1, 29), rep(2, 29), rep(3, 29), rep(4, 29)),
+           error = c(Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["1"]][1:29,2],
                      Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["2"]][1:29,2],
                      Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["3"]][1:29,2],
                      Error_tadpole_DEF_rho2[[n]][["covariance"]][[t]][["2"]][["4"]][1:29,2]),
-           L = rep("L2", times = 5*29)
+           L = rep("L2", times = 4*29)
 )
 )
 
@@ -1406,15 +1423,25 @@ dat$L = factor(dat$L, levels = c("L2", "Linf"))
 levels(dat$rho) = c("0.1" = latex2exp::TeX("$\\rho = 0.1$"), "0.5" = latex2exp::TeX("$\\rho = 0.5$"), "1" = latex2exp::TeX("$\\rho = 1$"), "2" = latex2exp::TeX("$\\rho = 2$"))
 levels(dat$L) = c("L2" = latex2exp::TeX("$L_2(\\Gamma\\times\\Gamma)$ error"), "Linf" = latex2exp::TeX("$L_\\infty(\\Gamma\\times\\Gamma)$ error"))
 
-
-ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
+p <- ggplot(dat, aes(nu, error, colour = as.factor(m))) + 
   facet_grid(L ~ rho, labeller = label_parsed) +
   geom_line() +
-  scale_y_log10(n.breaks = 7) +
+  scale_y_log10(n.breaks = 5) +
   scale_x_continuous(n.breaks = 6) +
   theme_bw() +
-  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino")) +
-  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "error", color = "Order (m)") + ggtitle("Tadpole graph")
+  theme(panel.spacing = unit(0.3, "cm"), text = element_text(family = "Palatino"),
+        plot.title = element_text(size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = bquote(nu ~ "(smoothness parameter)"), y = "Covariance Error", color = "m") + ggtitle("Tadpole graph")
+```
+
+```{r, fig.dim = c(12,6), class.source = "fold-hide", fig.cap = captioner("Covariance error for the tadpole graph.")}
+p
+ggsave(here("data_files/new_tadpole_upto1.5.png"), width = 12, height = 6, plot = p, dpi = 300)
 ```
 
 # References

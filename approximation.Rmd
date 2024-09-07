@@ -12,8 +12,9 @@ output:
     toc_float:
       collapsed: true
       smooth_scroll: true
-    number_sections: true
+    number_sections: false
     fig_caption: true
+    code_download: true
 always_allow_html: true
 bibliography: 
   - references.bib
@@ -25,19 +26,8 @@ header-includes:
   - \newcommand{\Ncal}{\mathcal{N}}
   - \newcommand{\Vcal}{\mathcal{V}}
   - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
 ---
-
-```{r, eval = FALSE, echo = FALSE}
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-```
 
 ```{r xaringanExtra-clipboard, echo = FALSE}
 htmltools::tagList(
@@ -69,6 +59,19 @@ code.r{
 pre {
   font-size: 14px
 }
+.custom-box {
+  background-color: #f5f7fa; /* Light grey-blue background */
+  border-color: #e1e8ed; /* Light border color */
+  color: #2c3e50; /* Dark text color */
+  padding: 15px; /* Padding inside the box */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 20px; /* Spacing below the box */
+}
+.caption {
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px; /* Spacing below the box */
+}
 ```
 
 
@@ -78,21 +81,38 @@ Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
 knitr::opts_chunk$set(
-  message = FALSE,    # Disable messages printed by R code chunks
-  warning = FALSE,    # Disable warnings printed by R code chunks
-  echo = TRUE,        # Show R code within code chunks in output
-  include = TRUE,     # Include both R code and its results in output
-  eval = TRUE,       # Evaluate R code chunks
-  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
   fig.align = "center",
-  out.width = "100%",
+  # Enable retina display for high-resolution figures
   retina = 2,
+  # Show errors in the output instead of stopping rendering
   error = TRUE,
+  # Do not collapse code and output into a single block
   collapse = FALSE
 )
-rm(list = ls())
-set.seed(1982)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
 ```
 
 # Import libraries
@@ -107,9 +127,6 @@ library(tidyverse)
 library(plotly)
 
 library(grateful) # Cite all loaded packages
-
-rm(list = ls()) # Clear the workspace
-set.seed(1982) # Set seed for reproducibility
 ```
 
 
@@ -117,7 +134,7 @@ set.seed(1982) # Set seed for reproducibility
 
 For an implementation of the true covariance matrix using the KL expansion, see [here](approximation_kl.html#kl-expansion-interval).
 
-```{r, out.width= "50%"}
+```{r, out.width= "50%", fig.cap = captioner("Interval graph.")}
 # Function to build an interval graph and create a mesh
 gets_graph_interval <- function(n){
   edge <- rbind(c(0,0),c(1,0))
@@ -143,7 +160,7 @@ gets_graph_interval(n = 333)$plot() +
 </div>
 
 
-```{r, class.source = "fold-hide"}
+```{r, fig.height = 8, out.width = "100%", class.source = "fold-hide", fig.cap = captioner("Exact and approximated covariance function on the interval graph.")}
 # Matern covariance function
 matern.covariance <- function(h, kappa, nu, sigma) {
   if (nu == 1 / 2) {
@@ -243,7 +260,7 @@ c_cov <- op$cov_function_mesh(matrix(point,1,2))
 loc <- graph$coordinates(PtE = point)
 m1 <- which.min((graph$mesh$V[,1]-loc[1])^2 + (graph$mesh$V[,2]-loc[2])^2)
 p = graph$plot_function(true_cov_mat[m1,], plotly = TRUE, line_width = 3, edge_width = 3) # blue is the true one
-graph$plot_function(c_cov,p=p, line_color = "red", plotly = TRUE,line_width = 3, edge_width = 3)  %>% 
+graph$plot_function(c_cov, p = p, line_color = "red", plotly = TRUE, line_width = 3, edge_width = 3)  %>% 
   config(mathjax = 'cdn') %>% 
   layout(font = list(family = "Palatino"),
          scene = list(
@@ -253,35 +270,35 @@ graph$plot_function(c_cov,p=p, line_color = "red", plotly = TRUE,line_width = 3,
                text = TeX("v_1"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "black", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "black", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = 0, y = 1, z = 0,
                text = TeX("v_2"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "black", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "black", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = 0, y = 0.5, z = 0,
                text = TeX("e_1"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = 0, y = 0.6, z = 1.25,
                text = TeX("\\bullet\\mbox{ exact}"),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "blue", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = 0, y = 0.745, z = 1.20,
                text = TeX("\\bullet\\mbox{ approximated}"),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "red", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1))))
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1))))
 ```
 
 
-```{r}
+```{r, collapse = TRUE}
 # Compute the errors
 L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
 L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
@@ -294,7 +311,7 @@ print(L_2_error)
 
 For an implementation of the true covariance matrix using the KL expansion, see [here](approximation_kl.html#kl-expansion-circle).
 
-```{r, out.width= "50%"}
+```{r, out.width= "50%", fig.cap = captioner("Circle graph.")}
 # Function to build a circle graph and create a mesh
 gets_graph_circle <- function(n){
   r = 1/(pi)
@@ -322,7 +339,7 @@ gets_graph_circle(n = 666)$plot() +
 </div>
 
 
-```{r, class.source = "fold-hide"}
+```{r, fig.height = 8, out.width = "100%", class.source = "fold-hide", fig.cap = captioner("Exact and approximated covariance function on the circle graph.")}
 # Matern covariance function
 matern.covariance <- function(h, kappa, nu, sigma) {
   if (nu == 1 / 2) {
@@ -419,7 +436,7 @@ c_cov <- op$cov_function_mesh(matrix(point,1,2))
 loc <- graph$coordinates(PtE = point)
 m1 <- which.min((graph$mesh$V[,1]-loc[1])^2 + (graph$mesh$V[,2]-loc[2])^2)
 p = graph$plot_function(true_cov_mat[m1,], plotly = TRUE, line_width = 3, edge_width = 3)
-graph$plot_function(c_cov,p=p, line_color = "red", plotly = TRUE,line_width = 3, edge_width = 3) %>% 
+graph$plot_function(c_cov,p = p, line_color = "red", plotly = TRUE,line_width = 3, edge_width = 3) %>% 
   config(mathjax = 'cdn') %>% 
   layout(font = list(family = "Palatino"),
          scene = list(
@@ -429,29 +446,29 @@ graph$plot_function(c_cov,p=p, line_color = "red", plotly = TRUE,line_width = 3,
                text = TeX("v_1"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = 0.26, y = 1.54, z = 0,
                text = TeX("e_1"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = -0.05, y = 1.085, z = 0.95,
                text = TeX("\\bullet\\mbox{ exact}"),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "blue", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = -0.05, y = 1.2, z = 0.9,
                text = TeX("\\bullet\\mbox{ approximated}"),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "red", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1))))
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1))))
 ```
 
 
-```{r}
+```{r, collapse = TRUE}
 # Compute the errors
 L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
 L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
@@ -461,7 +478,7 @@ print(L_2_error)
 
 # Tadpole graph
 
-```{r, out.width= "50%"}
+```{r, out.width= "50%", fig.cap = captioner("Tadpole graph.")}
 # Function to build a tadpole graph and create a mesh
 gets_graph_tadpole <- function(h){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -488,7 +505,7 @@ gets_graph_tadpole(h = 0.003)$plot() +
 </div>
 
 
-```{r, class.source = "fold-hide"}
+```{r, fig.height = 8, out.width = "100%", class.source = "fold-hide", fig.cap = captioner("Exact and approximated covariance function on the tadpole graph.")}
 # Function to compute the eigenfunctions 
 tadpole.eig <- function(k,graph){
 x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -578,7 +595,7 @@ c_cov <- op$cov_function_mesh(matrix(point,1,2))
 loc <- graph$coordinates(PtE = point)
 m1 <- which.min((graph$mesh$V[,1]-loc[1])^2 + (graph$mesh$V[,2]-loc[2])^2)
 p <- graph$plot_function(true_cov_mat[m1,], plotly = TRUE, line_width = 3, edge_width = 3) # blue is the true one
-graph$plot_function(c_cov,p=p, line_color = "red", plotly = TRUE,line_width = 3, edge_width = 3) %>% 
+graph$plot_function(c_cov, p = p, line_color = "red", plotly = TRUE,line_width = 3, edge_width = 3) %>% 
   config(mathjax = 'cdn') %>% 
   layout(font = list(family = "Palatino"),
          scene = list(
@@ -588,41 +605,41 @@ graph$plot_function(c_cov,p=p, line_color = "red", plotly = TRUE,line_width = 3,
                text = TeX("v_1"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "black", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "black", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = -0.03, y = 1.03, z = 0,
                text = TeX("v_2"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = 0, y = 0.5, z = 0,
                text = TeX("e_1"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 0),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 0),
              list(
                x = 0.26, y = 1.54, z = 0,
                text = TeX("e_2"),
                textangle = 0, ax = 0, ay = 15,
                font = list(color = "black", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = -0.08, y = 1.135, z = 0.65,
                text = TeX("\\bullet\\mbox{ exact}"),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "blue", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1),
              list(
                x = -0.08, y = 1.25, z = 0.6,
                text = TeX("\\bullet\\mbox{ approximated}"),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "red", size = 16),
-               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1))))
+               arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1, arrowhead = 1))))
 ```
 
 
-```{r}
+```{r, collapse = TRUE}
 # Compute the errors
 L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
 L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))

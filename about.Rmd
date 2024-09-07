@@ -2,20 +2,35 @@
 title: "Contents of This Website"
 ---
 
-1. [PeMS](pems3.html) page
+1. PeMS Data
 
-2. [Preprocessing](preprocessing.html) page
+    - [PeMS 1](pems_repl1.html)
+    - [PeMS 2](pems_repl2.html)
+    - [PeMS 3](pems_repl3.html)
 
-3. [Modeling](modeling.html) page
+2. Model Properties
 
-4. [Non-stationarity](non_stationarity.html) page
+    - [Model Properties 1](model_properties1.html)
+    - [Model Properties 2](model_properties2.html)
 
-5. [Simulation](simulation.html) page
+3. Basis Functions
 
-6. [Basis Functions](basis_functions.html) page
+    - [Basis Functions](basis_functions.html)
+    - [Functions on graphs](functions_on_graph.html)
+    - [Alternative Illustrations](basis_functions_alt_illustrations.html)
 
-7. [Approximation](approximation.html) page
+4. Approximation
 
-8. [Numerical Error](numerical_error2.html) page
+    - [Approximation](approximation.html)
+    - [Approximation using KL expansion](approximation_kl.html)
 
-9. [Convergence Rates](convergence_rates.html) page
+5. Numerical Error
+
+    - [Numerical Error](numerical_error.html)
+
+6. Convergence Rates
+
+    - [Convergence Rates](convergence_rates.html)
+    - [More details for interval graph](convergence_rates/convergence_rates_interval.html)
+    - [More details for circle graph](convergence_rates/convergence_rates_circle.html)
+    - [More details for tadpole graph](convergence_rates/convergence_rates_tadpole.html)

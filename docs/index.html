@@ -11,9 +11,9 @@
 
 
 
-<title>Generalized Whittle-Matérn fields with general smoothness on compact metric graphs</title>
+<title>Computationally efficient inference for non-stationary Gaussian fields with general smoothness on metric graphs</title>
 
-<script src="site_libs/header-attrs-2.27/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
@@ -251,20 +251,38 @@ $(document).ready(function () {
 <li>
   <a href="about.html">About</a>
 </li>
-<li>
-  <a href="pems3.html">PeMS</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    PeMS
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="pems_repl1.html">PeMS 1</a>
+    </li>
+    <li>
+      <a href="pems_repl2.html">PeMS 2</a>
+    </li>
+    <li>
+      <a href="pems_repl3.html">PeMS 3</a>
+    </li>
+  </ul>
 </li>
-<li>
-  <a href="preprocessing.html">Preprocessing</a>
-</li>
-<li>
-  <a href="modeling.html">Modeling</a>
-</li>
-<li>
-  <a href="non_stationarity.html">Non-stationarity</a>
-</li>
-<li>
-  <a href="simulation.html">Simulation</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Model Properties
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="model_properties1.html">Model Properties 1</a>
+    </li>
+    <li>
+      <a href="model_properties2.html">Model Properties 2</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="basis_functions.html">Basis Functions</a>
@@ -273,7 +291,7 @@ $(document).ready(function () {
   <a href="approximation.html">Approximation</a>
 </li>
 <li>
-  <a href="numerical_error2.html">Numerical Error</a>
+  <a href="numerical_error.html">Numerical Error</a>
 </li>
 <li>
   <a href="convergence_rates.html">Convergence Rates</a>
@@ -281,7 +299,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/leninrafaelrierasegura/">
+  <a href="https://github.com/leninrafaelrierasegura/GWMF">
     <span class="fa fa-github"></span>
      
   </a>
@@ -295,16 +313,18 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Generalized Whittle-Matérn fields with
-general smoothness on compact metric graphs</h1>
+<h1 class="title toc-ignore">Computationally efficient inference for
+non-stationary Gaussian fields with general smoothness on metric
+graphs</h1>
 
 </div>
 
 
-<p>This website is a companion to the paper “Generalized Whittle-Matérn
-fields with general smoothness on compact metric graphs” by Lenin Rafael
-Riera Segura, David Bolin, and Alexandre B. Simas. The paper is
-available on <a href="https://arxiv.org/abs/0000.00000">arXiv</a>.</p>
+<p>This website is a companion to the paper “Computationally efficient
+inference for non-stationary Gaussian fields with general smoothness on
+metric graphs” by Lenin Rafael Riera Segura, David Bolin, and Alexandre
+B. Simas. The paper is available on <a
+href="https://arxiv.org/abs/0000.00000">arXiv</a>.</p>
 <p>This <a
 href="https://github.com/leninrafaelrierasegura/GWMF">GitHub</a>
 repository contains all the necessary files to reproduce the results

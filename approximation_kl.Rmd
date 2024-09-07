@@ -12,8 +12,9 @@ output:
     toc_float:
       collapsed: true
       smooth_scroll: true
-    number_sections: true
+    number_sections: false
     fig_caption: true
+    code_download: true
 always_allow_html: true
 bibliography: 
   - references.bib
@@ -25,19 +26,9 @@ header-includes:
   - \newcommand{\Ncal}{\mathcal{N}}
   - \newcommand{\Vcal}{\mathcal{V}}
   - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
 ---
 
-```{r, eval = FALSE, echo = FALSE}
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-######### DO NOT FORGET TO CHANGE THE TITLE EVERY TIME YOU FIT A MODEL #########
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-```
 
 ```{r xaringanExtra-clipboard, echo = FALSE}
 htmltools::tagList(
@@ -69,6 +60,19 @@ code.r{
 pre {
   font-size: 14px
 }
+.custom-box {
+  background-color: #f5f7fa; /* Light grey-blue background */
+  border-color: #e1e8ed; /* Light border color */
+  color: #2c3e50; /* Dark text color */
+  padding: 15px; /* Padding inside the box */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 20px; /* Spacing below the box */
+}
+.caption {
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px; /* Spacing below the box */
+}
 ```
 
 
@@ -80,21 +84,38 @@ Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
 knitr::opts_chunk$set(
-  message = FALSE,    # Disable messages printed by R code chunks
-  warning = FALSE,    # Disable warnings printed by R code chunks
-  echo = TRUE,        # Show R code within code chunks in output
-  include = TRUE,     # Include both R code and its results in output
-  eval = TRUE,       # Evaluate R code chunks
-  cache = FALSE,       # Enable caching of R code chunks for faster rendering
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
   fig.align = "center",
-  out.width = "100%",
+  # Enable retina display for high-resolution figures
   retina = 2,
+  # Show errors in the output instead of stopping rendering
   error = TRUE,
+  # Do not collapse code and output into a single block
   collapse = FALSE
 )
-rm(list = ls())
-set.seed(1982)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
 ```
 
 # Import libraries
@@ -109,15 +130,12 @@ library(tidyverse)
 library(plotly)
 
 library(grateful) # Cite all loaded packages
-
-rm(list = ls()) # Clear the workspace
-set.seed(1982) # Set seed for reproducibility
 ```
 
 
 # Interval graph {#kl-expansion-interval}
 
-```{r, out.width = "50%"}
+```{r, collapse = TRUE, class.source = "fold-hide"}
 # function 1
 gets_graph_interval <- function(n){
   edge <- rbind(c(0,0),c(1,0))
@@ -183,7 +201,10 @@ L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
 L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
 print(L_inf_error)
 print(L_2_error)
+```
 
+
+```{r, out.width = "50%", fig.cap = captioner("True and approximate covariance matrix for the interval graph.")}
 # plot just for confirmation
 plot(true_cov_mat_reordered[round(n/2)+1,], type="l", col = "blue", lty = 2) #true
 lines(appr_cov_mat_reordered[round(n/2)+1,], type = "l", col = "red", lty = 3) #approx
@@ -191,7 +212,7 @@ legend("topright", legend = c("true", "approx"), col = c("blue", "red"), lty = 1
 ```
 
 
-```{r}
+```{r, fig.height = 8, out.width = "100%", fig.cap = captioner("True and approximate covariance matrix for the interval graph.")}
 point  <- c(1, 0.5)
 c_cov <- op$cov_function_mesh(matrix(point,1,2))
 loc <- graph$coordinates(PtE = point)
@@ -202,7 +223,7 @@ graph$plot_function(c_cov,p=p, line_color = "red", plotly = TRUE,line_width = 3)
 
 # Circle graph {#kl-expansion-circle}
 
-```{r, out.width = "50%"}
+```{r, collapse = TRUE, class.source = "fold-hide"}
 r = 1/(pi)
 theta <- seq(from=-pi,to=pi,length.out = 100)
 edge <- cbind(1+r+r*cos(theta),r*sin(theta))
@@ -266,7 +287,10 @@ L_inf_error = max(abs(true_cov_mat - appr_cov_mat))
 L_2_error = sqrt(as.double(t(graph$mesh$weights)%*%(true_cov_mat - appr_cov_mat)^2%*%graph$mesh$weights))
 print(L_inf_error)
 print(L_2_error)
+```
 
+
+```{r, out.width = "50%", fig.cap = captioner("True and approximate covariance matrix for the circle graph.")}
 #plot just for confirmation
 plot(true_cov_mat[round(n/2),], type="l", col = "blue", lty = 2) #true
 lines(appr_cov_mat[round(n/2),], type = "l", col = "red", lty = 3) #approx
@@ -275,7 +299,7 @@ legend("topright", legend = c("true", "approx"), col = c("blue", "red"), lty = 1
 ```
 
 
-```{r}
+```{r, fig.height = 8, out.width = "100%", fig.cap = captioner("True and approximate covariance matrix for the circle graph.")}
 point  <- c(1,0)
 c_cov <- op$cov_function_mesh(matrix(point,1,2))
 loc <- graph$coordinates(PtE = point)
