@@ -1,0 +1,437 @@
+---
+title: "The rol of $\\tau$: Part 6"
+date: "Created: 05-07-2024. Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
+    # df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: false
+    fig_caption: true
+    code_download: true
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+---
+
+```{r xaringanExtra-clipboard, echo = FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
+```
+
+
+```{css, echo = FALSE}
+body .main-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+body {
+  max-width: 100% !important;
+}
+
+body, td {
+   font-size: 16px;
+}
+code.r{
+  font-size: 14px;
+}
+pre {
+  font-size: 14px
+}
+.custom-box {
+  background-color: #f5f7fa; /* Light grey-blue background */
+  border-color: #e1e8ed; /* Light border color */
+  color: #2c3e50; /* Dark text color */
+  padding: 15px; /* Padding inside the box */
+  border-radius: 5px; /* Rounded corners */
+  margin-bottom: 20px; /* Spacing below the box */
+}
+.caption {
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px; /* Spacing below the box */
+}
+```
+
+
+Below we set some global options for all code chunks in this document.
+
+
+```{r}
+# Set seed for reproducibility
+set.seed(593) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+# Define the function to truncate a number to two decimal places
+truncate_to_two <- function(x) {
+  floor(x * 100) / 100
+}
+```
+
+
+Below we load the necessary libraries and define the auxiliary functions.
+
+```{r}
+library(rSPDE)
+library(MetricGraph)
+
+library(dplyr)
+library(plotly)
+library(scales)
+library(patchwork)
+library(tidyr)
+
+library(here)
+library(rmarkdown)
+# Cite all loaded packages
+library(grateful)
+```
+
+
+
+Let's build a small graph to illustrate the effect of $\tau$ on the graph.
+
+```{r}
+edge1 <- rbind(c(0,0),c(1,0))
+edge2 <- rbind(c(0,0),c(0,1))
+edge3 <- rbind(c(0,1),c(-1,1))
+theta <- seq(from = pi,to = 3*pi/2,length.out = 50)
+edge4 <- cbind(sin(theta),1+ cos(theta))
+edges <- list(edge1, edge2, edge3, edge4)
+```
+
+```{r}
+graph <- metric_graph$new(edges = edges)
+aux_graph <- graph$clone()
+graph$build_mesh(h = 0.01, continuous = TRUE)
+edge_number <- graph$mesh$VtE
+XY_graph <- graph$mesh$V
+
+aux_graph$build_mesh(h = 0.01, continuous = FALSE)
+aux_edge_number <- aux_graph$mesh$VtE
+aux_XY_graph <- aux_graph$mesh$V
+```
+
+
+```{r}
+f <- edge_number[,1]/4# discontinuous covariate
+g <- 0.5*(XY_graph[, 1]^2 - XY_graph[, 2]^2) + 0.5 # continuous covariate
+
+aux_f <- aux_edge_number[,1]/4# discontinuous covariate
+aux_g <- 0.5*(aux_XY_graph[, 1]^2 - aux_XY_graph[, 2]^2) + 0.5 # continuous covariate
+```
+
+
+:::: {style="display: grid; grid-template-columns: 400px 400px; grid-column-gap: 1px;"}
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Discontinuous covariate.")}
+aux_graph$plot_function(aux_f, vertex_size = 0, plotly = TRUE, line_color = "blue", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = "Non-continuous covariate")
+```
+
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Continuous covariate.")}
+graph$plot_function(g, vertex_size = 0, plotly = TRUE, line_color = "red", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = "Continuous covariate")
+```
+
+
+:::
+
+::::
+
+
+```{r}
+# Define the matrices B.tau and B.kappa
+B.tau =   cbind(0, 1, 0, g, 0)
+B.kappa = cbind(0, 0, 1, 0, g)
+# Log-regression coefficients
+theta <- c(0, 0, 1, 1) 
+# Choose alpha
+nu = 2
+alpha = nu + 1/2
+# Compute the operator
+op <- rSPDE::spde.matern.operators(graph = graph,
+                                      B.tau = B.tau,
+                                      B.kappa =  B.kappa,
+                                      parameterization = "spde",
+                                      theta = theta,
+                                      alpha = alpha)
+# Simulate the non-stationary field
+u <- simulate(op)
+
+model_for_tau <- exp(B.tau[,-1]%*%theta)
+model_for_kappa <- exp(B.kappa[,-1]%*%theta)
+```
+
+:::: {style="display: grid; grid-template-columns: 300px 300px 300px; grid-column-gap: 1px;"}
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Model for $\\tau$.")}
+graph$plot_function(model_for_tau, vertex_size = 0, plotly = TRUE, line_color = "blue", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("\\tau"))
+```
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Model for $\\kappa$.")}
+graph$plot_function(model_for_kappa, vertex_size = 0, plotly = TRUE, line_color = "red", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("\\kappa"))
+```
+
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Simulated field.")}
+graph$plot_function(X = u, vertex_size = 0, plotly = TRUE, line_color = "darkgreen", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("u"))
+```
+
+:::
+
+::::
+
+```{r}
+# Define the matrices B.tau and B.kappa
+B.tau =   cbind(0, 1, 0, f, 0)
+B.kappa = cbind(0, 0, 1, 0, f)
+# Log-regression coefficients
+theta <- c(0, 0, 1, 1) 
+# Compute the operator
+op <- rSPDE::spde.matern.operators(graph = graph,
+                                      B.tau = B.tau,
+                                      B.kappa =  B.kappa,
+                                      parameterization = "spde",
+                                      theta = theta,
+                                      alpha = alpha)
+# Simulate the non-stationary field
+u <- simulate(op)
+aux_B.tau =   cbind(0, 1, 0, aux_f, 0)
+aux_B.kappa = cbind(0, 0, 1, 0, aux_f)
+model_for_tau <- exp(aux_B.tau[,-1]%*%theta)
+model_for_kappa <- exp(aux_B.kappa[,-1]%*%theta)
+```
+
+
+:::: {style="display: grid; grid-template-columns: 300px 300px 300px; grid-column-gap: 1px;"}
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Model for $\\tau$.")}
+aux_graph$plot_function(model_for_tau, vertex_size = 0, plotly = TRUE, line_color = "blue", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("\\tau"))
+```
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Model for $\\kappa$.")}
+aux_graph$plot_function(model_for_kappa, vertex_size = 0, plotly = TRUE, line_color = "red", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("\\kappa"))
+```
+
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Simulated field.")}
+graph$plot_function(X = u, vertex_size = 0, plotly = TRUE, line_color = "darkgreen", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("u"))
+```
+
+:::
+
+::::
+
+```{r}
+# Define the matrices B.tau and B.kappa
+B.tau =   cbind(0, 1, 0, f, 0)
+B.kappa = cbind(0, 0, 1, 0, g)
+# Log-regression coefficients
+theta <- c(0, 0, 1, 1) 
+# Compute the operator
+op <- rSPDE::spde.matern.operators(graph = graph,
+                                      B.tau = B.tau,
+                                      B.kappa =  B.kappa,
+                                      parameterization = "spde",
+                                      theta = theta,
+                                      alpha = alpha)
+# Simulate the non-stationary field
+u <- simulate(op)
+
+aux_B.tau =   cbind(0, 1, 0, aux_f, 0)
+model_for_tau <- exp(aux_B.tau[,-1]%*%theta)
+model_for_kappa <- exp(B.kappa[,-1]%*%theta)
+```
+
+
+:::: {style="display: grid; grid-template-columns: 300px 300px 300px; grid-column-gap: 1px;"}
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Model for $\\tau$.")}
+aux_graph$plot_function(model_for_tau, vertex_size = 0, plotly = TRUE, line_color = "blue", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("\\tau"))
+```
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Model for $\\kappa$.")}
+graph$plot_function(model_for_kappa, vertex_size = 0, plotly = TRUE, line_color = "red", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("\\kappa"))
+```
+
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Simulated field.")}
+graph$plot_function(X = u, vertex_size = 0, plotly = TRUE, line_color = "darkgreen", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("u"))
+```
+
+:::
+
+::::
+
+
+```{r}
+# Define the matrices B.tau and B.kappa
+B.tau =   cbind(0, 1, 0, g, 0) #rep(1, length(f))
+B.kappa = cbind(0, 0, 1, 0, f)
+# Log-regression coefficients
+theta <- c(0, 0, 1, 1) 
+# Compute the operator
+op <- rSPDE::spde.matern.operators(graph = graph,
+                                      B.tau = B.tau,
+                                      B.kappa =  B.kappa,
+                                      parameterization = "spde",
+                                      theta = theta,
+                                      alpha = alpha)
+# Simulate the non-stationary field
+u <- simulate(op)
+
+aux_B.kappa = cbind(0, 0, 1, 0, aux_f)
+model_for_tau <- exp(B.tau[,-1]%*%theta)
+model_for_kappa <- exp(aux_B.kappa[,-1]%*%theta)
+```
+
+
+:::: {style="display: grid; grid-template-columns: 300px 300px 300px; grid-column-gap: 1px;"}
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Model for $\\tau$.")}
+graph$plot_function(model_for_tau, vertex_size = 0, plotly = TRUE, line_color = "blue", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("\\tau"))
+```
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Model for $\\kappa$.")}
+aux_graph$plot_function(model_for_kappa, vertex_size = 0, plotly = TRUE, line_color = "red", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("\\kappa"))
+```
+
+
+:::
+
+::: {}
+
+```{r, out.width = "100%", fig.cap = captioner("Simulated field.")}
+graph$plot_function(X = u, vertex_size = 0, plotly = TRUE, line_color = "darkgreen", line_width = 3) %>%  
+  config(mathjax = 'cdn') %>% 
+  layout(title = TeX("u"))
+```
+
+:::
+
+::::
+
+
+# References
+
+```{r}
+cite_packages(output = "paragraph", out.dir = ".")
+```
+
