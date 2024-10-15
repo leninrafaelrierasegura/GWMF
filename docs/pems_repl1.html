@@ -538,7 +538,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">PeMS 1, covariates and preprocessing</h1>
-<h4 class="date">Created: 05-07-2024. Last modified: 06-09-2024.</h4>
+<h4 class="date">Created: 05-07-2024. Last modified: 14-10-2024.</h4>
 
 </div>
 
@@ -805,7 +805,7 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb19-1"><a h
 <span id="cb19-18"><a href="#cb19-18" tabindex="-1"></a><span class="co"># Summarize the results</span></span>
 <span id="cb19-19"><a href="#cb19-19" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_stat)</span></code></pre></div>
 <pre><code>## inlabru version: 2.11.1.9004
-## INLA version: 24.06.27
+## INLA version: 24.10.07-2
 ## Components:
 ## Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L), NULL
 ## field: main = cgeneric(loc), group = exchangeable(1L), replicate = iid(1L), NULL
@@ -816,7 +816,7 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb19-1"><a h
 ##     Predictor: y ~ .
 ##     Used components: effects[Intercept, field], latent[]
 ## Time used:
-##     Pre = 0.246, Running = 3.78, Post = 0.601, Total = 4.63 
+##     Pre = 0.517, Running = 8.69, Post = 1.99, Total = 11.2 
 ## Fixed effects:
 ##            mean    sd 0.025quant 0.5quant 0.975quant  mode kld
 ## Intercept 1.756 0.133      1.492    1.756      2.019 1.756   0
@@ -829,8 +829,8 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb19-1"><a h
 ##                                           mean    sd 0.025quant 0.5quant
 ## Precision for the Gaussian observations  4.585 0.502      3.668    4.561
 ## Theta1 for field                         0.236 0.198     -0.156    0.237
-## Theta2 for field                        -0.608 0.204     -1.004   -0.610
-## Theta3 for field                         1.110 0.709     -0.240    1.095
+## Theta2 for field                        -0.608 0.204     -1.005   -0.610
+## Theta3 for field                         1.110 0.709     -0.241    1.095
 ##                                         0.975quant   mode
 ## Precision for the Gaussian observations      5.642  4.518
 ## Theta1 for field                             0.623  0.241
@@ -852,7 +852,7 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb19-1"><a h
 class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">gets_summary_parameters</span>(rspde_fit_stat, rspde_model_stat)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["0.025quant"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["0.5quant"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["0.975quant"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["mode"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"1.7557110","2":"0.13302915","3":"1.4916191","4":"1.7557740","5":"2.0193561","6":"1.755756","_rn_":"Intercept"},{"1":"1.2914200","2":"0.25551800","3":"0.8587580","4":"1.2681600","5":"1.8590200","6":"1.221660","_rn_":"tau"},{"1":"0.5557110","2":"0.11438000","3":"0.3673980","4":"0.5431120","5":"0.8150950","6":"0.518190","_rn_":"kappa"},{"1":"1.4629500","2":"0.25483400","3":"0.8857500","4":"1.4970100","5":"1.8529800","6":"1.591850","_rn_":"nu"},{"1":"1.3235500","2":"0.20412100","3":"0.9342100","4":"1.3150000","5":"1.7443600","6":"1.295280","_rn_":"std.dev"},{"1":"6.2547100","2":"1.09680000","3":"4.3330200","4":"6.1683800","5":"8.6273000","6":"5.928160","_rn_":"range"},{"1":"1.4629500","2":"0.25483400","3":"0.8857500","4":"1.4970100","5":"1.8529800","6":"1.591850","_rn_":"nu1"},{"1":"0.4690844","2":"0.02552741","3":"0.4213183","4":"0.4681732","5":"0.5215491","6":"0.466340","_rn_":"sigma_e"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["0.025quant"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["0.5quant"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["0.975quant"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["mode"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"1.7557115","2":"0.13303206","3":"1.4916167","4":"1.7557747","5":"2.019359","6":"1.7557571","_rn_":"Intercept"},{"1":"1.2914300","2":"0.25550500","3":"0.8587880","4":"1.2681700","5":"1.859000","6":"1.2216700","_rn_":"tau"},{"1":"0.5557060","2":"0.11438300","3":"0.3673880","4":"0.5431070","5":"0.815093","6":"0.5181840","_rn_":"kappa"},{"1":"1.4629000","2":"0.25497100","3":"0.8853570","4":"1.4970000","5":"1.853080","6":"1.5918900","_rn_":"nu"},{"1":"1.3235000","2":"0.20415000","3":"0.9340480","4":"1.3149600","5":"1.744340","6":"1.2952600","_rn_":"std.dev"},{"1":"6.2546100","2":"1.09673000","3":"4.3329800","4":"6.1682800","5":"8.627110","6":"5.9283500","_rn_":"range"},{"1":"1.4629000","2":"0.25497100","3":"0.8853570","4":"1.4970000","5":"1.853080","6":"1.5918900","_rn_":"nu1"},{"1":"0.4690848","2":"0.02552808","3":"0.4213175","4":"0.4681735","5":"0.521551","6":"0.4663403","_rn_":"sigma_e"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>We now compute the kriging predictor <span
@@ -1055,7 +1055,7 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb26-1"><a h
 <span id="cb26-18"><a href="#cb26-18" tabindex="-1"></a><span class="co"># Summarize the results</span></span>
 <span id="cb26-19"><a href="#cb26-19" tabindex="-1"></a><span class="fu">summary</span>(rspde_fit_stat)</span></code></pre></div>
 <pre><code>## inlabru version: 2.11.1.9004
-## INLA version: 24.06.27
+## INLA version: 24.10.07-2
 ## Components:
 ## Intercept: main = linear(1), group = exchangeable(1L), replicate = iid(1L), NULL
 ## field: main = cgeneric(loc), group = exchangeable(1L), replicate = iid(1L), NULL
@@ -1066,10 +1066,10 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb26-1"><a h
 ##     Predictor: y ~ .
 ##     Used components: effects[Intercept, field], latent[]
 ## Time used:
-##     Pre = 0.148, Running = 7.62, Post = 0.561, Total = 8.32 
+##     Pre = 0.34, Running = 18.1, Post = 1.02, Total = 19.5 
 ## Fixed effects:
 ##             mean    sd 0.025quant 0.5quant 0.975quant   mode kld
-## Intercept 50.776 2.863     44.998   50.799     56.411 50.797   0
+## Intercept 50.783 2.833     45.086   50.804     56.352 50.801   0
 ## 
 ## Random effects:
 ##   Name     Model
@@ -1078,23 +1078,23 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb26-1"><a h
 ## Model hyperparameters:
 ##                                           mean    sd 0.025quant 0.5quant
 ## Precision for the Gaussian observations  0.020 0.002      0.016    0.020
-## Theta1 for field                        -2.355 0.175     -2.702   -2.354
-## Theta2 for field                        -0.854 0.195     -1.233   -0.856
-## Theta3 for field                         1.109 0.512      0.136    1.097
+## Theta1 for field                        -2.364 0.168     -2.696   -2.364
+## Theta2 for field                        -0.848 0.174     -1.190   -0.847
+## Theta3 for field                         1.078 0.323      0.430    1.081
 ##                                         0.975quant   mode
-## Precision for the Gaussian observations      0.024  0.020
-## Theta1 for field                            -2.013 -2.349
-## Theta2 for field                            -0.465 -0.864
-## Theta3 for field                             2.152  1.046
+## Precision for the Gaussian observations      0.024  0.019
+## Theta1 for field                            -2.036 -2.361
+## Theta2 for field                            -0.506 -0.847
+## Theta3 for field                             1.703  1.097
 ## 
-## Deviance Information Criterion (DIC) ...............: 2223.65
-## Deviance Information Criterion (DIC, saturated) ....: 413.60
-## Effective number of parameters .....................: 97.04
+## Deviance Information Criterion (DIC) ...............: 2223.14
+## Deviance Information Criterion (DIC, saturated) ....: 412.19
+## Effective number of parameters .....................: 95.95
 ## 
-## Watanabe-Akaike information criterion (WAIC) ...: 2218.52
-## Effective number of parameters .................: 75.57
+## Watanabe-Akaike information criterion (WAIC) ...: 2217.72
+## Effective number of parameters .................: 74.51
 ## 
-## Marginal log-Likelihood:  -1192.67 
+## Marginal log-Likelihood:  -1193.19 
 ##  is computed 
 ## Posterior summaries for the linear predictor and the fitted values are computed
 ## (Posterior marginals needs also &#39;control.compute=list(return.marginals.predictor=TRUE)&#39;)</code></pre>
@@ -1102,7 +1102,7 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb26-1"><a h
 class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">gets_summary_parameters</span>(rspde_fit_stat, rspde_model_stat)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["0.025quant"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["0.5quant"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["0.975quant"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["mode"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"50.7759266","2":"2.8628733","3":"44.9982763","4":"50.7993710","5":"56.411191","6":"50.7966846","_rn_":"Intercept"},{"1":"0.0963725","2":"0.0168223","3":"0.0672565","4":"0.0950541","5":"0.133168","6":"0.0925471","_rn_":"tau"},{"1":"0.4336430","2":"0.0852840","3":"0.2921680","4":"0.4245950","5":"0.626120","6":"0.4064340","_rn_":"kappa"},{"1":"1.4809400","2":"0.1865830","3":"1.0714600","4":"1.4982800","5":"1.789700","6":"1.5395700","_rn_":"nu"},{"1":"26.2107000","2":"4.0822400","3":"19.0877000","4":"25.9514000","5":"35.119600","6":"26.0259000","_rn_":"std.dev"},{"1":"8.1274900","2":"1.4524500","3":"5.6239800","4":"8.0142200","5":"11.295100","6":"7.7826500","_rn_":"range"},{"1":"1.4809400","2":"0.1865830","3":"1.0714600","4":"1.4982800","5":"1.789700","6":"1.5395700","_rn_":"nu1"},{"1":"7.1409893","2":"0.3858465","3":"6.4240191","4":"7.1250770","5":"7.938839","6":"7.0870077","_rn_":"sigma_e"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["0.025quant"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["0.5quant"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["0.975quant"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["mode"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"50.7827422","2":"2.8326179","3":"45.0864835","4":"50.8035035","5":"56.351608","6":"50.8009341","_rn_":"Intercept"},{"1":"0.0953644","2":"0.0159613","3":"0.0676564","4":"0.0940979","5":"0.130198","6":"0.0917009","_rn_":"tau"},{"1":"0.4349150","2":"0.0755741","3":"0.3051320","4":"0.4285590","5":"0.601203","6":"0.4156460","_rn_":"kappa"},{"1":"1.4828400","2":"0.1220940","3":"1.2148000","4":"1.4938500","5":"1.690650","6":"1.5188900","_rn_":"nu"},{"1":"26.6663000","2":"3.8110300","3":"20.0607000","4":"26.4231000","5":"35.065900","6":"26.8073000","_rn_":"std.dev"},{"1":"8.1464200","2":"1.3773400","3":"5.7839400","4":"8.0315100","5":"11.097200","6":"7.6864600","_rn_":"range"},{"1":"1.4828400","2":"0.1220940","3":"1.2148000","4":"1.4938500","5":"1.690650","6":"1.5188900","_rn_":"nu1"},{"1":"7.1428239","2":"0.3762497","3":"6.4371517","4":"7.1300191","5":"7.914494","6":"7.1038787","_rn_":"sigma_e"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Below we compute the predictions for the mesh and the data
@@ -1332,14 +1332,14 @@ are zoomed-in areas of the panel to the right.
 <div id="references" class="section level1">
 <h1>References</h1>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
-<p>We used R version 4.4.0 <span class="citation">(R Core Team
+<p>We used R version 4.4.1 <span class="citation">(R Core Team
 2024)</span> and the following R packages: cowplot v. 1.1.3 <span
 class="citation">(Wilke 2024)</span>, ggmap v. 4.0.0.900 <span
 class="citation">(Kahle and Wickham 2013)</span>, ggpubr v. 0.6.0 <span
 class="citation">(Kassambara 2023)</span>, ggtext v. 0.1.2 <span
 class="citation">(Wilke and Wiernik 2022)</span>, here v. 1.0.1 <span
 class="citation">(Müller 2020)</span>, htmltools v. 0.5.8.1 <span
-class="citation">(Cheng et al. 2024)</span>, INLA v. 24.6.27 <span
+class="citation">(Cheng et al. 2024)</span>, INLA v. 24.10.7.2 <span
 class="citation">(Rue, Martino, and Chopin 2009; Lindgren, Rue, and
 Lindström 2011; Martins et al. 2013; Lindgren and Rue 2015; De Coninck
 et al. 2016; Rue et al. 2017; Verbosio et al. 2017; Bakka et al. 2018;
@@ -1361,7 +1361,7 @@ Riederer 2020; Allaire et al. 2024)</span>, rSPDE v. 2.3.3.9000 <span
 class="citation">(Bolin and Kirchner 2020; Bolin and Simas 2023; Bolin,
 Simas, and Xiong 2024)</span>, scales v. 1.3.0 <span
 class="citation">(Wickham, Pedersen, and Seidel 2023)</span>, sf v.
-1.0.16 <span class="citation">(Pebesma 2018; Pebesma and Bivand
+1.0.17 <span class="citation">(Pebesma 2018; Pebesma and Bivand
 2023)</span>, tidyverse v. 2.0.0 <span class="citation">(Wickham et al.
 2019)</span>, viridis v. 0.6.4 <span class="citation">(Garnier et al.
 2023)</span>, xaringanExtra v. 0.8.0 <span class="citation">(Aden-Buie
