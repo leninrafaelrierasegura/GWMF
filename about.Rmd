@@ -6,12 +6,13 @@ title: "Contents of This Website"
 
     - [PeMS 1](pems_repl1.html)
     - [PeMS 2](pems_repl2.html)
-    - [PeMS 3](pems_repl3.html)
 
 2. Model Properties
 
     - [Model Properties 1](model_properties1.html)
     - [Model Properties 2](model_properties2.html)
+    - [Model Properties 3](marginal_sd.html)
+    - [Model Properties 4](tau_effect.html)
 
 3. Basis Functions
 

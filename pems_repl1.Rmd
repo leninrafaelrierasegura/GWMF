@@ -237,7 +237,7 @@ Matrix `Y` has dimension `r dim(Y)`. Each row of `Y` corresponds to a replicate 
 
 
 ```{r}
-plot(lines)
+#plot(lines)
 PtE |> head(5) |> paged_table()
 PtE |> dim()
 Y |> as.data.frame() |> head(5) |> paged_table()
@@ -286,7 +286,10 @@ graph <- metric_graph$new(edges = pems_repl$edges, longlat = TRUE)
 # Add the observations
 graph$add_observations(data = data.frame(y = Y_logstd, 
                                          edge_number = PtE[,1], 
-                                         distance_on_edge = PtE[,2]), 
+                                         distance_on_edge = PtE[,2]),
+                       edge_number = "edge_number",
+                       distance_on_edge = "distance_on_edge",
+                       data_coords = "PtE",
                        normalized = TRUE, 
                        clear_obs = TRUE)
 # Build the mesh
@@ -308,12 +311,11 @@ Below we fit $\log(\mathrm{sd}(s_i))\sim N(\beta_0+u(s_i), \sigma_e^2)$.
 rspde_model_stat <- rspde.metric_graph(graph,
                                        parameterization = "spde")
 # Prepare the data for fitting
-data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
-                                        loc_name = "loc")
+data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat, bru = TRUE)
 # Define the component
 cmp_stat <- y ~ -1 +
   Intercept(1) +
-  field(loc, model = rspde_model_stat)
+  field(cbind(.edge_number, .distance_on_edge), model = rspde_model_stat)
 # Fit the model
 rspde_fit_stat <-
   bru(cmp_stat,
@@ -330,10 +332,10 @@ We now compute the kriging predictor $E(u(s_i)|\log(\mathrm{sd}(s_i)))$ (denoted
 
 ```{r}
 # Prediction locations
-data_prd_list_mesh <- graph$get_mesh_locations(bru = TRUE, loc = "loc")
+data_prd_list_mesh <- graph$get_mesh_locations(bru = TRUE)
 # Compute the kriging predictor
-y_pred <- predict(rspde_model_stat, cmp_stat, rspde_fit_stat, newdata = data_prd_list_mesh, ~Intercept + field)
-cov_almost <- y_pred$pred$mean
+y_pred <- predict(rspde_fit_stat, newdata = data_prd_list_mesh, ~Intercept + field)
+cov_almost <- y_pred$mean
 # Standardize the kriging predictor of the log standard deviation
 cov <- (cov_almost - mean(cov_almost))/sd(cov_almost)
 ```
@@ -436,6 +438,9 @@ standardized_Y_logstd <- (Y_logstd - mean(Y_logstd))/sd(Y_logstd)
 graph$add_observations(data = data.frame(y = standardized_Y_logstd, 
                                          edge_number = PtE[,1], 
                                          distance_on_edge = PtE[,2]), 
+                       edge_number = "edge_number",
+                       distance_on_edge = "distance_on_edge",
+                       data_coords = "PtE",
                        normalized = TRUE, 
                        clear_obs = TRUE)
 g12 <- graph$plot(data = "y", vertex_size = 0, p = f12, edge_width = 0, data_size = 1) + 
@@ -503,6 +508,9 @@ We repeat the same process  but now for `Y_mean`. We first add the observations 
 graph$add_observations(data = data.frame(y = Y_mean, 
                                          edge_number = PtE[,1], 
                                          distance_on_edge = PtE[,2]),
+                       edge_number = "edge_number",
+                       distance_on_edge = "distance_on_edge",
+                       data_coords = "PtE",
                        normalized = TRUE, 
                        clear_obs = TRUE)
 ```
@@ -523,11 +531,11 @@ rspde_model_stat <- rspde.metric_graph(graph,
                                        parameterization = "spde")
 # Prepare the data for fitting
 data_rspde_bru_stat <- graph_data_rspde(rspde_model_stat,
-                                        loc_name = "loc")
+                                        bru = TRUE)
 # Define the component
 cmp_stat <- y ~ -1 +
   Intercept(1) +
-  field(loc, model = rspde_model_stat)
+  field(cbind(.edge_number, .distance_on_edge), model = rspde_model_stat)
 # Fit the model
 rspde_fit_stat <-
   bru(cmp_stat,
@@ -544,11 +552,11 @@ gets_summary_parameters(rspde_fit_stat, rspde_model_stat)
 Below we compute the predictions for the mesh and the data location.
 
 ```{r}
-mean_on_mesh_pred <- predict(rspde_model_stat, cmp_stat, rspde_fit_stat, newdata = data_prd_list_mesh, ~Intercept + field)
-cov_for_mean_to_plot <- mean_on_mesh_pred$pred$mean
+mean_on_mesh_pred <- predict(rspde_fit_stat, newdata = data_prd_list_mesh, ~Intercept + field)
+cov_for_mean_to_plot <- mean_on_mesh_pred$mean
 
-mean_on_loc_pred <- predict(rspde_model_stat, cmp_stat, rspde_fit_stat, newdata = list(loc = PtE), ~Intercept + field)
-cov_for_mean <- mean_on_loc_pred$pred$mean
+mean_on_loc_pred <- predict(rspde_fit_stat, newdata = rename(PtE, .edge_number = E, .distance_on_edge = length), ~Intercept + field)
+cov_for_mean <- mean_on_loc_pred$mean
 ```
 
 Below we check that the predicted mean is close to the observed mean.
@@ -667,7 +675,13 @@ df_rep <- lapply(1:nrow(Y), function(i){data.frame(y = Y[i,],
                                                    repl = i)})
 df_rep <- do.call(rbind, df_rep)
 
-graph$add_observations(data = df_rep, normalized = TRUE, clear_obs = TRUE, group = "repl")
+graph$add_observations(data = df_rep, 
+                       edge_number = "edge_number",
+                       distance_on_edge = "distance_on_edge",
+                       data_coords = "PtE",
+                       normalized = TRUE, 
+                       clear_obs = TRUE, 
+                       group = "repl")
 ```
 
 Below we plot replicate 14.

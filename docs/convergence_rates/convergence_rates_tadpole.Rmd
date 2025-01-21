@@ -222,13 +222,13 @@ sigma <- 1
 n.overkill = 1000
 
 # Mesh sizes
-h_aux <- seq(5.5, 4, by = -1/2)
+h_aux <- seq(5.5, 4.5, by = -1/4)
 h_vector <- 2^-h_aux
 h_label <- paste0("2^-", h_aux, "")
 h_label_latex <- sprintf("$2^{-%f}$", h_aux)
 
 # Alpha values
-alpha_aux <- c(8, 12, 13, 14, 15)
+alpha_aux <- c(6, 7, 8, 9, 12)
 alpha_vector <- alpha_aux/8
 alpha_label <- paste0(alpha_aux, "/8")
 theoretical_rate <- pmin(2*alpha_vector-1/2, 2)
@@ -298,7 +298,7 @@ for (j in 1:length(alpha_vector)) {
 
   for (i in 1:length(h_vector)) {
     h <- h_vector[i]
-    m <- min(20, ceiling((min(2*alpha - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract_alpha)))
+    m <- min(20, 5*ceiling((min(2*alpha - 1/2,2) + 1/2)^2*log(h)^2/(4*pi^2*fract_alpha)))
     m_values <- c(m_values, m)
 
     Sigma.ok.mesh <- matern.operators(alpha = alpha, # using overkill mesh
@@ -350,7 +350,7 @@ for (u in 1:length(alpha_vector)) {
   slope_tadpole_ok_mesh[u] <- coef(lm(log(cov.error.ok.mesh[,u]) ~ log(h_vector)))[2]
   }
 
-transposed_df <- data.frame(t(data.frame(alpha = alpha_label, theoretical_rate = theoretical_rate, slope1 = slope_tadpole_folded, slope2 = slope_tadpole_ok_mesh)))
+transposed_df <- data.frame(t(data.frame(alpha = alpha_vector, theoretical_rate = theoretical_rate, slope1 = slope_tadpole_folded, slope2 = slope_tadpole_ok_mesh)))
 rownames(transposed_df) <- c("alpha", "Theoretical rates", "Folded", "Overkill mesh")
 colnames(transposed_df) <- NULL
 # Display the transposed data frame
@@ -396,7 +396,7 @@ plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
 })
 
 df <- as.data.frame(cbind(h_vector, cov.error.ok.mesh))
-colnames(df) <- c("h_vector", alpha_label)
+colnames(df) <- c("h_vector", alpha_vector)
 df_melted <- melt(df, id.vars = "h_vector", variable.name = "column", value.name = "value")
 
 p <- ggplot() +
@@ -445,7 +445,7 @@ plot_lines <- lapply(1:ncol(guiding_lines), function(i) {
 })
 
 df <- as.data.frame(cbind(h_vector, cov.error.folded))
-colnames(df) <- c("h_vector", alpha_label)
+colnames(df) <- c("h_vector", alpha_vector)
 df_melted <- melt(df, id.vars = "h_vector", variable.name = "column", value.name = "value")
 
 q <- ggplot() +

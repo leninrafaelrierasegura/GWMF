@@ -237,7 +237,7 @@ model_for_kappa <- exp(B.kappa[,-1]%*%theta)
 Below we consider $\alpha = 0.9, 1.3, 2.1$ and compute the covariance between one point, say the $289$-th point, and all other points on the mesh. 
 
 ```{r}
-# Choose a row number, any between 1 and dim(est_cov_matrixi)[1]
+# Choose a row number, any between 1 and dim(est_cov_matrix1)[1]
 rownumber <- 289 
 # Choose alpha
 nu1 <- 0.4
@@ -352,25 +352,25 @@ p <- p3 %>%
            annotations = list(
              list(
                x = 3, y = 4, z = 0.38,
-               text = TeX("\\nu"),
+               text = TeX("\\alpha"),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "black", size = 16),
                arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
              list(
                x = 3, y = 4, z = 0.35,
-               text = TeX(paste0("\\bullet\\mbox{ ", nu1, "}")),
+               text = TeX(paste0("\\bullet\\mbox{ ", alpha1, "}")),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "blue", size = 16),
                arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
              list(
                x = 3, y = 4, z = 0.33,
-               text = TeX(paste0("\\bullet\\mbox{ ", nu2, "}")),
+               text = TeX(paste0("\\bullet\\mbox{ ", alpha2, "}")),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "red", size = 16),
                arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),
              list(
                x = 3, y = 4, z = 0.31,
-               text = TeX(paste0("\\bullet\\mbox{ ", nu3, "}")),
+               text = TeX(paste0("\\bullet\\mbox{ ", alpha3, "}")),
                textangle = 0, ax = 60, ay = 0,
                font = list(color = "darkgreen", size = 16),
                arrowcolor = "white", arrowsize = 1, arrowwidth = 0.1,arrowhead = 1),

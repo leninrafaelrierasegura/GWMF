@@ -13,14 +13,16 @@ navbar:
           href: pems_repl1.html
         - text: "PeMS 2"
           href: pems_repl2.html
-        - text: "PeMS 3"
-          href: pems_repl3.html  
     - text: "Model Properties"
       menu:
         - text: "Model Properties 1"
           href: model_properties1.html
         - text: "Model Properties 2"
           href: model_properties2.html
+        - text: "Model Properties 3"
+          href: marginal_sd.html
+        - text: "Model Properties 4"
+          href: tau_effect.html
     - text: "Basis Functions"
       href: basis_functions.html
     - text: "Approximation"
@@ -31,7 +33,7 @@ navbar:
       href: convergence_rates.html
   right:
     - icon: fa-github
-      href: https://github.com/leninrafaelrierasegura/GWMF
+      #href: https://github.com/leninrafaelrierasegura/GWMF
 output:
   html_document:
     highlight: textmate
